@@ -1,21 +1,31 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
 
 # rpicsa
 
 <!-- badges: start -->
-
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of rpicsa is to …
+The goal of rpicsa is to ...
 
 ## Installation
 
 You can install the development version of rpicsa like so:
 
-``` r
+```{r, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("IDEMSInternational/rpicsa")
 ```
@@ -24,7 +34,7 @@ devtools::install_github("IDEMSInternational/rpicsa")
 
 This is a basic example which shows you how to solve a common problem:
 
-``` r
+```{r example}
 library(rpicsa)
 ## basic example code
 ```
