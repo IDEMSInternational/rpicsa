@@ -2,13 +2,13 @@
 % Please edit documentation in R/annual_rain.R
 \name{annual_rain}
 \alias{annual_rain}
-\title{Annual rainfall summaries}
+\title{Annual total rainfall}
 \usage{
 annual_rain(
   data,
   date_time,
   rain,
-  year,
+  year = NULL,
   total_rain = TRUE,
   n_rain = TRUE,
   rain_day = 0.85,
@@ -21,38 +21,40 @@ annual_rain(
 )
 }
 \arguments{
-\item{data}{}
+\item{data}{The data.frame to calculate from.}
 
-\item{date_time}{}
+\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
 
-\item{rain}{}
+\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
 
-\item{year}{}
+\item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
 
-\item{total_rain}{}
+\item{total_rain}{\code{logical(1)} default \code{TRUE}. Display the total rainfall value for each year.}
 
-\item{n_rain}{}
+\item{n_rain}{\code{logical(1)} default \code{TRUE}. Display the number of rainfall days.}
 
-\item{rain_day}{}
+\item{rain_day}{\code{numerical(1)} If \code{n_rain = TRUE}, the minimum rainfall value in a day for that day to count as a rainfall day.}
 
-\item{station}{}
+\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
 
-\item{na_rm}{}
+\item{na_rm}{\code{logical(1)}. Should missing values (including \code{NaN}) be removed?}
 
-\item{na_prop}{}
+\item{na_prop}{\code{integer(1)} Max proportion of missing values allowed}
 
-\item{na_n}{}
+\item{na_n}{\code{integer(1)} Max number of missing values allowed}
 
-\item{na_consec}{}
+\item{na_consec}{\code{integer(1)} Max number of consecutive missing values allowed}
 
-\item{na_n_non}{}
+\item{na_n_non}{\code{integer(1)} Min number of non-missing values required}
 }
 \value{
 A data.frame with rainfall summaries for each year
 }
 \description{
-Annual rainfall summaries
+: Returns a summary data frame giving the total rainfall each year from 1 Jan to 31 Dec.
 }
 \examples{
-#TODO
+#daily_niger_1 <- daily_niger \%>\% dplyr::filter(year > 1960)
+#annual_rain(data = daily_niger, date_time  = "date", station = "station_name",
+#            rain = "rain", na_prop = 0.9)
 }
