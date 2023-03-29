@@ -31,6 +31,55 @@ start_rains(
   period_max_dry_days = 30
 )
 }
+\arguments{
+\item{data}{The data.frame to calculate from.}
+
+\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
+
+\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
+
+\item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+
+\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
+
+\item{threshold}{\code{numerical(1)} Threshold value for amount (mm) of rainfall in order to count it as a rainy day.}
+
+\item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
+
+\item{start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
+
+\item{end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
+
+\item{total_rainfall}{}
+
+\item{over_days}{}
+
+\item{amount_rain}{}
+
+\item{proportion}{}
+
+\item{prob_rain_day}{}
+
+\item{number_rain_days}{}
+
+\item{min_rain_days}{}
+
+\item{out_of_rain_days}{}
+
+\item{dry_spell}{}
+
+\item{spell_interval}{}
+
+\item{spell_max_dry_days}{}
+
+\item{dry_period}{}
+
+\item{period_interval}{}
+
+\item{max_rain}{}
+
+\item{period_max_dry_days}{}
+}
 \value{
 A data.frame with the date of the start of the rains for each year
 }
@@ -43,4 +92,6 @@ Start of the rains
 # TODO: add in skeleton function explanations
 # check against R-Instat function
 # read in "spells" function (cdms.products?)
+# TODO: option for doy, date, etc
+# TODO: checkmate:: functions
 }

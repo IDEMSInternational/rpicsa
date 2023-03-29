@@ -1,5 +1,30 @@
 #' Start of the rains
 #'
+#' @param data The data.frame to calculate from.
+#' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
+#' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
+#' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
+#' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
+#' @param threshold \code{numerical(1)} Threshold value for amount (mm) of rainfall in order to count it as a rainy day.
+#' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
+#' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
+#' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
+#' @param total_rainfall 
+#' @param over_days 
+#' @param amount_rain 
+#' @param proportion 
+#' @param prob_rain_day 
+#' @param number_rain_days 
+#' @param min_rain_days 
+#' @param out_of_rain_days 
+#' @param dry_spell 
+#' @param spell_interval 
+#' @param spell_max_dry_days 
+#' @param dry_period 
+#' @param period_interval 
+#' @param max_rain 
+#' @param period_max_dry_days 
+#'
 #' @return A data.frame with the date of the start of the rains for each year
 #' @export
 #'
@@ -8,6 +33,8 @@
 #' # TODO: add in skeleton function explanations
 #' # check against R-Instat function
 #' # read in "spells" function (cdms.products?)
+#' # TODO: option for doy, date, etc
+#' # TODO: checkmate:: functions
 start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL, threshold = 0.85,
                         doy = NULL, start_day = 1, end_day = 366,
                         total_rainfall = TRUE, over_days = 1, amount_rain = 20, proportion = FALSE, prob_rain_day = 0.8,
