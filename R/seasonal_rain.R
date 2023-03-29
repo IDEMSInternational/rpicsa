@@ -23,7 +23,7 @@ seasonal_rain <- function(data, date_time, rain, year = NULL, station = NULL,
   ## if start date is NULL, calculate it
   ## if end date is NULL, calculate it
   
-  # then merge the start/end date columns into the data frame:
+  # then merge the start/end date columns into the data frame?
   data <- dplyr::full_join(data, summary_data)
   # now we have start_date and end_date in the data.
   

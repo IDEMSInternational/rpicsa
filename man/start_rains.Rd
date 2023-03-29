@@ -4,7 +4,32 @@
 \alias{start_rains}
 \title{Start of the rains}
 \usage{
-start_rains()
+start_rains(
+  data,
+  date_time,
+  station = NULL,
+  year = NULL,
+  rain = NULL,
+  threshold = 0.85,
+  doy = NULL,
+  start_day = 1,
+  end_day = 366,
+  total_rainfall = TRUE,
+  over_days = 1,
+  amount_rain = 20,
+  proportion = FALSE,
+  prob_rain_day = 0.8,
+  number_rain_days = FALSE,
+  min_rain_days = 1,
+  out_of_rain_days = 2,
+  dry_spell = FALSE,
+  spell_interval = 21,
+  spell_max_dry_days = 9,
+  dry_period = FALSE,
+  period_interval = 45,
+  max_rain = 40,
+  period_max_dry_days = 30
+)
 }
 \value{
 A data.frame with the date of the start of the rains for each year
@@ -13,5 +38,9 @@ A data.frame with the date of the start of the rains for each year
 Start of the rains
 }
 \examples{
-#TODO
+#TODO#
+
+# TODO: add in skeleton function explanations
+# check against R-Instat function
+# read in "spells" function (cdms.products?)
 }
