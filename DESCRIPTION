@@ -13,9 +13,11 @@ Depends:
     R (>= 2.10)
 Imports:
     cdms.products,
+    checkmate,
     dplyr,
     lubridate,
     magrittr,
-    RcppRoll
+    RcppRoll,
+    stats
 Remotes:
     IDEMSInternational/cdms.products

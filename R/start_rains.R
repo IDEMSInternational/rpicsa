@@ -101,7 +101,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
       dplyr::mutate(roll_sum_rain = RcppRoll::roll_sumr(x = .data[[rain]], n = over_days, fill=NA, na.rm=FALSE))
     if (proportion){
       start_of_rains <- start_of_rains %>% 
-        mutate(wet_spell = quantile(x=roll_sum_rain, probs = prob_rain_day, na.rm=TRUE))
+        dplyr::mutate(wet_spell = stats::quantile(x=roll_sum_rain, probs = prob_rain_day, na.rm=TRUE))
     } else {
       wet_spell <- amount_rain
     }
