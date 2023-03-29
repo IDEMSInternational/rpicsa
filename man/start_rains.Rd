@@ -14,6 +14,7 @@ start_rains(
   doy = NULL,
   start_day = 1,
   end_day = 366,
+  output = c("doy", "date", "both"),
   total_rainfall = TRUE,
   over_days = 1,
   amount_rain = 20,
@@ -21,7 +22,7 @@ start_rains(
   prob_rain_day = 0.8,
   number_rain_days = FALSE,
   min_rain_days = 1,
-  out_of_rain_days = 2,
+  rain_day_interval = 2,
   dry_spell = FALSE,
   spell_interval = 21,
   spell_max_dry_days = 9,
@@ -50,48 +51,46 @@ start_rains(
 
 \item{end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
 
-\item{total_rainfall}{}
+\item{output}{\code{character(1)} whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
 
-\item{over_days}{}
+\item{total_rainfall}{\code{logical(1)} default \code{TRUE}. Start of the rains to be defined by the total or proportion of rainfall over a period.}
 
-\item{amount_rain}{}
+\item{over_days}{\code{numerical(1)} Only works if \code{total_rainfall = TRUE}. This is the number of days to total the rainfall over.}
 
-\item{proportion}{}
+\item{amount_rain}{\code{numerical(1)} If \code{total_rainfall = TRUE} and \code{proportion = FALSE}, the amount of rainfall to expect over the period defined in \code{over_days}.}
 
-\item{prob_rain_day}{}
+\item{proportion}{\code{logical(1)} default \code{FALSE}, only valid if \code{total_rainfall = TRUE}. If \code{TRUE}, Start of the rains to be defined by proportion of rainfall over a period. This proportion is given in \code{prob_rain_day}. Otherwise, defined by the amount of rainfall over a period. The amount is given in \code{amount_rain}.}
 
-\item{number_rain_days}{}
+\item{prob_rain_day}{\code{numerical(1)} Only works if \code{total_rainfall = TRUE} and \code{proportion = TRUE} This is the number}
 
-\item{min_rain_days}{}
+\item{number_rain_days}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by the number of rainy days (\code{min_rain_days}) over a period. The period is given in days in the \code{rain_day_interval} parameter.}
 
-\item{out_of_rain_days}{}
+\item{min_rain_days}{\code{numerical(1)} Only if \code{number_rain_days = TRUE}. This is the minimum number of rainy days to define start of rains in a given period. The period is given in days in the \code{rain_day_interval} parameter.}
 
-\item{dry_spell}{}
+\item{rain_day_interval}{\code{numerical(1)} Only if \code{number_rain_days = TRUE}, the interval in days that the \code{number_rain_days} is defined in.}
 
-\item{spell_interval}{}
+\item{dry_spell}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by a maximum number of dry days (\code{spell_max_dry_days}) over a given period of days (\code{spell_interval}).}
 
-\item{spell_max_dry_days}{}
+\item{spell_interval}{\code{numerical(1)} Only if \code{dry_spell = TRUE}, the interval in days that the \code{dry_spell} is defined in.}
 
-\item{dry_period}{}
+\item{spell_max_dry_days}{\code{numerical(1)} Only if \code{dry_spell = TRUE}. This is the maximum number of dry days to define start of rains in a given period. The period is given in days in the \code{spell_interval} parameter.}
 
-\item{period_interval}{}
+\item{dry_period}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by the maximum rain and maximum dry days in a given interval. The maximum rainfall amount is given in the \code{max_rain} parameter, the maximum dry days is given in the \code{period_max_dry_days} parameter, and the interval length is given in the \code{period_interval} parameter.}
 
-\item{max_rain}{}
+\item{period_interval}{\code{numerical(1)} Only if \code{dry_period = TRUE}, the interval in days that the \code{dry_period} is defined in.}
 
-\item{period_max_dry_days}{}
+\item{max_rain}{\code{numerical(1)} Only if \code{dry_period = TRUE}, the maximum rainfall to occur in a given period.}
+
+\item{period_max_dry_days}{\code{numerical(1)} Only if \code{dry_period = TRUE}. the maximum period of dry days to occur in a given period.}
 }
 \value{
 A data.frame with the date of the start of the rains for each year
 }
 \description{
-Start of the rains
+Used to present or summarise daily rainfall data in a way that corresponds to the start of the rainy season for many definitions.
 }
 \examples{
 #TODO#
-
-# TODO: add in skeleton function explanations
 # check against R-Instat function
 # read in "spells" function (cdms.products?)
-# TODO: option for doy, date, etc
-# TODO: checkmate:: functions
 }
