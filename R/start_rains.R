@@ -115,7 +115,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   }
   if (dry_spell){
     start_of_rains <- start_of_rains %>% 
-      dplyr::mutate(dry_spell = .spells(x=rain_day == 0),
+      dplyr::mutate(dry_spell = cdms.products::spells(x=rain_day == 0),
                     roll_max_dry_spell = dplyr::lead(x=RcppRoll::roll_maxl(x = dry_spell, n = spell_interval, fill=NA)))
   } else {
     start_of_rains <- start_of_rains %>% 
