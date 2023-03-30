@@ -5,7 +5,7 @@
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param start_rains \code{character(1)} The name of the start of rains column in \code{data}. This can be calculated by the `start_rains` function.
 #' @param format_SOR \code{character(1)} Whether `start_rains` is given as `1-366` or `1-365`, if `doy` is given instead of `date`.
-#' @param specified_day \code{\link[base]{Date(1)}} or \code{character(1)}. The specified date or day-of-year to calculate the probability of rain before. If a doy value is given, it is assumed to follow the same format as the value given in `format_SOR`.
+#' @param specified_day \code{\link[base]{Date}} or \code{character(1)}. The specified date or day-of-year to calculate the probability of rain before. If a doy value is given, it is assumed to follow the same format as the value given in `format_SOR`.
 #' @param format_day \code{character(1)} Whether the value given in `specified_day` is the `date`, `doy` (day of year 1-366), or `doy_365` (day of year 1-365) value.
 #' @param date_format \code{character(1)} The date format as used by `base::strptime`.
 #' 
@@ -16,7 +16,7 @@
 #' #x <- start_rains(daily_niger, date_time = "date", station = "station_name", rain = "rain")
 #' #season_start_date_p(x, station = "station_name", start_rains = "start_rain", specified_day = 150,
 #' #                    format_day = "doy")
-season_start_date_p <- function(data, station = NULL, start_rains, format_SOR = c("366", "365"), specified_day, format_day = c("date", "doy", "doy_365"), date_format = "%Y-%m-%d") {
+probability_season_start <- function(data, station = NULL, start_rains, format_SOR = c("366", "365"), specified_day, format_day = c("date", "doy", "doy_365"), date_format = "%Y-%m-%d") {
   format_SOR <- match.arg(format_SOR)
   format_day <- match.arg(format_day)
   
