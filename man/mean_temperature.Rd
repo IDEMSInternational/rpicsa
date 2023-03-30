@@ -10,6 +10,7 @@ mean_temperature(
   tmin = NULL,
   tmax = NULL,
   year = NULL,
+  month = NULL,
   station = NULL,
   to = c("annual", "monthly"),
   na_rm = FALSE,
@@ -29,6 +30,8 @@ mean_temperature(
 \item{tmax}{\code{character(1)} The name of the maximum temperature column in \code{data} to apply the function to.}
 
 \item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+
+\item{month}{\code{character(1)} The name of the month column in \code{data}. If \code{NULL} it will be created using \code{lubridate::month(data[[date_time]])}.}
 
 \item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
 

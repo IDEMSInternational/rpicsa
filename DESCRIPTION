@@ -18,6 +18,7 @@ Imports:
     lubridate,
     magrittr,
     RcppRoll,
-    stats
+    stats,
+    testthat
 Remotes:
     IDEMSInternational/cdms.products

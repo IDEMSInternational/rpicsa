@@ -6,6 +6,7 @@
 #' @param tmin \code{character(1)} The name of the minimum temperature column in \code{data} to apply the function to.
 #' @param tmax \code{character(1)} The name of the maximum temperature column in \code{data} to apply the function to.
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
+#' @param month \code{character(1)} The name of the month column in \code{data}. If \code{NULL} it will be created using \code{lubridate::month(data[[date_time]])}.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param to \code{character(1)} Default `annual`. The period of time to calculate the mean temperature columns over (options are `annual` or `monthly`).
 #' @param na_rm \code{logical(1)}. Should missing values (including \code{NaN}) be removed?
@@ -22,13 +23,13 @@
 #' #             tmax = "tmax", tmin = "tmin", na_prop = 0.05)
 
 mean_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
-                        station = NULL, to = c("annual", "monthly"), na_rm = FALSE,
-                        na_prop = NULL, na_n = NULL, 
-                        na_consec = NULL, na_n_non = NULL) {
+                             month = NULL, station = NULL, to = c("annual", "monthly"),
+                             na_rm = FALSE, na_prop = NULL, na_n = NULL, 
+                             na_consec = NULL, na_n_non = NULL) {
   to <- match.arg(to)
   cdms.products::climatic_summary(data = data, date_time = date_time, 
                                   station = station, elements = c(tmin, tmax),
-                                  year = year, to = to, 
+                                  year = year, month = month, to = to, 
                                   summaries = c(mean = "mean"), na_rm = na_rm, 
                                   na_prop = na_prop, na_n = na_n, 
                                   na_n_non = na_n_non, names = "{.fn}_{.col}")
