@@ -18,10 +18,10 @@
 #' @export
 #'
 #' @examples #daily_niger_1 <- daily_niger %>% filter(year < 1950)
-#' #summary_temp(data = daily_niger_1, date_time  = "date", station = "station_name",
+#' #mean_temperature(data = daily_niger_1, date_time  = "date", station = "station_name",
 #' #             tmax = "tmax", tmin = "tmin", na_prop = 0.05)
 
-summary_temp <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
+mean_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
                         station = NULL, to = c("annual", "monthly"), na_rm = FALSE,
                         na_prop = NULL, na_n = NULL, 
                         na_consec = NULL, na_n_non = NULL) {
