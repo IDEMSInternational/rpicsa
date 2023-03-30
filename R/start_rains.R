@@ -10,7 +10,7 @@
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
-#' @param output \code{character(1)} whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
+#' @param output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
 #' @param total_rainfall \code{logical(1)} default `TRUE`. Start of the rains to be defined by the total or proportion of rainfall over a period.
 #' @param over_days \code{numerical(1)} Only works if `total_rainfall = TRUE`. This is the number of days to total the rainfall over.
 #' @param amount_rain \code{numerical(1)} If `total_rainfall = TRUE` and `proportion = FALSE`, the amount of rainfall to expect over the period defined in `over_days`. 
@@ -27,7 +27,7 @@
 #' @param period_max_dry_days \code{numerical(1)} Only if `dry_period = TRUE`. the maximum period of dry days to occur in a given period.
 #' @param period_interval \code{numerical(1)} Only if `dry_period = TRUE`, the interval in days that the `dry_period` is defined in.
 #' 
-#' @return A data.frame with the date of the start of the rains for each year
+#' @return A data.frame with the date and/or day of year for the start of the rains for each year
 #' @export
 #'
 #' @examples #TODO#
@@ -126,7 +126,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
       dplyr::mutate(roll_sum_rain_dry_period = dplyr::lead(x=RcppRoll::roll_suml(x=.data[[rain]], period_max_dry_days, fill=NA)),
                     n_dry_period = RcppRoll::roll_suml(x=roll_sum_rain_dry_period <= max_rain, n = period_interval - period_max_dry_days + 1, fill=NA, na.rm=FALSE))
   }
-
+  
   # filters 
   if (total_rainfall){
     start_of_rains <- start_of_rains %>% 
@@ -165,8 +165,8 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   } else {
     start_of_rains <- start_of_rains %>%
       dplyr::summarise(start_rain_doy = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
-                                           NA,
-                                           dplyr::first(x=.data[[doy]], default=NA)),
+                                               NA,
+                                               dplyr::first(x=.data[[doy]], default=NA)),
                        start_rain_date = dplyr::if_else(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
                                                         as.Date(NA),
                                                         dplyr::first(.data[[date_time]], default=NA)))

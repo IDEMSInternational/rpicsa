@@ -51,7 +51,7 @@ start_rains(
 
 \item{end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
 
-\item{output}{\code{character(1)} whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
+\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
 
 \item{total_rainfall}{\code{logical(1)} default \code{TRUE}. Start of the rains to be defined by the total or proportion of rainfall over a period.}
 
@@ -84,7 +84,7 @@ start_rains(
 \item{period_max_dry_days}{\code{numerical(1)} Only if \code{dry_period = TRUE}. the maximum period of dry days to occur in a given period.}
 }
 \value{
-A data.frame with the date of the start of the rains for each year
+A data.frame with the date and/or day of year for the start of the rains for each year
 }
 \description{
 Used to present or summarise daily rainfall data in a way that corresponds to the start of the rainy season for many definitions.

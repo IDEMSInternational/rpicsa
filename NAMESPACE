@@ -2,6 +2,7 @@
 
 export("%>%")
 export(annual_rain)
+export(end_rains)
 export(mean_temperature)
 export(seasonal_rain)
 export(start_rains)
