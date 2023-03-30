@@ -32,7 +32,6 @@
 #'
 #' @examples #TODO#
 #' # check against R-Instat function
-#' # read in "spells" function (cdms.products?)
 start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL, threshold = 0.85,
                         doy = NULL, start_day = 1, end_day = 366, output = c("doy", "date", "both"),
                         total_rainfall = TRUE, over_days = 1, amount_rain = 20, proportion = FALSE, prob_rain_day = 0.8,

@@ -92,5 +92,4 @@ Used to present or summarise daily rainfall data in a way that corresponds to th
 \examples{
 #TODO#
 # check against R-Instat function
-# read in "spells" function (cdms.products?)
 }
