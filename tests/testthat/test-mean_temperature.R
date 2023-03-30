@@ -1,7 +1,6 @@
 library(rpicsa)
 library(cdms.products) # for niger data
 library(dplyr)
-library(naflex)
 
 # Testing mean_temperature function --------------------
 
