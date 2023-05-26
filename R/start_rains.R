@@ -46,7 +46,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
                     checkmate::check_posixct(data[[date_time]],  null.ok = TRUE))
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
-  checkmate::assert_string(doy, null.ok = TRUE)
+  #checkmate::assert_string(doy, null.ok = TRUE)
   # if (!is.null(station)) cdms.products:::assert_column_names(data, station)
   # if (!is.null(date_time)) cdms.products:::assert_column_names(data, date_time)
   # if (!is.null(year)) cdms.products:::assert_column_names(data, year)
@@ -76,11 +76,11 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   output <- match.arg(output)
   
   # calculate doy, year from date
-  if(is.null(year)) {
+  if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
     year <- "year"
     data[[year]] <- lubridate::year(data[[date_time]])
   }
-  if(is.null(doy)) {
+  if(!doy %in% names(data)) {
     doy <- "doy"
     data[[doy]] <- cdms.products::yday_366(data[[date_time]])
   }

@@ -42,11 +42,11 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   output <- match.arg(output)
   
   # calculate doy, year from date
-  if(is.null(year)) {
+  if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
     year <- "year"
     data[[year]] <- lubridate::year(data[[date_time]])
   }
-  if(is.null(doy)) {
+  if(!doy %in% names(data)) {
     doy <- "doy"
     data[[doy]] <- cdms.products::yday_366(data[[date_time]])
   }
