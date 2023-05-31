@@ -111,7 +111,7 @@ crops_definitions <- function(data, date_time, station = NULL, rain, year = NULL
   df <- df %>% dplyr::group_by(.data[[rain_total_name]], .data[[plant_day_name]], .data[[plant_length_name]], .add = TRUE)
   
   # get definitions
-  df <- df %>% summarise(prop_success = sum(overall_cond, na.rm = TRUE)/length(na.omit(overall_cond)))
+  df <- df %>% dplyr::summarise(prop_success = sum(overall_cond, na.rm = TRUE)/length(na.omit(overall_cond)))
   df$prop_success <- round(df$prop_success, 2)
   return(df)
   }
