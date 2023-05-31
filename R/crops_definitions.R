@@ -79,7 +79,9 @@ crops_definitions <- function(data, date_time, station = NULL, rain, year = NULL
   
   # TODO: just the complete cases for start / end rains.
   df <- df %>% dplyr::filter(complete.cases(df))
-
+  # TODO: what if not yday366 assumption for them?
+  if (is.Date(df[[start_day]])) df[[start_day]] <- cdms.products::yday_366(df[[start_day]])
+  if (is.Date(df[[end_day]])) df[[end_day]] <- cdms.products::yday_366(df[[end_day]])
   # Plant day condition
   if(start_check) {
     df$plant_day_cond <- (df[[start_day]] <= df[[plant_day_name]])
