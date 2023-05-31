@@ -1,5 +1,5 @@
 #' Annual total rainfall
-#' @description: Returns a summary data frame giving the total rainfall each year from 1 Jan to 31 Dec.
+#' @description Returns a summary data frame giving the total rainfall each year from 1 Jan to 31 Dec.
 #' 
 #' @param data The data.frame to calculate from.
 #' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.

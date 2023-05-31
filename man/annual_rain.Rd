@@ -51,7 +51,7 @@ annual_rain(
 A data.frame with rainfall summaries for each year
 }
 \description{
-: Returns a summary data frame giving the total rainfall each year from 1 Jan to 31 Dec.
+Returns a summary data frame giving the total rainfall each year from 1 Jan to 31 Dec.
 }
 \examples{
 #daily_niger_1 <- daily_niger \%>\% dplyr::filter(year > 1960)
