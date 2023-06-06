@@ -38,7 +38,7 @@ probability_season_start <- function(data, station = NULL, start_rains, format_S
     if (format_SOR == "366"){
       .data[[start_rains]] <- cdms.products::yday_366(as.Date(data[[start_rains]], format = date_format))
     } else {
-      .data[[start_rains]] <- yday(as.Date(data[[start_rains]], format = date_format))
+      .data[[start_rains]] <- lubridate::yday(as.Date(data[[start_rains]], format = date_format))
     }
   }
   data <- data %>%
