@@ -59,7 +59,7 @@ crops_definitions <- function(data, date_time, station = NULL, rain, year = NULL
   expand_list <- list()
   names_list <- c()
   if(is_station) {
-    unique_station <- na.omit(unique(data[[station]]))
+    unique_station <- stats::na.omit(unique(data[[station]]))
     expand_list[[length(expand_list) + 1]] <- unique_station
     names_list[length(names_list) + 1] <- station
   }
@@ -71,17 +71,17 @@ crops_definitions <- function(data, date_time, station = NULL, rain, year = NULL
   names_list[length(names_list) + 1] <- plant_day_name
   expand_list[[length(expand_list) + 1]] <- unique(data[[year]])
   names_list[length(names_list) + 1] <- year
-  df <- setNames(expand.grid(expand_list), names_list)
+  df <- stats::setNames(expand.grid(expand_list), names_list)
     join_by <- by
     vars <- c(join_by, start_day, end_day)
-    season_data <- season_data %>% dplyr::select(all_of({{ vars }}))
+    season_data <- season_data %>% dplyr::select(dplyr::all_of({{ vars }}))
     df <- dplyr::left_join(df, season_data, by = join_by)
   
   # TODO: just the complete cases for start / end rains.
-  df <- df %>% dplyr::filter(complete.cases(df))
+  df <- df %>% dplyr::filter(stats::complete.cases(df))
   # TODO: what if not yday366 assumption for them?
-  if (is.Date(df[[start_day]])) df[[start_day]] <- cdms.products::yday_366(df[[start_day]])
-  if (is.Date(df[[end_day]])) df[[end_day]] <- cdms.products::yday_366(df[[end_day]])
+  if (lubridate::is.Date(df[[start_day]])) df[[start_day]] <- cdms.products::yday_366(df[[start_day]])
+  if (lubridate::is.Date(df[[end_day]])) df[[end_day]] <- cdms.products::yday_366(df[[end_day]])
   # Plant day condition
   if(start_check) {
     df$plant_day_cond <- (df[[start_day]] <= df[[plant_day_name]])

@@ -25,7 +25,7 @@ probability_season_start <- function(data, station = NULL, start_rains, format_S
     if (format_SOR == "366"){
       specified_day <- cdms.products::yday_366(as.Date(specified_day, format = date_format))
     } else {
-      specified_day <- yday(as.Date(specified_day, format = date_format))
+      specified_day <- lubridate::yday(as.Date(specified_day, format = date_format))
     }
   } else if (format_day == "doy_365" && format_SOR == "366"){
     if (specified_day > 59) specified_day <- specified_day + 1
@@ -34,7 +34,7 @@ probability_season_start <- function(data, station = NULL, start_rains, format_S
     if (specified_day > 59) specified_day <- specified_day - 1
   }
   # transform date variable to doy for the start_rains (the same doy 1-366 as SOR)
-  if (is.Date(data[[start_rains]])){
+  if (lubridate::is.Date(data[[start_rains]])){
     if (format_SOR == "366"){
       .data[[start_rains]] <- cdms.products::yday_366(as.Date(data[[start_rains]], format = date_format))
     } else {
@@ -46,11 +46,11 @@ probability_season_start <- function(data, station = NULL, start_rains, format_S
   if (is.null(data[[station]])){
     summary_proportion <- data %>%
       dplyr::group_by(.data[[station]], .drop = FALSE) %>%
-      dplyr::mutate(total_n = n()) %>%
+      dplyr::mutate(total_n = dplyr::n()) %>%
       dplyr::summarise(proportion = sum(LT, na.rm = TRUE)/total_n)
   } else {
     summary_proportion <- data %>%
-      dplyr::summarise(proportion = sum(LT, na.rm = TRUE)/n())
+      dplyr::summarise(proportion = sum(LT, na.rm = TRUE)/dplyr::n())
   }
   return(summary_proportion)
 }
