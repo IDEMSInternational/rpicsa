@@ -7,11 +7,49 @@
 #' If `NULL`, `start_date` and `end_date` are calculated from the `start_of_rains` and `end_of_season` functions respectively.
 #' @param start_date \code{character(1)} The name of the start of rains column in \code{summary_data}. If \code{NULL} it will be created using the \code{start_of_rains} function.
 #' @param end_date \code{character(1)} The name of the end of season column in \code{summary_data}. If \code{NULL} it will be created using the \code{end_of_seasons} function.
-#'
+#' @param data The daily data.frame to calculate rainfall from.
+#' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
+#' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
+#' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
+#' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
+#' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
+#' @param total_rain \code{logical(1)} default `TRUE`. Display the total rainfall value for each year.
+#' @param n_rain \code{logical(1)} default `TRUE`. Display the number of rainfall days.
+#' @param rain_day \code{numerical(1)} If `n_rain = TRUE`, the minimum rainfall value in a day for that day to count as a rainfall day.
+#' @param na_rm \code{logical(1)}. Should missing values (including \code{NaN}) be removed?
+#' @param na_prop \code{integer(1)} Max proportion of missing values allowed
+#' @param na_n \code{integer(1)} Max number of missing values allowed
+#' @param na_consec \code{integer(1)} Max number of consecutive missing values allowed
+#' @param na_n_non \code{integer(1)} Min number of non-missing values required
+#' @param sor_start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
+#' @param sor_end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
+#' @param sor_output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
+#' @param sor_total_rainfall \code{logical(1)} default `TRUE`. Start of the rains to be defined by the total or proportion of rainfall over a period.
+#' @param sor_over_days \code{numerical(1)} Only works if `total_rainfall = TRUE`. This is the number of days to total the rainfall over.
+#' @param sor_amount_rain \code{numerical(1)} If `total_rainfall = TRUE` and `proportion = FALSE`, the amount of rainfall to expect over the period defined in `over_days`. 
+#' @param sor_proportion \code{logical(1)} default `FALSE`, only valid if `total_rainfall = TRUE`. If `TRUE`, Start of the rains to be defined by proportion of rainfall over a period. This proportion is given in `prob_rain_day`. Otherwise, defined by the amount of rainfall over a period. The amount is given in `amount_rain`.
+#' @param sor_prob_rain_day \code{numerical(1)} Only works if `total_rainfall = TRUE` and `proportion = TRUE` This is the number 
+#' @param sor_number_rain_days \code{logical(1)} default `FALSE`. If `TRUE`, define start of the rains by the number of rainy days (`min_rain_days`) over a period. The period is given in days in the `rain_day_interval` parameter.
+#' @param sor_min_rain_days \code{numerical(1)} Only if `number_rain_days = TRUE`. This is the minimum number of rainy days to define start of rains in a given period. The period is given in days in the `rain_day_interval` parameter.
+#' @param sor_rain_day_interval \code{numerical(1)} Only if `number_rain_days = TRUE`, the interval in days that the `number_rain_days` is defined in.
+#' @param sor_dry_spell \code{logical(1)} default `FALSE`. If `TRUE`, define start of the rains by a maximum number of dry days (`spell_max_dry_days`) over a given period of days (`spell_interval`).
+#' @param sor_spell_max_dry_days \code{numerical(1)} Only if `dry_spell = TRUE`. This is the maximum number of dry days to define start of rains in a given period. The period is given in days in the `spell_interval` parameter.
+#' @param sor_spell_interval \code{numerical(1)} Only if `dry_spell = TRUE`, the interval in days that the `dry_spell` is defined in.
+#' @param sor_dry_period \code{logical(1)} default `FALSE`. If `TRUE`, define start of the rains by the maximum rain and maximum dry days in a given interval. The maximum rainfall amount is given in the `max_rain` parameter, the maximum dry days is given in the `period_max_dry_days` parameter, and the interval length is given in the `period_interval` parameter. 
+#' @param sor_max_rain \code{numerical(1)} Only if `dry_period = TRUE`, the maximum rainfall to occur in a given period.
+#' @param sor_period_max_dry_days \code{numerical(1)} Only if `dry_period = TRUE`. the maximum period of dry days to occur in a given period.
+#' @param sor_period_interval \code{numerical(1)} Only if `dry_period = TRUE`, the interval in days that the `dry_period` is defined in.
+#' @param eos_start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
+#' @param eos_end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
+#' @param eos_interval_length \code{numerical(1)} Number of days for the minimum rainfall to fall in.
+#' @param eos_min_rainfall \code{numerical(1)} Minimum amount of rainfall to occur on the set of days defined in `interval_length`.
 #' @return A data.frame with rainfall summaries for each year in the specified season (between start of the rains and end of season).
 #' @export
 #'
 #' @examples # TODO
+#' library(cdms.products)
+#' data(daily_niger)
+#' 
 #' seasonal_rain(data = daily_niger, station = "station_name", date_time = "date",
 #' year = "year", doy = "doy", rain = "rain")
 #' 

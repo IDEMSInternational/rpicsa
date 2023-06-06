@@ -19,6 +19,7 @@ Imports:
     magrittr,
     RcppRoll,
     stats,
-    testthat
+    testthat,
+    tidyr
 Remotes:
     IDEMSInternational/cdms.products

@@ -1,17 +1,15 @@
 #' Length of the season
 #' @description Number of days between start of the rains and end of the season
 #'
-#' @inheritParams start_rains
-#' @inheritParams end_rains
-#' @param summary_data Summary data frame containing the `start_date` and `end_date` variables. These variables are calculated from start of rains and end of season functions.
-#' If `NULL`, `start_date` and `end_date` are calculated from the `start_of_rains` and `end_of_season` functions respectively.
-#' @param start_date \code{character(1)} The name of the start of rains column in \code{summary_data}. If \code{NULL} it will be created using the \code{start_of_rains} function.
-#' @param end_date \code{character(1)} The name of the end of season column in \code{summary_data}. If \code{NULL} it will be created using the \code{end_of_seasons} function.
+#' @inheritParams seasonal_rain
 #'
-#' @return A data.frame with rainfall summaries for each year in the specified season (between start of the rains and end of season).
+#' @return A data.frame with length of rainfall season for each year in the specified season (between start of the rains and end of season).
 #' @export
 #'
 #' @examples # Example of season
+#' library(cdms.products)
+#' data(daily_niger)
+#' 
 #' seasonal_length(data = daily_niger, station = "station_name", date_time = "date",
 #' year = "year", doy = "doy", rain = "rain")
 #' 
