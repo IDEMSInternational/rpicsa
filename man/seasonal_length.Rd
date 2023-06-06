@@ -14,7 +14,7 @@ seasonal_length(
   year = NULL,
   station = NULL,
   doy = NULL,
-  threshold = 0.85,
+  threshhold = 0.85,
   sor_start_day = 1,
   sor_end_day = 366,
   sor_total_rainfall = TRUE,
@@ -57,6 +57,8 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 \item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
 
 \item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
+
+\item{threshhold}{\code{numerical(1)} threshhold value for amount (mm) of rainfall in order to count it as a rainy day.}
 
 \item{sor_start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
 

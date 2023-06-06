@@ -22,7 +22,7 @@ seasonal_rain(
   na_n = NULL,
   na_consec = NULL,
   na_n_non = NULL,
-  threshold = 0.85,
+  threshhold = 0.85,
   sor_start_day = 1,
   sor_end_day = 366,
   sor_total_rainfall = TRUE,
@@ -81,6 +81,8 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 \item{na_consec}{\code{integer(1)} Max number of consecutive missing values allowed}
 
 \item{na_n_non}{\code{integer(1)} Min number of non-missing values required}
+
+\item{threshhold}{\code{numerical(1)} threshhold value for amount (mm) of rainfall in order to count it as a rainy day.}
 
 \item{sor_start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
 
@@ -150,5 +152,5 @@ start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", s
 
 # Or to create one of the start rains in the function:
 summary_data <- end_output
-start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", end_date = "end_rain", rain = "rain", threshold = 20)
+start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", end_date = "end_rain", rain = "rain", threshhold = 20)
 }

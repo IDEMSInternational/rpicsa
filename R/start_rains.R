@@ -6,7 +6,7 @@
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
-#' @param threshold \code{numerical(1)} Threshold value for amount (mm) of rainfall in order to count it as a rainy day.
+#' @param threshhold \code{numerical(1)} threshhold value for amount (mm) of rainfall in order to count it as a rainy day.
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
@@ -32,7 +32,7 @@
 #'
 #' @examples #TODO#
 #' # check against R-Instat function
-start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL, threshold = 0.85,
+start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL, threshhold = 0.85,
                         doy = NULL, start_day = 1, end_day = 366, output = c("doy", "date", "both"),
                         total_rainfall = TRUE, over_days = 1, amount_rain = 20, proportion = FALSE, prob_rain_day = 0.8,
                         number_rain_days = FALSE, min_rain_days = 1, rain_day_interval = 2,
@@ -93,7 +93,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   
   # start of rains can only occur on a day that rains
   start_of_rains <- start_of_rains %>% 
-    dplyr::mutate(rain_day = .data[[rain]] >= threshold)
+    dplyr::mutate(rain_day = .data[[rain]] >= threshhold)
   
   # different conditions
   if (total_rainfall){
@@ -130,19 +130,19 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   # filters 
   if (total_rainfall){
     start_of_rains <- start_of_rains %>% 
-      dplyr::filter(((.data[[rain]] >= threshold) & roll_sum_rain > wet_spell) | is.na(x = .data[[rain]]) | is.na(x=roll_sum_rain), .preserve = TRUE)
+      dplyr::filter(((.data[[rain]] >= threshhold) & roll_sum_rain > wet_spell) | is.na(x = .data[[rain]]) | is.na(x=roll_sum_rain), .preserve = TRUE)
   }
   if (number_rain_days){
     start_of_rains <- start_of_rains %>% 
-      dplyr::filter(((.data[[rain]] >= threshold) & roll_n_rain_days >= min_rain_days) | is.na(x = .data[[rain]]) | is.na(x=roll_n_rain_days), .preserve = TRUE)
+      dplyr::filter(((.data[[rain]] >= threshhold) & roll_n_rain_days >= min_rain_days) | is.na(x = .data[[rain]]) | is.na(x=roll_n_rain_days), .preserve = TRUE)
   }
   if (dry_spell){
     start_of_rains <- start_of_rains %>% 
-      dplyr::filter(((.data[[rain]] >= threshold) & roll_max_dry_spell <= spell_max_dry_days) | is.na(x = .data[[rain]]) | is.na(x = roll_max_dry_spell), .preserve = TRUE)
+      dplyr::filter(((.data[[rain]] >= threshhold) & roll_max_dry_spell <= spell_max_dry_days) | is.na(x = .data[[rain]]) | is.na(x = roll_max_dry_spell), .preserve = TRUE)
   }
   if (dry_period){
     start_of_rains <- start_of_rains %>% 
-      dplyr::filter(((.data[[rain]] >= threshold) & n_dry_period == 0) | is.na(x = .data[[rain]]) | is.na(x = n_dry_period), .preserve = TRUE)
+      dplyr::filter(((.data[[rain]] >= threshhold) & n_dry_period == 0) | is.na(x = .data[[rain]]) | is.na(x = n_dry_period), .preserve = TRUE)
   }
   
   start_of_rains <- start_of_rains %>% 

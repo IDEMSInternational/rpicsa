@@ -13,6 +13,7 @@
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
+#' @param threshhold \code{numerical(1)} threshhold value for amount (mm) of rainfall in order to count it as a rainy day.
 #' @param total_rain \code{logical(1)} default `TRUE`. Display the total rainfall value for each year.
 #' @param n_rain \code{logical(1)} default `TRUE`. Display the number of rainfall days.
 #' @param rain_day \code{numerical(1)} If `n_rain = TRUE`, the minimum rainfall value in a day for that day to count as a rainfall day.
@@ -63,7 +64,7 @@
 #' 
 #' # Or to create one of the start rains in the function:
 #' summary_data <- end_output
-#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", end_date = "end_rain", rain = "rain", threshold = 20)
+#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", end_date = "end_rain", rain = "rain", threshhold = 20)
 
 seasonal_rain <- function(summary_data = NULL, start_date = NULL, end_date = NULL,
                           data, date_time, year = NULL, station = NULL, doy = NULL,
@@ -72,7 +73,7 @@ seasonal_rain <- function(summary_data = NULL, start_date = NULL, end_date = NUL
                           na_rm = FALSE, na_prop = NULL, na_n = NULL, 
                           na_consec = NULL, na_n_non = NULL,
                           # start of rains parameters
-                          threshold = 0.85, sor_start_day = 1, sor_end_day = 366,
+                          threshhold = 0.85, sor_start_day = 1, sor_end_day = 366,
                           sor_total_rainfall = TRUE, sor_over_days = 1, sor_amount_rain = 20, sor_proportion = FALSE, sor_prob_rain_day = 0.8,
                           sor_number_rain_days = FALSE, sor_min_rain_days = 1, sor_rain_day_interval = 2,
                           sor_dry_spell = FALSE, sor_spell_interval = 21, sor_spell_max_dry_days = 9,
@@ -91,7 +92,7 @@ seasonal_rain <- function(summary_data = NULL, start_date = NULL, end_date = NUL
     summary_data <- tidyr::crossing(!!station := unique(data[[station]]), !!year := unique(data[[year]]))
   }
   if (is.null(start_date)){
-    start_rains_data <- start_rains(data = data, date_time = date_time, station = station, year = year, rain = rain, threshold = threshold,
+    start_rains_data <- start_rains(data = data, date_time = date_time, station = station, year = year, rain = rain, threshhold = threshhold,
                          doy = doy, start_day = sor_start_day, end_day = sor_end_day, output = "doy",
                          total_rainfall = sor_total_rainfall, over_days = sor_over_days, amount_rain = sor_amount_rain, proportion = sor_proportion, prob_rain_day = sor_prob_rain_day,
                          number_rain_days = sor_number_rain_days, min_rain_days = sor_min_rain_days, rain_day_interval = sor_rain_day_interval,
