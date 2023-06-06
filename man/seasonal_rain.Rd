@@ -125,8 +125,6 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 \item{eos_interval_length}{\code{numerical(1)} Number of days for the minimum rainfall to fall in.}
 
 \item{eos_min_rainfall}{\code{numerical(1)} Minimum amount of rainfall to occur on the set of days defined in \code{interval_length}.}
-
-\item{sor_output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
 }
 \value{
 A data.frame with rainfall summaries for each year in the specified season (between start of the rains and end of season).

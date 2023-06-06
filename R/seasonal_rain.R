@@ -24,7 +24,6 @@
 #' @param na_n_non \code{integer(1)} Min number of non-missing values required
 #' @param sor_start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param sor_end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
-#' @param sor_output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
 #' @param sor_total_rainfall \code{logical(1)} default `TRUE`. Start of the rains to be defined by the total or proportion of rainfall over a period.
 #' @param sor_over_days \code{numerical(1)} Only works if `total_rainfall = TRUE`. This is the number of days to total the rainfall over.
 #' @param sor_amount_rain \code{numerical(1)} If `total_rainfall = TRUE` and `proportion = FALSE`, the amount of rainfall to expect over the period defined in `over_days`. 
@@ -47,6 +46,8 @@
 #' @return A data.frame with rainfall summaries for each year in the specified season (between start of the rains and end of season).
 #' @export
 #'
+#' @importFrom rlang :=
+#' @importFrom rlang .data
 #' @examples # TODO
 #' library(cdms.products)
 #' data(daily_niger)
