@@ -23,7 +23,7 @@
 seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = NULL,
                           data, date_time, rain, year = NULL, station = NULL, doy = NULL, 
                           # start of rains parameters
-                          threshhold = 0.85, sor_start_day = 1, sor_end_day = 366,
+                          threshold = 0.85, sor_start_day = 1, sor_end_day = 366,
                           sor_total_rainfall = TRUE, sor_over_days = 1, sor_amount_rain = 20, sor_proportion = FALSE, sor_prob_rain_day = 0.8,
                           sor_number_rain_days = FALSE, sor_min_rain_days = 1, sor_rain_day_interval = 2,
                           sor_dry_spell = FALSE, sor_spell_interval = 21, sor_spell_max_dry_days = 9,
@@ -34,7 +34,7 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
   
   if (is.null(summary_data)) summary_data <- tidyr::crossing(!!station := unique(data[[station]]), !!year := unique(data[[year]]))
   if (is.null(start_date)){
-    start_rains_data <- start_rains(data = data, date_time = date_time, station = station, year = year, rain = rain, threshhold = threshhold,
+    start_rains_data <- start_rains(data = data, date_time = date_time, station = station, year = year, rain = rain, threshold = threshold,
                                     doy = doy, start_day = sor_start_day, end_day = sor_end_day, output = "doy",
                                     total_rainfall = sor_total_rainfall, over_days = sor_over_days, amount_rain = sor_amount_rain, proportion = sor_proportion, prob_rain_day = sor_prob_rain_day,
                                     number_rain_days = sor_number_rain_days, min_rain_days = sor_min_rain_days, rain_day_interval = sor_rain_day_interval,

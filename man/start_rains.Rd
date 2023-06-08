@@ -10,7 +10,7 @@ start_rains(
   station = NULL,
   year = NULL,
   rain = NULL,
-  threshhold = 0.85,
+  threshold = 0.85,
   doy = NULL,
   start_day = 1,
   end_day = 366,
@@ -43,7 +43,7 @@ start_rains(
 
 \item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
 
-\item{threshhold}{\code{numerical(1)} threshhold value for amount (mm) of rainfall in order to count it as a rainy day.}
+\item{threshold}{\code{numerical(1)} threshold value for amount (mm) of rainfall in order to count it as a rainy day.}
 
 \item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
 
