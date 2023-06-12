@@ -8,10 +8,8 @@ probability_season_start(
   data,
   station = NULL,
   start_rains,
-  format_SOR = c("366", "365"),
-  specified_day,
-  format_day = c("date", "doy", "doy_365"),
-  date_format = "\%Y-\%m-\%d"
+  doy_format = c("doy_366", "doy_365"),
+  specified_day
 )
 }
 \arguments{
@@ -21,23 +19,18 @@ probability_season_start(
 
 \item{start_rains}{\code{character(1)} The name of the start of rains column in \code{data}. This can be calculated by the \code{start_rains} function.}
 
-\item{format_SOR}{\code{character(1)} Whether \code{start_rains} is given as \code{1-366} or \code{1-365}, if \code{doy} is given instead of \code{date}.}
+\item{doy_format}{\code{character(1)} Whether \code{start_rains} is given as \code{1-366} (\code{"doy_366"}) or \code{1-365} (\code{"doy_365"}), if \code{doy} is given instead of \code{date}. If a \code{date} is given, this is the value to convert to, and hence, the value that \code{specified_day} takes as well.}
 
-\item{specified_day}{\code{\link[base]{Date}} or \code{character(1)}. The specified date or day-of-year to calculate the probability of rain before. If a doy value is given, it is assumed to follow the same format as the value given in \code{format_SOR}.}
-
-\item{format_day}{\code{character(1)} Whether the value given in \code{specified_day} is the \code{date}, \code{doy} (day of year 1-366), or \code{doy_365} (day of year 1-365) value.}
-
-\item{date_format}{\code{character(1)} The date format as used by \code{base::strptime}.}
+\item{specified_day}{\code{character}. A character vector containing specified doys to calculate the probability of rain before. This is assumed to follow the same as start of rains (see \code{doy_format}).}
 }
 \value{
-Returns a summary table giving the probability that the start of rains will occur on or before the date specified.
+Returns a summary table giving the probability that the start of rains will occur on or before the day of years specified.
 }
 \description{
-The probabilities of the start of the rains occurring on or before a set of specified dates.
+The probabilities of the start of the rains occurring on or before a set of specified days.
 }
 \examples{
 #TODO#
 #x <- start_rains(daily_niger, date_time = "date", station = "station_name", rain = "rain")
-#season_start_date_p(x, station = "station_name", start_rains = "start_rain", specified_day = 150,
-#                    format_day = "doy")
+#probability_season_start(x, station = "station_name", start_rains = "start_rain", specified_day = c(150, 200))
 }
