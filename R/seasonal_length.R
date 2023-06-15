@@ -31,7 +31,7 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
                           # end of rains parameters
                           end_type = c("season", "rains"),
                           eos_start_day = 1, eos_end_day = 366,
-                          eor_interval_length = 1, eor_min_rainfall = 10,
+                          eos_interval_length = 1, eos_min_rainfall = 10,
                           eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
                           eos_evaporation_value = 5, eos_evaporation_variable = NULL)
 {
@@ -50,7 +50,7 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
     if (end_type == "rains"){
       end_rains_data <- end_rains(data = data, date_time = date_time, station = station, year = year, rain = rain,
                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
-                                  interval_length = eor_interval_length, min_rainfall = eor_min_rainfall) 
+                                  interval_length = eos_interval_length, min_rainfall = eos_min_rainfall) 
     } else {
       end_rains_data <- end_season(data = data, date_time = date_time, station = station, year = year, rain = rain,
                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",

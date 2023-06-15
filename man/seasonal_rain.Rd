@@ -43,8 +43,8 @@ seasonal_rain(
   end_type = c("season", "rains"),
   eos_start_day = 1,
   eos_end_day = 366,
-  eor_interval_length = 1,
-  eor_min_rainfall = 10,
+  eos_interval_length = 1,
+  eos_min_rainfall = 10,
   eos_capacity = 60,
   eos_water_balance_max = 0.5,
   eos_evaporation = c("value", "variable"),
@@ -130,9 +130,9 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 
 \item{eos_end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
 
-\item{eor_interval_length}{\code{numerical(1)} Number of days for the minimum rainfall to fall in.}
+\item{eos_interval_length}{\code{numerical(1)} Number of days for the minimum rainfall to fall in.}
 
-\item{eor_min_rainfall}{\code{numerical(1)} Minimum amount of rainfall to occur on the set of days  defined in \code{interval_length}.}
+\item{eos_min_rainfall}{\code{numerical(1)} Minimum amount of rainfall to occur on the set of days  defined in \code{interval_length}.}
 
 \item{eos_capacity}{\code{numerical(1)} Water capacity of the soil (default \code{60}).}
 

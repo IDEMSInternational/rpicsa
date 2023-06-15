@@ -42,8 +42,8 @@
 #' @param end_type \code{character(1)} If `is.null(end_date)`, `end_type` is whether the end of seasons or end of rains is used. Options are c(`"season", "rains"`), default `"season"`.
 #' @param eos_start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param eos_end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
-#' @param eor_interval_length \code{numerical(1)} Number of days for the minimum rainfall to fall in.
-#' @param eor_min_rainfall \code{numerical(1)} Minimum amount of rainfall to occur on the set of days  defined in `interval_length`.
+#' @param eos_interval_length \code{numerical(1)} Number of days for the minimum rainfall to fall in.
+#' @param eos_min_rainfall \code{numerical(1)} Minimum amount of rainfall to occur on the set of days  defined in `interval_length`.
 #' @param eos_capacity \code{numerical(1)} Water capacity of the soil (default `60`).
 #' @param eos_water_balance_max \code{numerical(1)} Maximum water balance value (default `0.5`).
 #' @param eos_evaporation \code{character(1)} Whether to give evaporation as a value or variable. Default `"value"`.
@@ -88,7 +88,7 @@ seasonal_rain <- function(summary_data = NULL, start_date = NULL, end_date = NUL
                           sor_dry_period = FALSE, sor_period_interval = 45, sor_max_rain = 40, sor_period_max_dry_days = 30,
                           # end of rains parameters
                           end_type = c("season", "rains"),
-                          eos_start_day = 1, eos_end_day = 366, eor_interval_length = 1, eor_min_rainfall = 10,
+                          eos_start_day = 1, eos_end_day = 366, eos_interval_length = 1, eos_min_rainfall = 10,
                           eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
                           eos_evaporation_value = 5, eos_evaporation_variable = NULL)
 {
@@ -116,7 +116,7 @@ seasonal_rain <- function(summary_data = NULL, start_date = NULL, end_date = NUL
     if (end_type == "rains"){
       end_rains_data <- end_rains(data = data, date_time = date_time, station = station, year = year, rain = rain,
                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
-                                  interval_length = eor_interval_length, min_rainfall = eor_min_rainfall) 
+                                  interval_length = eos_interval_length, min_rainfall = eos_min_rainfall) 
     } else {
       end_rains_data <- end_season(data = data, date_time = date_time, station = station, year = year, rain = rain,
                                    doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
