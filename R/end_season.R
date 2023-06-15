@@ -59,9 +59,9 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
   data <- data %>%
     # create rain_min with NA as 0
     dplyr::mutate(rain_min = ifelse(is.na(.data[[rain]]), 0, .data[[rain]])) %>%
-    dplyr::mutate(wb_min = Reduce(f = function(x, y) pmin(pmax(x + y, 0), capacity), x = tail(x=rain_min - evaporation_value, n=-1), init=0, accumulate=TRUE)) %>%
+    dplyr::mutate(wb_min = Reduce(f = function(x, y) pmin(pmax(x + y, 0), capacity), x = utils::tail(x=rain_min - evaporation_value, n=-1), init=0, accumulate=TRUE)) %>%
     dplyr::mutate(rain_max = ifelse(is.na(.data[[rain]]), capacity, .data[[rain]])) %>%
-    dplyr::mutate(wb_max = Reduce(f = function(x, y) pmin(pmax(x + y, 0), capacity), x = tail(x=rain_max - evaporation_value, n=-1), init=0, accumulate=TRUE)) %>%
+    dplyr::mutate(wb_max = Reduce(f = function(x, y) pmin(pmax(x + y, 0), capacity), x = utils::tail(x=rain_max - evaporation_value, n=-1), init=0, accumulate=TRUE)) %>%
     dplyr::mutate(wb = ifelse((wb_min != wb_max) | is.na(.data[[rain]]), NA, wb_min))
   if (!is.null(station)){
     end_of_season <- data %>% 
@@ -77,13 +77,13 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
   
   if (output == "doy"){
     end_of_season <- end_of_season %>%
-      dplyr::summarise(end_season = ifelse(is.na(x=dplyr::first(wb)),
+      dplyr::summarise(end_rain = ifelse(is.na(x=dplyr::first(wb)),
                                            NA,
                                            dplyr::first(.data[[doy]])))
     
   } else if (output == "date") {
     end_of_season <- end_of_season %>%
-      dplyr::summarise(end_season = dplyr::if_else(is.na(x=dplyr::first(wb)),
+      dplyr::summarise(end_rain = dplyr::if_else(is.na(x=dplyr::first(wb)),
                                                    as.Date(NA),
                                                    dplyr::first(.data[[date_time]])))
   } else {
