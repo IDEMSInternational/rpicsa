@@ -39,10 +39,17 @@
 #' @param sor_max_rain \code{numerical(1)} Only if `dry_period = TRUE`, the maximum rainfall to occur in a given period.
 #' @param sor_period_max_dry_days \code{numerical(1)} Only if `dry_period = TRUE`. the maximum period of dry days to occur in a given period.
 #' @param sor_period_interval \code{numerical(1)} Only if `dry_period = TRUE`, the interval in days that the `dry_period` is defined in.
+#' @param end_type \code{character(1)} If `is.null(end_date)`, `end_type` is whether the end of seasons or end of rains is used. Options are c(`"season", "rains"`), default `"season"`.
 #' @param eos_start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param eos_end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
-#' @param eos_interval_length \code{numerical(1)} Number of days for the minimum rainfall to fall in.
-#' @param eos_min_rainfall \code{numerical(1)} Minimum amount of rainfall to occur on the set of days defined in `interval_length`.
+#' @param eor_interval_length \code{numerical(1)} Number of days for the minimum rainfall to fall in.
+#' @param eor_min_rainfall \code{numerical(1)} Minimum amount of rainfall to occur on the set of days  defined in `interval_length`.
+#' @param eos_capacity \code{numerical(1)} Water capacity of the soil (default `60`).
+#' @param eos_water_balance_max \code{numerical(1)} Maximum water balance value (default `0.5`).
+#' @param eos_evaporation \code{character(1)} Whether to give evaporation as a value or variable. Default `"value"`.
+#' @param eos_evaporation_value \code{numerical(1)} If `evaporation = "value"`, the numerical value of amount of evaporation per day (default `5`).
+#' @param eos_evaporation_variable \code{character(1)} If `evaporation = "variable"`, the variable in `data` that corresponds to the evaporation column.
+
 #' @return A data.frame with rainfall summaries for each year in the specified season (between start of the rains and end of season).
 #' @export
 #'
@@ -80,7 +87,10 @@ seasonal_rain <- function(summary_data = NULL, start_date = NULL, end_date = NUL
                           sor_dry_spell = FALSE, sor_spell_interval = 21, sor_spell_max_dry_days = 9,
                           sor_dry_period = FALSE, sor_period_interval = 45, sor_max_rain = 40, sor_period_max_dry_days = 30,
                           # end of rains parameters
-                          eos_start_day = 1, eos_end_day = 366, eos_interval_length = 1, eos_min_rainfall = 10)
+                          end_type = c("season", "rains"),
+                          eos_start_day = 1, eos_end_day = 366, eor_interval_length = 1, eor_min_rainfall = 10,
+                          eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
+                          eos_evaporation_value = 5, eos_evaporation_variable = NULL)
 {
   if(is.null(doy)) {
     doy <- "doy"
@@ -103,13 +113,20 @@ seasonal_rain <- function(summary_data = NULL, start_date = NULL, end_date = NUL
     summary_data <- dplyr::full_join(summary_data, start_rains_data)
   }
   if (is.null(end_date)){
-    end_rains_data <- end_rains(data = data, date_time = date_time, station = station, year = year, rain = rain,
-                                doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
-                                interval_length = eos_interval_length, min_rainfall = eos_min_rainfall)
+    if (end_type == "rains"){
+      end_rains_data <- end_rains(data = data, date_time = date_time, station = station, year = year, rain = rain,
+                                  doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
+                                  interval_length = eor_interval_length, min_rainfall = eor_min_rainfall) 
+    } else {
+      end_rains_data <- end_season(data = data, date_time = date_time, station = station, year = year, rain = rain,
+                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
+                                   capacity = eos_capacity, water_balance_max = eos_water_balance_max,
+                                   evaporation = eos_evaporation, evaporation_value = eos_evaporation_value,
+                                   evaporation_variable = eos_evaporation_variable)
+    }
     end_date <- "end_rain"
     summary_data <- dplyr::full_join(summary_data, end_rains_data)
-  }
-
+    }
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of
          'total_rain' or 'n_rain' must be TRUE.")

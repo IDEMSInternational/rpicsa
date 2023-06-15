@@ -32,10 +32,16 @@ seasonal_length(
   sor_period_interval = 45,
   sor_max_rain = 40,
   sor_period_max_dry_days = 30,
+  end_type = c("season", "rains"),
   eos_start_day = 1,
   eos_end_day = 366,
-  eos_interval_length = 1,
-  eos_min_rainfall = 10
+  eor_interval_length = 1,
+  eor_min_rainfall = 10,
+  eos_capacity = 60,
+  eos_water_balance_max = 0.5,
+  eos_evaporation = c("value", "variable"),
+  eos_evaporation_value = 5,
+  eos_evaporation_variable = NULL
 )
 }
 \arguments{
@@ -94,13 +100,25 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 
 \item{sor_period_max_dry_days}{\code{numerical(1)} Only if \code{dry_period = TRUE}. the maximum period of dry days to occur in a given period.}
 
+\item{end_type}{\code{character(1)} If \code{is.null(end_date)}, \code{end_type} is whether the end of seasons or end of rains is used. Options are c(\verb{"season", "rains"}), default \code{"season"}.}
+
 \item{eos_start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
 
 \item{eos_end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
 
-\item{eos_interval_length}{\code{numerical(1)} Number of days for the minimum rainfall to fall in.}
+\item{eor_interval_length}{\code{numerical(1)} Number of days for the minimum rainfall to fall in.}
 
-\item{eos_min_rainfall}{\code{numerical(1)} Minimum amount of rainfall to occur on the set of days defined in \code{interval_length}.}
+\item{eor_min_rainfall}{\code{numerical(1)} Minimum amount of rainfall to occur on the set of days  defined in \code{interval_length}.}
+
+\item{eos_capacity}{\code{numerical(1)} Water capacity of the soil (default \code{60}).}
+
+\item{eos_water_balance_max}{\code{numerical(1)} Maximum water balance value (default \code{0.5}).}
+
+\item{eos_evaporation}{\code{character(1)} Whether to give evaporation as a value or variable. Default \code{"value"}.}
+
+\item{eos_evaporation_value}{\code{numerical(1)} If \code{evaporation = "value"}, the numerical value of amount of evaporation per day (default \code{5}).}
+
+\item{eos_evaporation_variable}{\code{character(1)} If \code{evaporation = "variable"}, the variable in \code{data} that corresponds to the evaporation column.}
 }
 \value{
 A data.frame with length of rainfall season for each year in the specified season (between start of the rains and end of season).
