@@ -92,6 +92,7 @@ seasonal_rain <- function(summary_data = NULL, start_date = NULL, end_date = NUL
                           eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
                           eos_evaporation_value = 5, eos_evaporation_variable = NULL)
 {
+  end_type <- match.arg(end_type)
   if(is.null(doy)) {
     doy <- "doy"
     data <- data %>% dplyr::mutate(doy != cdms.products::yday_366(.data[[date_time]]))
