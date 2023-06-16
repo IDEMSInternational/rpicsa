@@ -14,6 +14,7 @@
 #' #x <- start_rains(daily_niger, date_time = "date", station = "station_name", rain = "rain")
 #' #probability_season_start(x, station = "station_name", start_rains = "start_rain", specified_day = c(150, 200))
 
+
 probability_season_start <- function(data, station = NULL, start_rains, doy_format = c("doy_366", "doy_365"), # assumed to be 366 then.
                                      specified_day) {
   doy_format <- match.arg(doy_format)
@@ -21,7 +22,7 @@ probability_season_start <- function(data, station = NULL, start_rains, doy_form
   # we check for format in SOR
   # transform date variable to doy for the specified day
   if (lubridate::is.Date(data[[start_rains]])){
-    if (doy_format == "366"){ # if doy for specified doy is 366, then set start_rains as 366 doy
+    if (doy_format == "doy_366") { # if doy for specified doy is 366, then set start_rains as 366 doy
       data[[start_rains]] <- cdms.products::yday_366(as.Date(data[[start_rains]]))
     } else {
       data[[start_rains]] <- lubridate::yday(as.Date(data[[start_rains]]))
