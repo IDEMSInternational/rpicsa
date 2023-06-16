@@ -23,7 +23,7 @@
 #' summary_data <- dplyr::full_join(dplyr::full_join(start_output, end_output), end_output_2)
 #' output_1 <- seasonal_length(summary_data = summary_data, start_date = "start_rain", end_date = "end_rain")
 seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = NULL,
-                          data, date_time, rain, year = NULL, station = NULL, doy = NULL, 
+                          data = NULL, date_time = NULL, rain = NULL, year = NULL, station = NULL, doy = NULL, 
                           # start of rains parameters
                           threshold = 0.85, sor_start_day = 1, sor_end_day = 366,
                           sor_total_rainfall = TRUE, sor_over_days = 1, sor_amount_rain = 20, sor_proportion = FALSE, sor_prob_rain_day = 0.8,

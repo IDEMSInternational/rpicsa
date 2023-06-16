@@ -60,3 +60,4 @@ test_that("Returns correct annual summaries for just one element", {
   expect_equal(x_tmin_annual, y_tmin_annual)
   expect_setequal(colnames(x_tmin_annual), colnames(y_tmin_annual))
 })
+

@@ -33,3 +33,4 @@ test_that("Returns correct annual totals for both summaries", {
   expect_equal(x_both, y_both)
   expect_setequal(colnames(x_both), colnames(y_both))
 })
+
