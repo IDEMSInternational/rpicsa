@@ -61,8 +61,7 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
     summary_data <- dplyr::full_join(summary_data, end_rains_data)
   }
   
-  # if start_rain is date then set to doy
-  # if end_rain is date then set to doy
+  
   
   # TODO: calculate season_rain
   return(summary_data)
