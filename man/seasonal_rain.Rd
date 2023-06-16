@@ -156,7 +156,7 @@ library(cdms.products)
 data(daily_niger)
 
 seasonal_rain(data = daily_niger, station = "station_name", date_time = "date",
-year = "year", doy = "doy", rain = "rain")
+year = "year", doy = "doy", rain = "rain", end_type = "rains")
 
 # Using data
 start_output <- start_rains(data = daily_niger, station = "station_name", date_time = "date",

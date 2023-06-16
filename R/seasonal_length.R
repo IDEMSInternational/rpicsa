@@ -47,7 +47,11 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
                                     dry_spell = sor_dry_spell, spell_interval = sor_spell_interval, spell_max_dry_days = sor_spell_max_dry_days,
                                     dry_period = sor_dry_period, period_interval = sor_period_interval, max_rain = sor_max_rain, period_max_dry_days = sor_period_max_dry_days)
     summary_data <- dplyr::full_join(summary_data, start_rains_data)
-    summary_data[["start_date"]] <- summary_data$start_rain
+  } else {
+    # what if doy 365?
+    if (lubridate::is.Date(data[[start_date]])){
+        data[[start_date]] <- cdms.products::yday_366(as.Date(data[[start_date]]))
+    }
   }
   if (is.null(end_date)){
     if (end_type == "season"){
@@ -66,9 +70,14 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
       summary_data <- summary_data %>% dplyr::mutate(season_length = end_rain - start_rain)
     }
   } else {
+    if (lubridate::is.Date(data[[end_date]])){
+      data[[end_date]] <- cdms.products::yday_366(as.Date(data[[end_date]]))
+    }
+    # check end_rain/end_season is doy_366. Convert. 
     if (is.null(start_date)){
       summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - start_rain)
     } else {
+      # check start_date is doy_366. Convert. 
       summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - .data[[start_date]])
     }
   }

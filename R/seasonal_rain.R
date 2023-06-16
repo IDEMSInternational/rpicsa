@@ -60,7 +60,7 @@
 #' data(daily_niger)
 #' 
 #' seasonal_rain(data = daily_niger, station = "station_name", date_time = "date",
-#' year = "year", doy = "doy", rain = "rain")
+#' year = "year", doy = "doy", rain = "rain", end_type = "rains")
 #' 
 #' # Using data
 #' start_output <- start_rains(data = daily_niger, station = "station_name", date_time = "date",
@@ -118,14 +118,15 @@ seasonal_rain <- function(summary_data = NULL, start_date = NULL, end_date = NUL
       end_rains_data <- end_rains(data = data, date_time = date_time, station = station, year = year, rain = rain,
                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
                                   interval_length = eor_interval_length, min_rainfall = eor_min_rainfall) 
+      end_date <- "end_rain"
     } else {
       end_rains_data <- end_season(data = data, date_time = date_time, station = station, year = year, rain = rain,
                                    doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
                                    capacity = eos_capacity, water_balance_max = eos_water_balance_max,
                                    evaporation = eos_evaporation, evaporation_value = eos_evaporation_value,
                                    evaporation_variable = eos_evaporation_variable)
+      end_date <- "end_season"
     }
-    end_date <- "end_rain"
     summary_data <- dplyr::full_join(summary_data, end_rains_data)
     }
   if (!total_rain && !n_rain) {
