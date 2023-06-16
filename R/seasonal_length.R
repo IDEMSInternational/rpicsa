@@ -18,8 +18,10 @@
 #'                             year = "year", doy = "doy", rain = "rain")
 #' end_output <- end_rains(data = daily_niger, station = "station_name", date_time = "date",
 #'                         year = "year", doy = "doy", rain = "rain")
-#' summary_data <- dplyr::full_join(start_output, end_output)
-#' start_output <- seasonal_length(summary_data = summary_data, start_date = "start_rain", end_date = "end_rain")
+#' end_output_2 <- end_season(data = daily_niger, station = "station_name", date_time = "date",
+#'                         year = "year", doy = "doy", rain = "rain")
+#' summary_data <- dplyr::full_join(dplyr::full_join(start_output, end_output), end_output_2)
+#' output_1 <- seasonal_length(summary_data = summary_data, start_date = "start_rain", end_date = "end_rain")
 seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = NULL,
                           data, date_time, rain, year = NULL, station = NULL, doy = NULL, 
                           # start of rains parameters
@@ -45,24 +47,36 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
                                     dry_spell = sor_dry_spell, spell_interval = sor_spell_interval, spell_max_dry_days = sor_spell_max_dry_days,
                                     dry_period = sor_dry_period, period_interval = sor_period_interval, max_rain = sor_max_rain, period_max_dry_days = sor_period_max_dry_days)
     summary_data <- dplyr::full_join(summary_data, start_rains_data)
+    summary_data[["start_date"]] <- summary_data$start_rain
   }
   if (is.null(end_date)){
-    if (end_type == "rains"){
+    if (end_type == "season"){
+      end_rains_data <- end_season(data = data, date_time = date_time, station = station, year = year, rain = rain,
+                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
+                                   capacity = eos_capacity, water_balance_max = eos_water_balance_max,
+                                   evaporation = eos_evaporation, evaporation_value = eos_evaporation_value,
+                                   evaporation_variable = eos_evaporation_variable)
+      summary_data <- dplyr::full_join(summary_data, end_rains_data)
+      summary_data <- summary_data %>% dplyr::mutate(season_length = end_season - start_rain)
+    } else {
       end_rains_data <- end_rains(data = data, date_time = date_time, station = station, year = year, rain = rain,
                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
                                   interval_length = eor_interval_length, min_rainfall = eor_min_rainfall) 
-    } else {
-      end_rains_data <- end_season(data = data, date_time = date_time, station = station, year = year, rain = rain,
-                                  doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
-                                  capacity = eos_capacity, water_balance_max = eos_water_balance_max,
-                                  evaporation = eos_evaporation, evaporation_value = eos_evaporation_value,
-                                  evaporation_variable = eos_evaporation_variable)
+      summary_data <- dplyr::full_join(summary_data, end_rains_data)
+      summary_data <- summary_data %>% dplyr::mutate(season_length = end_rain - start_rain)
     }
-    summary_data <- dplyr::full_join(summary_data, end_rains_data)
+  } else {
+    if (is.null(start_date)){
+      summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - start_rain)
+    } else {
+      summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - .data[[start_date]])
+    }
   }
-  
-  
-  
-  # TODO: calculate season_rain
+  # TODO: calculate length of season
   return(summary_data)
 }
+
+
+
+
+

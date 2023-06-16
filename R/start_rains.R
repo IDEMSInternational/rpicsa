@@ -86,7 +86,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   }
   if (!is.null(station)){
     start_of_rains <- data %>% 
-      dplyr::group_by(.data[[station]]) 
+      dplyr::group_by(.data[[station]], .drop = FALSE) 
   } else {
     start_of_rains <- data
   }
@@ -146,7 +146,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   }
   
   start_of_rains <- start_of_rains %>% 
-    dplyr::group_by(.data[[year]], .add = TRUE) %>%
+    dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>%
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
   
   # start_rain   ifelse(test=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), yes=NA, no=dplyr::first(x=doy, default=NA))

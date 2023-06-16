@@ -65,14 +65,14 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
     dplyr::mutate(wb = ifelse((wb_min != wb_max) | is.na(.data[[rain]]), NA, wb_min))
   if (!is.null(station)){
     end_of_season <- data %>% 
-      dplyr::group_by(.data[[station]], .add = TRUE) 
+      dplyr::group_by(.data[[station]], .add = TRUE, .drop = FALSE) 
   } else {
     end_of_season <- data
   }
   
   end_of_season <- end_of_season %>%
     dplyr::filter(wb <= water_balance_max | is.na(.data[[rain]])) %>%
-    dplyr::group_by(.data[[year]], .add = TRUE) %>%
+    dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>%
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
   
   if (output == "doy"){

@@ -52,7 +52,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   }
   if (!is.null(station)){
     end_of_rains <- data %>% 
-      dplyr::group_by(.data[[station]]) 
+      dplyr::group_by(.data[[station]], .drop = FALSE) 
   } else {
     end_of_rains <- data
   }
@@ -60,7 +60,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   end_of_rains <- end_of_rains %>%
     dplyr::mutate(roll_sum_rain = RcppRoll::roll_sumr(x = .data[[rain]], n = interval_length, fill = NA, na.rm = FALSE)) %>%
     dplyr::filter((roll_sum_rain > min_rainfall) | is.na(x=roll_sum_rain)) %>% 
-    dplyr::group_by(.data[[year]], .add = TRUE) %>%
+    dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>%
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
   
   if (output == "doy"){
