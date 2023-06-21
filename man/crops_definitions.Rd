@@ -33,11 +33,11 @@ crops_definitions(
 
 \item{doy}{\code{character(1)} The name of the day of year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
 
-\item{rain_totals}{\code{character} Vector containing a list of seasonal total rainfall requirements.}
+\item{rain_totals}{\code{numeric} Vector containing a list of seasonal total rainfall requirements.}
 
-\item{plant_days}{\code{character} Vector containing a list of seasonal total rainfall requirements.}
+\item{plant_days}{\code{numeric} Vector containing a list of seasonal total rainfall requirements.}
 
-\item{plant_lengths}{\code{character} Vector containing a list of seasonal total rainfall requirements.}
+\item{plant_lengths}{\code{numeric} Vector containing a list of seasonal total rainfall requirements.}
 
 \item{start_check}{\code{logical} A logical value indicating whether to check the start day condition (default is \code{TRUE}).}
 
