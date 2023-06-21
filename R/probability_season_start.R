@@ -43,6 +43,6 @@ probability_season_start <- function(data, station = NULL, start_rains, doy_form
     #dplyr::summarise("proportion_{.x}" := sum(LT, na.rm = TRUE)/dplyr::n()))
     summary_proportion <- summary_proportion %>%
       tidyr::pivot_wider(names_from = value, values_from = proportion, names_prefix = "proportion_")
-  }
+  } 
   return(summary_proportion)
 }
