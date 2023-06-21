@@ -7,9 +7,9 @@
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param doy \code{character(1)} The name of the day of year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
-#' @param rain_totals \code{numeric} Vector containing a list of seasonal total rainfall requirements.
-#' @param plant_days \code{numeric} Vector containing a list of seasonal total rainfall requirements.
-#' @param plant_lengths \code{numeric} Vector containing a list of seasonal total rainfall requirements.
+#' @param rain_totals \code{numeric} Vector containing water requirements.
+#' @param plant_days \code{numeric} Vector containing planting dates requirements.
+#' @param plant_lengths \code{numeric} Vector containing seasonal crop length requirements.
 #' @param start_check \code{logical} A logical value indicating whether to check the start day condition (default is `TRUE`).
 #' @param season_data The data frame containing the seasonal data.
 #' @param start_day \code{character(1)} The name of the column in the season_data data frame that represents the start day. This can be calculated prior to using this function by the `start_rains` function.
