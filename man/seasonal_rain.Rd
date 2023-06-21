@@ -155,8 +155,11 @@ Total annual rainfall between start of the rains and end of the season.
 library(cdms.products)
 data(daily_niger)
 
-seasonal_rain(data = daily_niger, station = "station_name", date_time = "date",
+seasonal_rain(data = daily_niger, station = "station_name", date_time = "date", eos_start_day = 100,
 year = "year", doy = "doy", rain = "rain", end_type = "rains")
+
+seasonal_rain(data = daily_niger, station = "station_name", date_time = "date",
+year = "year", doy = "doy", rain = "rain", sor_start_day = 1, eos_start_day = 100)
 
 # Using data
 start_output <- start_rains(data = daily_niger, station = "station_name", date_time = "date",
