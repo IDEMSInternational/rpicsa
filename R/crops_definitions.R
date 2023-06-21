@@ -36,7 +36,7 @@ crops_definitions <- function(data, date_time, station = NULL, rain, year = NULL
   #checkmate::assert_list(rain_totals, types = "numeric")
   #checkmate::assert_list(plant_lengths, types = "numeric")
   #checkmate::assert_list(plant_days, types = "numeric")
-  checkmate::assert_logical(start_check)
+  checkmate::assert_logical(start_check, null.ok = TRUE)
   cdms.products:::assert_column_names(data, rain)
   checkmate::assert(checkmate::check_date(data[[date_time]], null.ok = TRUE), 
                     checkmate::check_posixct(data[[date_time]],  null.ok = TRUE))
