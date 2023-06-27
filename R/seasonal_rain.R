@@ -167,5 +167,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                                                      year = year, to = "annual", summaries = summaries, 
                                                      na_rm = na_rm, na_prop = na_prop, na_n = na_n, na_n_non = na_n_non, 
                                                      names = "{.fn}")
+  if (total_rain) climatic_output <- climatic_output %>% dplyr::rename(total_seasonal_rain = total_rain)
+  if (n_rain) climatic_output <- climatic_output %>% dplyr::rename(n_seasonal_rain = n_rain)
   return(climatic_output)
 }
