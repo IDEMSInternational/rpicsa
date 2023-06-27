@@ -12,8 +12,8 @@ rain_seasonal_1 <- daily_niger %>%
   dplyr::filter(date >= as.Date("1951-08-18")) %>%
   dplyr::filter(date <= as.Date("1951-09-17")) %>%
   dplyr::filter(station_name == "Agades") %>%
-  dplyr::summarise(total_rain = sum(rain)) %>%
-  dplyr::pull(total_rain)
+  dplyr::summarise(total_seasonal_rain = sum(rain)) %>%
+  dplyr::pull(total_seasonal_rain)
 
 daily_niger_2 <- daily_niger %>% dplyr::filter(year <= 1951) %>% dplyr::filter(station_name == "Agades")
 start_output <- start_rains(data = daily_niger_2, station = "station_name", date_time = "date",
