@@ -21,7 +21,7 @@ start_output <- start_rains(data = daily_niger_2, station = "station_name", date
 end_output <- end_rains(data = daily_niger_2, station = "station_name", date_time = "date",
                         year = "year", doy = "doy", rain = "rain")
 summary_data <- dplyr::full_join(start_output, end_output)
-start_output_1 <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger_2, year = "year", start_date = "start_rain", end_date = "end_rain", rain = "rain", end_type = "rains")
+start_output_1 <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger_2, year = "year", start_date = "start_rains", end_date = "end_rains", rain = "rain", end_type = "rains")
 start_output_2 <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger_2, year = "year", rain = "rain", end_type = "rains")
 
 

@@ -19,13 +19,13 @@ summary_data_season <- dplyr::full_join(start_output, end_output_season) %>%
   dplyr::arrange(station_name, year)
 
 # end rain calculated beforehand
-output_1 <- seasonal_length(summary_data = summary_data_rain, start_date = "start_rain", end_date = "end_rain")$season_length
+output_1 <- seasonal_length(summary_data = summary_data_rain, start_date = "start_rains", end_date = "end_rains")$season_length
 
 # end season calculated beforehand
-output_2 <- seasonal_length(summary_data = summary_data_season, start_date = "start_rain", end_date = "end_season")$season_length
+output_2 <- seasonal_length(summary_data = summary_data_season, start_date = "start_rains", end_date = "end_season")$season_length
 
 # end rain calculated in the function
-output_1_1 <- seasonal_length(summary_data = start_output, start_date = "start_rain",
+output_1_1 <- seasonal_length(summary_data = start_output, start_date = "start_rains",
                               data = daily_niger_1, station = "station_name",
                               end_type = "rains", date_time = "date",
                               year = "year", doy = "doy", rain = "rain") %>%
@@ -33,7 +33,7 @@ output_1_1 <- seasonal_length(summary_data = start_output, start_date = "start_r
   dplyr::pull(season_length)
 
 # end season calculated in the function
-output_2_1 <- seasonal_length(summary_data = start_output, start_date = "start_rain",
+output_2_1 <- seasonal_length(summary_data = start_output, start_date = "start_rains",
                               data = daily_niger_1, station = "station_name",
                               end_type = "season", date_time = "date",
                               year = "year", doy = "doy", rain = "rain") %>%
@@ -41,7 +41,7 @@ output_2_1 <- seasonal_length(summary_data = start_output, start_date = "start_r
   dplyr::pull(season_length)
 
 # start rain calculted in function
-start_output_1 <- seasonal_length(summary_data = end_output_rain, end_date = "end_rain",
+start_output_1 <- seasonal_length(summary_data = end_output_rain, end_date = "end_rains",
                                   data = daily_niger_1, station = "station_name", date_time = "date",
                                   year = "year", doy = "doy", rain = "rain")$season_length
 
@@ -50,7 +50,7 @@ start_output_2 <- seasonal_length(summary_data = end_output_season, end_date = "
                                   year = "year", doy = "doy", rain = "rain")$season_length
 
 summary_data_all <- dplyr::full_join(summary_data_rain, summary_data_season)
-all_output_give <- seasonal_length(summary_data = summary_data_all, start_date = "start_rain", end_date = "end_rain") %>%
+all_output_give <- seasonal_length(summary_data = summary_data_all, start_date = "start_rains", end_date = "end_rains") %>%
   dplyr::arrange(station_name, year) %>% dplyr::pull(season_length)
 all_output_calc <- seasonal_length(data = daily_niger_1, station = "station_name", date_time = "date",
                                   year = "year", doy = "doy", rain = "rain", end_type = "rains") %>%
