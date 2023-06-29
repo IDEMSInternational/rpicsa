@@ -149,25 +149,25 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
     dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>%
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
   
-  # start_rain   ifelse(test=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), yes=NA, no=dplyr::first(x=doy, default=NA))
-  # start_rain_date   dplyr::if_else(condition=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), as.Date(NA), dplyr::first(date1, default=NA))
+  # start_rains   ifelse(test=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), yes=NA, no=dplyr::first(x=doy, default=NA))
+  # start_rains_date   dplyr::if_else(condition=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), as.Date(NA), dplyr::first(date1, default=NA))
   
   if (output == "doy"){
     start_of_rains <- start_of_rains %>%
-      dplyr::summarise(start_rain = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
+      dplyr::summarise(start_rains = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
                                            NA,
                                            dplyr::first(x=.data[[doy]], default=NA)))
   } else if (output == "date") {
     start_of_rains <- start_of_rains %>%
-      dplyr::summarise(start_rain = dplyr::if_else(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
+      dplyr::summarise(start_rains = dplyr::if_else(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
                                                    as.Date(NA),
                                                    dplyr::first(.data[[date_time]], default=NA)))
   } else {
     start_of_rains <- start_of_rains %>%
-      dplyr::summarise(start_rain_doy = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
+      dplyr::summarise(start_rains_doy = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
                                                NA,
                                                dplyr::first(x=.data[[doy]], default=NA)),
-                       start_rain_date = dplyr::if_else(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
+                       start_rains_date = dplyr::if_else(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
                                                         as.Date(NA),
                                                         dplyr::first(.data[[date_time]], default=NA)))
   }
