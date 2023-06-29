@@ -11,9 +11,9 @@ crops_definitions(
   rain,
   year = NULL,
   doy = NULL,
-  rain_totals,
-  plant_days,
-  plant_lengths,
+  water_requirements,
+  planting_dates,
+  crop_length,
   start_check = TRUE,
   season_data = NULL,
   start_day,
@@ -33,11 +33,11 @@ crops_definitions(
 
 \item{doy}{\code{character(1)} The name of the day of year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
 
-\item{rain_totals}{\code{numeric} Vector containing water requirements.}
+\item{water_requirements}{\code{numeric} Vector containing water requirements.}
 
-\item{plant_days}{\code{numeric} Vector containing planting dates requirements.}
+\item{planting_dates}{\code{numeric} Vector containing planting dates requirements.}
 
-\item{plant_lengths}{\code{numeric} Vector containing seasonal crop length requirements.}
+\item{crop_length}{\code{numeric} Vector containing seasonal crop length requirements.}
 
 \item{start_check}{\code{logical} A logical value indicating whether to check the start day condition (default is \code{TRUE}).}
 
