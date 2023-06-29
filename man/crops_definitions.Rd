@@ -13,7 +13,7 @@ crops_definitions(
   doy = NULL,
   water_requirements,
   planting_dates,
-  crop_length,
+  planting_length,
   start_check = TRUE,
   season_data = NULL,
   start_day,
@@ -37,7 +37,7 @@ crops_definitions(
 
 \item{planting_dates}{\code{numeric} Vector containing planting dates requirements.}
 
-\item{crop_length}{\code{numeric} Vector containing seasonal crop length requirements.}
+\item{planting_length}{\code{numeric} Vector containing seasonal crop length requirements.}
 
 \item{start_check}{\code{logical} A logical value indicating whether to check the start day condition (default is \code{TRUE}).}
 

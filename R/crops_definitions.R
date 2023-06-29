@@ -9,7 +9,7 @@
 #' @param doy \code{character(1)} The name of the day of year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param water_requirements \code{numeric} Vector containing water requirements.
 #' @param planting_dates \code{numeric} Vector containing planting dates requirements.
-#' @param crop_length \code{numeric} Vector containing seasonal crop length requirements.
+#' @param planting_length \code{numeric} Vector containing seasonal crop length requirements.
 #' @param start_check \code{logical} A logical value indicating whether to check the start day condition (default is `TRUE`).
 #' @param season_data The data frame containing the seasonal data.
 #' @param start_day \code{character(1)} The name of the column in the season_data data frame that represents the start day. This can be calculated prior to using this function by the `start_rains` function.
@@ -20,10 +20,10 @@
 #'
 #' @examples #TODO
 crops_definitions <- function (data, date_time, station = NULL, rain, year = NULL, 
-                              doy = NULL, water_requirements, planting_dates, crop_length, start_check = TRUE, 
+                              doy = NULL, water_requirements, planting_dates, planting_length, start_check = TRUE, 
                               season_data = NULL, start_day, end_day) {
   planting_day_name <- "planting_day"
-  crop_length_name <- "crop_length"
+  planting_length_name <- "planting_length"
   water_requirements_name <- "water_requirements"
   is_station <- !is.null(station)
   checkmate::assert_data_frame(data)
@@ -58,8 +58,8 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   }
   expand_list[[length(expand_list) + 1]] <- water_requirements
   names_list[length(names_list) + 1] <- water_requirements_name
-  expand_list[[length(expand_list) + 1]] <- crop_length
-  names_list[length(names_list) + 1] <- crop_length_name
+  expand_list[[length(expand_list) + 1]] <- planting_length
+  names_list[length(names_list) + 1] <- planting_length_name
   expand_list[[length(expand_list) + 1]] <- planting_dates
   names_list[length(names_list) + 1] <- planting_day_name
   expand_list[[length(expand_list) + 1]] <- unique(data[[year]])
@@ -79,17 +79,17 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   if (start_check) {
     df$planting_day_cond <- (df[[start_day]] <= df[[planting_day_name]])
   }
-  df$length_cond <- (df[[planting_day_name]] + df[[crop_length_name]] <= 
+  df$length_cond <- (df[[planting_day_name]] + df[[planting_length_name]] <= 
                        df[[end_day]])
   df[["water_requirements_actual"]] <- sapply(1:nrow(df), function(x) {
     ind <- data[[year]] == df[[year]][x] & data[[doy]] >= 
       df[[planting_day_name]][x] & data[[doy]] < (df[[planting_day_name]][x] + 
-                                                 df[[crop_length_name]][x])
+                                                 df[[planting_length_name]][x])
     if (is_station) 
       ind <- ind & (data[[station]] == df[[station]][x])
     rain_values <- data[[rain]][ind]
     sum_rain <- sum(rain_values, na.rm = TRUE)
-    if (length(rain_values) + 1 < df[[crop_length_name]][x] || 
+    if (length(rain_values) + 1 < df[[planting_length_name]][x] || 
         (anyNA(rain_values) && sum_rain < df[[water_requirements_name]][x])) 
       sum_rain <- NA
     sum_rain
@@ -101,7 +101,7 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   if (is_station) 
     df <- df %>% dplyr::group_by(.data[[station]])
   df <- df %>% dplyr::group_by(.data[[water_requirements_name]], .data[[planting_day_name]], 
-                               .data[[crop_length_name]], .add = TRUE)
+                               .data[[planting_length_name]], .add = TRUE)
   df <- df %>% dplyr::summarise(prop_success = sum(overall_cond, 
                                                    na.rm = TRUE)/length(stats::na.omit(overall_cond)))
   df$prop_success <- round(df$prop_success, 2)
