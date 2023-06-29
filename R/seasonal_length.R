@@ -21,7 +21,7 @@
 #' end_output_2 <- end_season(data = daily_niger, station = "station_name", date_time = "date",
 #'                         year = "year", doy = "doy", rain = "rain")
 #' summary_data <- dplyr::full_join(dplyr::full_join(start_output, end_output), end_output_2)
-#' output_1 <- seasonal_length(summary_data = summary_data, start_date = "start_rain", end_date = "end_rain")
+#' output_1 <- seasonal_length(summary_data = summary_data, start_date = "start_rains", end_date = "end_rains")
 seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = NULL,
                           data = NULL, date_time = NULL, rain = NULL, year = NULL, station = NULL, doy = NULL, 
                           # start of rains parameters
@@ -61,21 +61,21 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
                                    evaporation = eos_evaporation, evaporation_value = eos_evaporation_value,
                                    evaporation_variable = eos_evaporation_variable)
       summary_data <- dplyr::full_join(summary_data, end_rains_data)
-      summary_data <- summary_data %>% dplyr::mutate(season_length = end_season - start_rain)
+      summary_data <- summary_data %>% dplyr::mutate(season_length = end_season - start_rains)
     } else {
       end_rains_data <- end_rains(data = data, date_time = date_time, station = station, year = year, rain = rain,
                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
                                   interval_length = eor_interval_length, min_rainfall = eor_min_rainfall) 
       summary_data <- dplyr::full_join(summary_data, end_rains_data)
-      summary_data <- summary_data %>% dplyr::mutate(season_length = end_rain - start_rain)
+      summary_data <- summary_data %>% dplyr::mutate(season_length = end_rains - start_rains)
     }
   } else {
     if (lubridate::is.Date(data[[end_date]])){
       data[[end_date]] <- cdms.products::yday_366(as.Date(data[[end_date]]))
     }
-    # check end_rain/end_season is doy_366. Convert. 
+    # check end_rains/end_season is doy_366. Convert. 
     if (is.null(start_date)){
-      summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - start_rain)
+      summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - start_rains)
     } else {
       # check start_date is doy_366. Convert. 
       summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - .data[[start_date]])

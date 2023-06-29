@@ -71,11 +71,11 @@
 #' end_output <- end_rains(data = daily_niger, station = "station_name", date_time = "date",
 #'                         year = "year", doy = "doy", rain = "rain")
 #' summary_data <- dplyr::full_join(start_output, end_output)
-#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", start_date = "start_rain", end_date = "end_rain", rain = "rain")
+#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", start_date = "start_rains", end_date = "end_rains", rain = "rain")
 #' 
 #' # Or to create one of the start rains in the function:
 #' summary_data <- end_output
-#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", end_date = "end_rain", rain = "rain", threshold = 20)
+#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", end_date = "end_rains", rain = "rain", threshold = 20)
 
 seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NULL, 
                            data, date_time, year = NULL, station = NULL, doy = NULL, 
@@ -115,7 +115,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                                     spell_interval = sor_spell_interval, spell_max_dry_days = sor_spell_max_dry_days, 
                                     dry_period = sor_dry_period, period_interval = sor_period_interval, 
                                     max_rain = sor_max_rain, period_max_dry_days = sor_period_max_dry_days)
-    start_date <- "start_rain"
+    start_date <- "start_rains"
     summary_data <- dplyr::full_join(summary_data, start_rains_data)
   }
   if (is.null(end_date)) {
@@ -125,7 +125,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, 
                                   output = "doy", interval_length = eor_interval_length, 
                                   min_rainfall = eor_min_rainfall)
-      end_date <- "end_rain"
+      end_date <- "end_rains"
     }
     else {
       end_rains_data <- end_season(data = data, date_time = date_time, 

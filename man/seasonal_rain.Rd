@@ -167,9 +167,9 @@ start_output <- start_rains(data = daily_niger, station = "station_name", date_t
 end_output <- end_rains(data = daily_niger, station = "station_name", date_time = "date",
                         year = "year", doy = "doy", rain = "rain")
 summary_data <- dplyr::full_join(start_output, end_output)
-start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", start_date = "start_rain", end_date = "end_rain", rain = "rain")
+start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", start_date = "start_rains", end_date = "end_rains", rain = "rain")
 
 # Or to create one of the start rains in the function:
 summary_data <- end_output
-start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", end_date = "end_rain", rain = "rain", threshold = 20)
+start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", end_date = "end_rains", rain = "rain", threshold = 20)
 }

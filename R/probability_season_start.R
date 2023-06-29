@@ -12,7 +12,7 @@
 #'
 #' @examples #TODO#
 #' #x <- start_rains(daily_niger, date_time = "date", station = "station_name", rain = "rain")
-#' #probability_season_start(x, station = "station_name", start_rains = "start_rain", specified_day = c(150, 200))
+#' #probability_season_start(x, station = "station_name", start_rains = "start_rains", specified_day = c(150, 200))
 probability_season_start <- function(data, station = NULL, start_rains, doy_format = c("doy_366", "doy_365"), # assumed to be 366 then.
                                      specified_day) {
   doy_format <- match.arg(doy_format)

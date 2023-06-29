@@ -32,5 +32,5 @@ The probabilities of the start of the rains occurring on or before a set of spec
 \examples{
 #TODO#
 #x <- start_rains(daily_niger, date_time = "date", station = "station_name", rain = "rain")
-#probability_season_start(x, station = "station_name", start_rains = "start_rain", specified_day = c(150, 200))
+#probability_season_start(x, station = "station_name", start_rains = "start_rains", specified_day = c(150, 200))
 }

@@ -65,21 +65,21 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   
   if (output == "doy"){
     end_of_rains <- end_of_rains %>%
-      dplyr::summarise(end_rain = ifelse(is.na(x = dplyr::last(x = roll_sum_rain)), 
+      dplyr::summarise(end_rains = ifelse(is.na(x = dplyr::last(x = roll_sum_rain)), 
                                          NA, 
                                          dplyr::last(x=.data[[doy]], default=NA)))
     
   } else if (output == "date") {
     end_of_rains <- end_of_rains %>%
-      dplyr::summarise(end_rain = dplyr::if_else(is.na(x = dplyr::last(x = roll_sum_rain)), 
+      dplyr::summarise(end_rains = dplyr::if_else(is.na(x = dplyr::last(x = roll_sum_rain)), 
                                                  as.Date(NA),
                                                  dplyr::last(.data[[date_time]], default=NA)))
   } else {
     end_of_rains <- end_of_rains %>%
-      dplyr::summarise(end_rain_doy = ifelse(is.na(x = dplyr::last(x = roll_sum_rain)), 
+      dplyr::summarise(end_rains_doy = ifelse(is.na(x = dplyr::last(x = roll_sum_rain)), 
                                              NA, 
                                              dplyr::last(x=.data[[doy]], default=NA)),
-                       end_rain_date = dplyr::if_else(is.na(x = dplyr::last(x = roll_sum_rain)), 
+                       end_rains_date = dplyr::if_else(is.na(x = dplyr::last(x = roll_sum_rain)), 
                                                       as.Date(NA),
                                                       dplyr::last(.data[[date_time]], default=NA)))
   }
