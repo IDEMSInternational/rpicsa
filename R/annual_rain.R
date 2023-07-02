@@ -40,4 +40,7 @@ annual_rain <- function(data, date_time, rain, year = NULL, total_rain = TRUE,
                                   summaries = summaries, na_rm = na_rm, 
                                   na_prop = na_prop, na_n = na_n, 
                                   na_n_non = na_n_non, names = "{.fn}")
+  
+  # TODO - add in - what names to give?
+  if (total_rain) climatic_output <- climatic_output %>% dplyr::rename(annual_rain = total_rain)
 }

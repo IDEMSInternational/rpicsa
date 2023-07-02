@@ -81,7 +81,6 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
       summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - .data[[start_date]])
     }
   }
-  # TODO: calculate length of season
   return(summary_data)
 }
 

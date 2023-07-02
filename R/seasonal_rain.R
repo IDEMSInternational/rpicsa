@@ -71,7 +71,9 @@
 #' end_output <- end_rains(data = daily_niger, station = "station_name", date_time = "date",
 #'                         year = "year", doy = "doy", rain = "rain")
 #' summary_data <- dplyr::full_join(start_output, end_output)
-#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", start_date = "start_rains", end_date = "end_rains", rain = "rain")
+#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date",
+#' station = "station_name", data = daily_niger, year = "year", start_date = "start_rains",
+#' end_date = "end_rains", rain = "rain")
 #' 
 #' # Or to create one of the start rains in the function:
 #' summary_data <- end_output
@@ -167,7 +169,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                                                      year = year, to = "annual", summaries = summaries, 
                                                      na_rm = na_rm, na_prop = na_prop, na_n = na_n, na_n_non = na_n_non, 
                                                      names = "{.fn}")
-  if (total_rain) climatic_output <- climatic_output %>% dplyr::rename(total_seasonal_rain = total_rain)
+  if (total_rain) climatic_output <- climatic_output %>% dplyr::rename(seasonal_rain = total_rain)
   if (n_rain) climatic_output <- climatic_output %>% dplyr::rename(n_seasonal_rain = n_rain)
   return(climatic_output)
 }
