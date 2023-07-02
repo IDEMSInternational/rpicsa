@@ -6,14 +6,14 @@ library(dplyr)
 daily_niger_1 <- daily_niger %>% dplyr::filter(year == 1951) %>% dplyr::filter(station_name == "Agades")
 
 rain_seasonal <- seasonal_rain(data = daily_niger_1, station = "station_name", date_time = "date",
-                               year = "year", doy = "doy", rain = "rain", end_type = "rains") %>% dplyr::pull(total_seasonal_rain)
+                               year = "year", doy = "doy", rain = "rain", end_type = "rains") %>% dplyr::pull(seasonal_rain)
 
 rain_seasonal_1 <- daily_niger %>%
   dplyr::filter(date >= as.Date("1951-08-18")) %>%
   dplyr::filter(date <= as.Date("1951-09-17")) %>%
   dplyr::filter(station_name == "Agades") %>%
-  dplyr::summarise(total_seasonal_rain = sum(rain)) %>%
-  dplyr::pull(total_seasonal_rain)
+  dplyr::summarise(seasonal_rain = sum(rain)) %>%
+  dplyr::pull(seasonal_rain)
 
 daily_niger_2 <- daily_niger %>% dplyr::filter(year <= 1951) %>% dplyr::filter(station_name == "Agades")
 start_output <- start_rains(data = daily_niger_2, station = "station_name", date_time = "date",

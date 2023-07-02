@@ -9,11 +9,11 @@ niger <- daily_niger %>%
 
 x_sum <- niger %>% 
   group_by(station_name, year) %>% 
-  summarise(total_rain = sum(rain))
+  summarise(annual_rain = sum(rain))
 
 x_both <- niger %>% 
   group_by(station_name, year) %>% 
-  summarise(total_rain = sum(rain),
+  summarise(annual_rain = sum(rain),
             n_rain = sum(rain > 0.85))
 
 y_sum <- annual_rain(data = niger, date_time = "date", n_rain = FALSE,
