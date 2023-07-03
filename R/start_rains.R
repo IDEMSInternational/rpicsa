@@ -68,8 +68,12 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   checkmate::assert_int(max_rain, lower = 0, null.ok = TRUE)
   checkmate::assert_int(period_max_dry_days, lower = 0, null.ok = TRUE)
   if (end_day <= start_day) stop("The `end_day` must be after the `start_day`")
-  if ((number_rain_days) & (rain_day_interval < min_rain_days)) stop("Value given in `rain_day_interval` must be equal to or greater than the value given in `min_rain_days`")
-  if ((dry_spell) & (spell_interval < spell_max_dry_days)) stop("Value given in `spell_interval` must be equal to or greater than the value given in `spell_max_dry_days`")
+  if (number_rain_days){
+    if (rain_day_interval < min_rain_days) stop("Value given in `rain_day_interval` must be equal to or greater than the value given in `min_rain_days`")
+  }
+  if (dry_spell){
+    if (spell_interval < spell_max_dry_days) stop("Value given in `spell_interval` must be equal to or greater than the value given in `spell_max_dry_days`")
+  }
   if (dry_period){
     if (period_interval < period_max_dry_days) stop("Value given in `period_interval` must be equal to or greater than the value given in `period_max_dry_days`")
   } 
