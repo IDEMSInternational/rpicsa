@@ -149,14 +149,14 @@ climatic_summary <- function(data, date_time, station = NULL, elements = NULL,
   if (to == "pentad") {
     if (is.null(pentad)) {
       pentad <- "pentad"
-      data[[pentad]] <- cdms.products::pentad(data[[date_time]])
+      data[[pentad]] <- pentad(data[[date_time]])
     }
     to <- "annual-within-year"
     by <- pentad
   } else if (to == "dekadal") {
     if (is.null(pentad)) {
       dekad <- "dekad"
-      data[[dekad]] <- cdms.products::dekad(data[[date_time]])
+      data[[dekad]] <- dekad(data[[date_time]])
     }
     to <- "annual-within-year"
     by <- dekad
@@ -208,13 +208,13 @@ climatic_summary <- function(data, date_time, station = NULL, elements = NULL,
   }
   if (!any_na_params) .x_call <- ".x"
   else {
-    na_params <- c(null_to_string(na_prop), null_to_string(na_n),
-                   null_to_string(na_consec), null_to_string(na_n_non))
-    .x_call <- paste0("naflex::na_omit_if(.x, ",
-                      "prop = ", na_params[1], ", ", 
-                      "n = ", na_params[2], ", ", 
-                      "consec = ", na_params[3], ", ",
-                      "n_non = ", na_params[4], ")")
+    # na_params <- c(null_to_string(na_prop), null_to_string(na_n),
+    #                null_to_string(na_consec), null_to_string(na_n_non))
+    # .x_call <- paste0("naflex::na_omit_if(.x, ",
+    #                   "prop = ", na_params[1], ", ", 
+    #                   "n = ", na_params[2], ", ", 
+    #                   "consec = ", na_params[3], ", ",
+    #                   "n_non = ", na_params[4], ")")
   }
   exp_summaries <- vector("list", length(summaries))
   names(exp_summaries) <- names(summaries)

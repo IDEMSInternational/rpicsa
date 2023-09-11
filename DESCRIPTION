@@ -21,6 +21,7 @@ Imports:
     rlang,
     stats,
     testthat,
-    tidyr
+    tidyr,
+    tidyselect
 Remotes:
     IDEMSInternational/cdms.products
