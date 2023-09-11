@@ -1,7 +1,7 @@
 #' Seasonal total rainfall
 #' @description Total annual rainfall between start of the rains and end of the season.
 #' 
-# @inheritParams annual_rain
+#' @inheritParams annual_rain
 #' 
 #' @param summary_data Summary data frame containing the `start_date` and `end_date` variables. These variables are calculated from start of rains and end of season functions.
 #' If `NULL`, `start_date` and `end_date` are calculated from the `start_of_rains` and `end_of_season` functions respectively.
@@ -95,7 +95,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   end_type <- match.arg(end_type)
   if (is.null(doy)) {
     doy <- "doy"
-    data <- data %>% dplyr::mutate(doy != yday_366(.data[[date_time]]))
+    data <- data %>% dplyr::mutate(doy != cdms.products::yday_366(.data[[date_time]]))
   }
   if (is.null(year)) {
     data[["year"]] <- lubridate::year(data[[year]])
@@ -163,7 +163,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
     summaries <- c(total_rain = "sum")
   if (n_rain) 
     summaries <- c(summaries, n_rain = paste0("~sum(.x > ", rain_day, ")"))
-  climatic_output <- climatic_summary(data = summary_data, 
+  climatic_output <- cdms.products::climatic_summary(data = summary_data, 
                                                      date_time = date_time, station = station, elements = rain, 
                                                      year = year, to = "annual", summaries = summaries, 
                                                      na_rm = na_rm, na_prop = na_prop, na_n = na_n, na_n_non = na_n_non, 
