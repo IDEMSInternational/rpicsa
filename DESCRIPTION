@@ -23,5 +23,3 @@ Imports:
     testthat,
     tidyr,
     tidyselect
-Remotes:
-    IDEMSInternational/cdms.products
