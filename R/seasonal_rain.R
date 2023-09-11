@@ -1,7 +1,7 @@
 #' Seasonal total rainfall
 #' @description Total annual rainfall between start of the rains and end of the season.
 #' 
-#' @inheritParams annual_rain
+# @inheritParams annual_rain
 #' 
 #' @param summary_data Summary data frame containing the `start_date` and `end_date` variables. These variables are calculated from start of rains and end of season functions.
 #' If `NULL`, `start_date` and `end_date` are calculated from the `start_of_rains` and `end_of_season` functions respectively.
