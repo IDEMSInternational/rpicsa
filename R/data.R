@@ -17,6 +17,7 @@
 #'   \item{sunh}{daily number of sunshine hours}
 #'   \item{ws}{daily mean wind speed, m/s}
 #'   \item{wd}{daily mean wind direction, degrees}
+#'   \item{year}{year, numeric}
 #' }
 #' @source Meteo-France \url{https://meteofrance.com/}
 "daily_niger"

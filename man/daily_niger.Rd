@@ -19,6 +19,7 @@ A data frame with 54423 rows and 14 variables:
 \item{sunh}{daily number of sunshine hours}
 \item{ws}{daily mean wind speed, m/s}
 \item{wd}{daily mean wind direction, degrees}
+\item{year}{year, numeric}
 }
 }
 \source{
