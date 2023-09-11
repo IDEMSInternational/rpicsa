@@ -21,7 +21,7 @@ probability_season_start <- function(data, station = NULL, start_rains, doy_form
   # transform date variable to doy for the specified day
   if (lubridate::is.Date(data[[start_rains]])){
     if (doy_format == "doy_366") { # if doy for specified doy is 366, then set start_rains as 366 doy
-      data[[start_rains]] <- cdms.products::yday_366(as.Date(data[[start_rains]]))
+      data[[start_rains]] <- yday_366(as.Date(data[[start_rains]]))
     } else {
       data[[start_rains]] <- lubridate::yday(as.Date(data[[start_rains]]))
     }

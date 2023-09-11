@@ -31,7 +31,7 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
   # TODO: set up evaporation_variable
   checkmate::assert_data_frame(data)
   checkmate::assert_character(rain)
-  cdms.products:::assert_column_names(data, rain)
+  assert_column_names(data, rain)
   checkmate::assert(checkmate::check_date(data[[date_time]], null.ok = TRUE), 
                     checkmate::check_posixct(data[[date_time]],  null.ok = TRUE))
   checkmate::assert_string(station, null.ok = TRUE)
@@ -52,7 +52,7 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
   }
   if(is.null(doy)){ #(!doy %in% names(data)) {
     doy <- "doy"
-    data[[doy]] <- cdms.products::yday_366(data[[date_time]])
+    data[[doy]] <- yday_366(data[[date_time]])
   }
   
   # Create variables for WB code

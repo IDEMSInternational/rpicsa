@@ -7,7 +7,6 @@
 #' @export
 #'
 #' @examples # Example of season
-#' library(cdms.products)
 #' data(daily_niger)
 #' 
 #' seasonal_length(data = daily_niger, station = "station_name", date_time = "date",
@@ -50,7 +49,7 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
   } else {
     # what if doy 365?
     if (lubridate::is.Date(data[[start_date]])){
-        data[[start_date]] <- cdms.products::yday_366(as.Date(data[[start_date]]))
+        data[[start_date]] <- yday_366(as.Date(data[[start_date]]))
     }
   }
   if (is.null(end_date)){
@@ -71,7 +70,7 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
     }
   } else {
     if (lubridate::is.Date(data[[end_date]])){
-      data[[end_date]] <- cdms.products::yday_366(as.Date(data[[end_date]]))
+      data[[end_date]] <- yday_366(as.Date(data[[end_date]]))
     }
     # check end_rains/end_season is doy_366. Convert. 
     if (is.null(start_date)){

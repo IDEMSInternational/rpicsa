@@ -34,7 +34,7 @@ annual_rain <- function(data, date_time, rain, year = NULL, total_rain = TRUE,
   if (total_rain) summaries <- c(total_rain = "sum")
   if (n_rain) summaries <- c(summaries, 
                              n_rain = paste0("~sum(.x > ", rain_day, ")"))
-  climatic_output <- cdms.products::climatic_summary(data = data, date_time = date_time, 
+  climatic_output <- climatic_summary(data = data, date_time = date_time, 
                                   station = station, elements = rain,
                                   year = year, to = "annual", 
                                   summaries = summaries, na_rm = na_rm, 

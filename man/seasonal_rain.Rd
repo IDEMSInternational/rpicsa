@@ -152,7 +152,6 @@ Total annual rainfall between start of the rains and end of the season.
 }
 \examples{
 # TODO
-library(cdms.products)
 data(daily_niger)
 
 seasonal_rain(data = daily_niger, station = "station_name", date_time = "date", eos_start_day = 100,

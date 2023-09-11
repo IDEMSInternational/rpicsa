@@ -27,7 +27,7 @@ mean_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = N
                              na_rm = FALSE, na_prop = NULL, na_n = NULL, 
                              na_consec = NULL, na_n_non = NULL) {
   to <- match.arg(to)
-  cdms.products::climatic_summary(data = data, date_time = date_time, 
+  climatic_summary(data = data, date_time = date_time, 
                                   station = station, elements = c(tmin, tmax),
                                   year = year, month = month, to = to, 
                                   summaries = c(mean = "mean"), na_rm = na_rm, 

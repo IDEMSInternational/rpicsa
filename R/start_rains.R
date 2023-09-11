@@ -41,15 +41,15 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   
   checkmate::assert_data_frame(data)
   checkmate::assert_character(rain)
-  cdms.products:::assert_column_names(data, rain)
+  assert_column_names(data, rain)
   checkmate::assert(checkmate::check_date(data[[date_time]], null.ok = TRUE), 
                     checkmate::check_posixct(data[[date_time]],  null.ok = TRUE))
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   #checkmate::assert_string(doy, null.ok = TRUE)
-  # if (!is.null(station)) cdms.products:::assert_column_names(data, station)
-  # if (!is.null(date_time)) cdms.products:::assert_column_names(data, date_time)
-  # if (!is.null(year)) cdms.products:::assert_column_names(data, year)
+  # if (!is.null(station)) assert_column_names(data, station)
+  # if (!is.null(date_time)) assert_column_names(data, date_time)
+  # if (!is.null(year)) assert_column_names(data, year)
   checkmate::assert_logical(total_rainfall, null.ok = TRUE)
   checkmate::assert_logical(proportion, null.ok = TRUE)
   checkmate::assert_logical(number_rain_days, null.ok = TRUE)
@@ -86,7 +86,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   }
   if(is.null(doy)){ #(!doy %in% names(data)) {
     doy <- "doy"
-    data[[doy]] <- cdms.products::yday_366(data[[date_time]])
+    data[[doy]] <- yday_366(data[[date_time]])
   }
   if (!is.null(station)){
     start_of_rains <- data %>% 
@@ -119,7 +119,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   }
   if (dry_spell){
     start_of_rains <- start_of_rains %>% 
-      dplyr::mutate(dry_spell = cdms.products::spells(x=rain_day == 0),
+      dplyr::mutate(dry_spell = spells(x=rain_day == 0),
                     roll_max_dry_spell = dplyr::lead(x=RcppRoll::roll_maxl(x = dry_spell, n = spell_interval, fill=NA)))
   } else {
     start_of_rains <- start_of_rains %>% 

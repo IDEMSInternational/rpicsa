@@ -28,14 +28,14 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   is_station <- !is.null(station)
   checkmate::assert_data_frame(data)
   checkmate::assert_data_frame(season_data)
-  cdms.products:::assert_column_names(season_data, start_day)
-  cdms.products:::assert_column_names(season_data, end_day)
+  assert_column_names(season_data, start_day)
+  assert_column_names(season_data, end_day)
   checkmate::assert_character(rain)
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
   checkmate::assert_logical(start_check, null.ok = TRUE)
-  cdms.products:::assert_column_names(data, rain)
+  assert_column_names(data, rain)
   checkmate::assert(checkmate::check_date(data[[date_time]], 
                                           null.ok = TRUE), checkmate::check_posixct(data[[date_time]], 
                                                                                     null.ok = TRUE))
@@ -45,7 +45,7 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   }
   if (is.null(doy)) {
     doy <- "doy"
-    data[[doy]] <- cdms.products::yday_366(data[[date_time]])
+    data[[doy]] <- yday_366(data[[date_time]])
   }
   if (is.null(season_data)) 
     season_data <- data
@@ -73,9 +73,9 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   df <- dplyr::left_join(df, season_data)
   df <- df %>% dplyr::filter(stats::complete.cases(df))
   if (lubridate::is.Date(df[[start_day]])) 
-    df[[start_day]] <- cdms.products::yday_366(df[[start_day]])
+    df[[start_day]] <- yday_366(df[[start_day]])
   if (lubridate::is.Date(df[[end_day]])) 
-    df[[end_day]] <- cdms.products::yday_366(df[[end_day]])
+    df[[end_day]] <- yday_366(df[[end_day]])
   if (start_check) {
     df$planting_day_cond <- (df[[start_day]] <= df[[planting_day_name]])
   }

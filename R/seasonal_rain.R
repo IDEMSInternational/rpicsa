@@ -56,7 +56,6 @@
 #' @importFrom rlang :=
 #' @importFrom rlang .data
 #' @examples # TODO
-#' library(cdms.products)
 #' data(daily_niger)
 #' 
 #' seasonal_rain(data = daily_niger, station = "station_name", date_time = "date", eos_start_day = 100,
@@ -96,7 +95,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   end_type <- match.arg(end_type)
   if (is.null(doy)) {
     doy <- "doy"
-    data <- data %>% dplyr::mutate(doy != cdms.products::yday_366(.data[[date_time]]))
+    data <- data %>% dplyr::mutate(doy != yday_366(.data[[date_time]]))
   }
   if (is.null(year)) {
     data[["year"]] <- lubridate::year(data[[year]])
@@ -164,7 +163,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
     summaries <- c(total_rain = "sum")
   if (n_rain) 
     summaries <- c(summaries, n_rain = paste0("~sum(.x > ", rain_day, ")"))
-  climatic_output <- cdms.products::climatic_summary(data = summary_data, 
+  climatic_output <- climatic_summary(data = summary_data, 
                                                      date_time = date_time, station = station, elements = rain, 
                                                      year = year, to = "annual", summaries = summaries, 
                                                      na_rm = na_rm, na_prop = na_prop, na_n = na_n, na_n_non = na_n_non, 

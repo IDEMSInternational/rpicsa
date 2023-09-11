@@ -128,7 +128,6 @@ Number of days between start of the rains and end of the season
 }
 \examples{
 # Example of season
-library(cdms.products)
 data(daily_niger)
 
 seasonal_length(data = daily_niger, station = "station_name", date_time = "date",

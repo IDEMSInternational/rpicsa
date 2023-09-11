@@ -12,7 +12,6 @@ RoxygenNote: 7.2.3
 Depends: 
     R (>= 2.10)
 Imports:
-    cdms.products,
     checkmate,
     dplyr,
     lubridate,

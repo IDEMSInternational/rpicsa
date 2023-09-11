@@ -24,16 +24,16 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   
   checkmate::assert_data_frame(data)
   checkmate::assert_character(rain)
-  cdms.products:::assert_column_names(data, rain)
+  assert_column_names(data, rain)
   checkmate::assert(checkmate::check_date(data[[date_time]], null.ok = TRUE), 
                     checkmate::check_posixct(data[[date_time]],  null.ok = TRUE))
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
-  # if (!is.null(station)) cdms.products:::assert_column_names(data, station)
-  # if (!is.null(date_time)) cdms.products:::assert_column_names(data, date_time)
-  # if (!is.null(year)) cdms.products:::assert_column_names(data, year)
-  # if (!is.null(doy)) cdms.products:::assert_column_names(data, doy)
+  # if (!is.null(station)) assert_column_names(data, station)
+  # if (!is.null(date_time)) assert_column_names(data, date_time)
+  # if (!is.null(year)) assert_column_names(data, year)
+  # if (!is.null(doy)) assert_column_names(data, doy)
   checkmate::assert_int(start_day, lower = 1, upper = 365)
   checkmate::assert_int(end_day, lower = 2, upper = 366)
   checkmate::assert_int(interval_length, lower = 1)
@@ -48,7 +48,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   }
   if(is.null(doy)){ #(!doy %in% names(data)) {
     doy <- "doy"
-    data[[doy]] <- cdms.products::yday_366(data[[date_time]])
+    data[[doy]] <- yday_366(data[[date_time]])
   }
   if (!is.null(station)){
     end_of_rains <- data %>% 
