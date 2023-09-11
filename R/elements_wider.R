@@ -13,6 +13,7 @@
 #' @return A widened data frame with columns created based on unique values from 
 #'         the 'name' column(s), and their corresponding values in the 'value' 
 #'         column(s).
+#' @export
 #'
 #' @examples
 #' # Example usage:

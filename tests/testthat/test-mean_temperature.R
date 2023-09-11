@@ -1,5 +1,4 @@
 library(rpicsa)
-library(cdms.products) # for niger data
 library(dplyr)
 
 # Testing mean_temperature function --------------------

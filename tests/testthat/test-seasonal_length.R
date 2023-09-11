@@ -1,5 +1,4 @@
 library(rpicsa)
-library(cdms.products) # for niger data
 library(dplyr)
 
 data(daily_niger)
