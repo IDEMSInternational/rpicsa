@@ -10,6 +10,7 @@
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
+#' @param s_start_doy \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_doy = 1`. The day of year to state is the first day of year.
 #' @param output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
 #' @param total_rainfall \code{logical(1)} default `TRUE`. Start of the rains to be defined by the total or proportion of rainfall over a period.
 #' @param over_days \code{numerical(1)} Only works if `total_rainfall = TRUE`. This is the number of days to total the rainfall over.
@@ -33,7 +34,8 @@
 #' @examples #TODO#
 #' # check against R-Instat function
 start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL, threshold = 0.85,
-                        doy = NULL, start_day = 1, end_day = 366, output = c("doy", "date", "both"),
+                        doy = NULL, start_day = 1, end_day = 366, s_start_doy = NULL,
+                        output = c("doy", "date", "both"),
                         total_rainfall = TRUE, over_days = 1, amount_rain = 20, proportion = FALSE, prob_rain_day = 0.8,
                         number_rain_days = FALSE, min_rain_days = 1, rain_day_interval = 2,
                         dry_spell = FALSE, spell_interval = 21, spell_max_dry_days = 9,
@@ -50,6 +52,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   # if (!is.null(station)) assert_column_names(data, station)
   # if (!is.null(date_time)) assert_column_names(data, date_time)
   # if (!is.null(year)) assert_column_names(data, year)
+  checkmate::assert_numeric(s_start_doy, lower = 1, upper = 366, null.ok = TRUE)
   checkmate::assert_logical(total_rainfall, null.ok = TRUE)
   checkmate::assert_logical(proportion, null.ok = TRUE)
   checkmate::assert_logical(number_rain_days, null.ok = TRUE)
@@ -67,6 +70,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   checkmate::assert_int(period_interval, lower = 1, null.ok = TRUE)
   checkmate::assert_int(max_rain, lower = 0, null.ok = TRUE)
   checkmate::assert_int(period_max_dry_days, lower = 0, null.ok = TRUE)
+  
   if (end_day <= start_day) stop("The `end_day` must be after the `start_day`")
   if (number_rain_days){
     if (rain_day_interval < min_rain_days) stop("Value given in `rain_day_interval` must be equal to or greater than the value given in `min_rain_days`")
@@ -78,23 +82,32 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
     if (period_interval < period_max_dry_days) stop("Value given in `period_interval` must be equal to or greater than the value given in `period_max_dry_days`")
   } 
   output <- match.arg(output)
-  
-  # calculate doy, year from date
-  if(is.null(year)){#if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
+
+  # Do we have a shifted start doy?
+  if (!is.null(s_start_doy)){
+    data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy)
     year <- "year"
-    data[[year]] <- lubridate::year(data[[date_time]])
-  }
-  if(is.null(doy)){ #(!doy %in% names(data)) {
     doy <- "doy"
-    data[[doy]] <- yday_366(data[[date_time]])
+    data[[doy]] <- data[["s_doy"]]
+    data[[year]] <- data[["s_year"]]
+  } else {
+    # calculate doy, year from date
+    if(is.null(year)){#if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
+      year <- "year"
+      data[[year]] <- lubridate::year(data[[date_time]])
+    }
+    if(is.null(doy)){ #(!doy %in% names(data)) {
+      doy <- "doy"
+      data[[doy]] <- yday_366(data[[date_time]])
+    }
   }
+
   if (!is.null(station)){
     start_of_rains <- data %>% 
       dplyr::group_by(.data[[station]], .drop = FALSE) 
   } else {
     start_of_rains <- data
   }
-  
   # start of rains can only occur on a day that rains
   start_of_rains <- start_of_rains %>% 
     dplyr::mutate(rain_day = .data[[rain]] >= threshold)
@@ -130,7 +143,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
       dplyr::mutate(roll_sum_rain_dry_period = dplyr::lead(x=RcppRoll::roll_suml(x=.data[[rain]], period_max_dry_days, fill=NA)),
                     n_dry_period = RcppRoll::roll_suml(x=roll_sum_rain_dry_period <= max_rain, n = period_interval - period_max_dry_days + 1, fill=NA, na.rm=FALSE))
   }
-  
+
   # filters 
   if (total_rainfall){
     start_of_rains <- start_of_rains %>% 
@@ -148,14 +161,13 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
     start_of_rains <- start_of_rains %>% 
       dplyr::filter(((.data[[rain]] >= threshold) & n_dry_period == 0) | is.na(x = .data[[rain]]) | is.na(x = n_dry_period), .preserve = TRUE)
   }
-  
-  start_of_rains <- start_of_rains %>% 
-    dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>%
-    dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
-  
+
+    start_of_rains <- start_of_rains %>% 
+      dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>% 
+      dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
+
   # start_rains   ifelse(test=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), yes=NA, no=dplyr::first(x=doy, default=NA))
   # start_rains_date   dplyr::if_else(condition=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), as.Date(NA), dplyr::first(date1, default=NA))
-  
   if (output == "doy"){
     start_of_rains <- start_of_rains %>%
       dplyr::summarise(start_rains = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 

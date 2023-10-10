@@ -7,6 +7,7 @@
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
+#' @param s_start_doy \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_doy = 1`. The day of year to state is the first day of year.
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
 #' @param output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
@@ -19,7 +20,8 @@
 #' @examples #TODO#
 #' # is same as R-Instat
 end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
-                      doy = NULL, start_day = 1, end_day = 366, output = c("doy", "date", "both"),
+                      doy = NULL,  s_start_doy = NULL,
+                      start_day = 1, end_day = 366, output = c("doy", "date", "both"),
                       interval_length = 1, min_rainfall = 10){
   
   checkmate::assert_data_frame(data)
@@ -30,6 +32,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
+  checkmate::assert_numeric(s_start_doy, lower = 1, upper = 366, null.ok = TRUE)
   # if (!is.null(station)) assert_column_names(data, station)
   # if (!is.null(date_time)) assert_column_names(data, date_time)
   # if (!is.null(year)) assert_column_names(data, year)
@@ -41,14 +44,23 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   if (end_day <= start_day) stop("The `end_day` must be after the `start_day`")
   output <- match.arg(output)
   
-  # calculate doy, year from date
-  if(is.null(year)){#if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
+  # Do we have a shifted start doy?
+  if (!is.null(s_start_doy)){
+    data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy)
     year <- "year"
-    data[[year]] <- lubridate::year(data[[date_time]])
-  }
-  if(is.null(doy)){ #(!doy %in% names(data)) {
     doy <- "doy"
-    data[[doy]] <- yday_366(data[[date_time]])
+    data[[year]] <- data[["s_doy"]]
+    data[[doy]] <- data[["s_year"]]
+  } else {
+    # calculate doy, year from date
+    if(is.null(year)){#if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
+      year <- "year"
+      data[[year]] <- lubridate::year(data[[date_time]])
+    }
+    if(is.null(doy)){ #(!doy %in% names(data)) {
+      doy <- "doy"
+      data[[doy]] <- yday_366(data[[date_time]])
+    }
   }
   if (!is.null(station)){
     end_of_rains <- data %>% 
