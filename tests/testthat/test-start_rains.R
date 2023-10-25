@@ -7,7 +7,7 @@ daily_data <- rpicsa::daily_niger %>%
   filter(year <= 1950) %>%
   filter(year > 1945) %>%
   filter(station_name == "Agades")
-test_1_results <- readRDS("data/test_1_annual_summaries.rds") %>%
+test_1_results <- readRDS("testdata/test_1_annual_summaries.rds") %>%
   dplyr::select(c(year, station_name, start_rains)) %>%
   dplyr::arrange(year)
 
