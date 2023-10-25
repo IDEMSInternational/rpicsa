@@ -125,6 +125,66 @@ season_rain_table <- rpicsa::seasonal_rain(summary_rains_table, start_date = "st
             year = "year", doy = "doy", rain = "rain")
 # Bind together to view
 summary_rains_table <- dplyr::full_join(summary_rains_table, season_length_table)
-dplyr::full_join(summary_rains_table, season_rain_table) %>%
-  knitr::kable()
+summary_rains_table <- dplyr::full_join(summary_rains_table, season_rain_table)
+summary_rains_table1 <- summary_rains_table
+names(summary_rains_table1) <- c("Station", "Year", "Start of rains", "End of rains", "Length of season", "Rain in season (mm)", "Number of rainy days in season")
+summary_rains_table1 %>%
+    knitr::kable()
 ```
+
+We can use this to calculate probabilities to aid in successful crop production in the future. Let's say we are just interested in `Birni N'Konni`. Say we want to find the best crop to plant, so try out different planting days and planting periods to see which would historically be most likely to succeed. We look at 100mm rainfall for a crop where the start of rains starts before day 100, and then before day 200, and where the length of season is 60 days or 80 days:
+
+```{r, message = FALSE, warning = FALSE, eval=FALSE, include=TRUE}
+crops_definitions(data = daily_niger %>% dplyr::filter(station_name == "Birni N'Konni"), date_time = "date", station = "station_name", year = "year", doy = "doy", rain = "rain",
+                  season_data = summary_rains_table %>% dplyr::filter(station_name == "Birni N'Konni"), start_day = "start_rains", end_day = "end_rains",
+                  water_requirements = 100,
+                  planting_dates = c(100, 200),
+                  planting_length = c(60, 80))
+```
+
+```{r, message = FALSE, warning = FALSE, echo = FALSE}
+crops_definitions <- crops_definitions(data = daily_niger %>% dplyr::filter(station_name == "Birni N'Konni"), date_time = "date", station = "station_name", year = "year", doy = "doy", rain = "rain",
+                  season_data = summary_rains_table %>% dplyr::filter(station_name == "Birni N'Konni"), start_day = "start_rains", end_day = "end_rains",
+                  water_requirements = 100,
+                  planting_dates = c(100, 200),
+                  planting_length = c(60, 80))
+names(crops_definitions) <- c("Station", "Water Requirements", "Planting Day", "Season Length", "Probability of Success")
+  crops_definitions %>% knitr::kable()
+```
+
+We can see that the most successful crop will be one that needs a planting length of 60 days, and can be planted after day 200.
+
+We can finally look at the probability of the rainy season to start after a specified set of dates:
+
+```{r, message = FALSE, warning = FALSE, eval=FALSE, include=TRUE}
+probability_season_start(summary_rains_table %>% dplyr::filter(station_name == "Birni N'Konni"), station = "station_name", start_rains = "start_rains", specified_day = c(100, 200, 300))
+```
+
+```{r, message = FALSE, warning = FALSE, echo = FALSE}
+probability_season_start_table <- probability_season_start(summary_rains_table %>% dplyr::filter(station_name == "Birni N'Konni"), station = "station_name", start_rains = "start_rains", specified_day = c(100, 200, 300))
+
+probability_season_start_table <- probability_season_start_table %>% tidyr::pivot_longer(cols = dplyr::starts_with("proportion_")) %>% mutate(name = gsub(".*_","",name)) %>%
+  mutate(value = round(value, 2))
+names(probability_season_start_table) <- c("Station", "Start day", "Probability")
+
+probability_season_start_table %>% knitr::kable()
+```
+
+In Birni N'Konni (from 1945-1950), the rainy season started between day 100 and 200 about 83.3% of the years. This can be useful to aid in planting schedules. 
+
+
+## Documentation
+For detailed information on each function, including arguments, usage, and examples, please refer to the package documentation. You can access it using the following command:
+
+```{r, message = FALSE, warning = FALSE, eval=FALSE, include=TRUE}
+?rpicsa
+```
+
+## Contributing
+We welcome contributions from the community. If you have any bug reports, feature requests, or would like to contribute code to rpicsa, please visit our GitHub repository.
+
+## License
+This package is open-source and distributed under the GNU Lesser General Public License v3.0 License. Feel free to use, modify, and distribute it as needed.
+
+## Contact
+If you have any questions, suggestions, or feedback, please feel free to reach out to us.
