@@ -43,7 +43,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   
   checkmate::assert_data_frame(data)
   checkmate::assert_character(rain)
-  assert_column_names(data, rain)
+  #rpicsa:::assert_column_names(data, rain)
   checkmate::assert(checkmate::check_date(data[[date_time]], null.ok = TRUE), 
                     checkmate::check_posixct(data[[date_time]],  null.ok = TRUE))
   checkmate::assert_string(station, null.ok = TRUE)
