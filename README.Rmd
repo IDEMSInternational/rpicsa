@@ -65,18 +65,66 @@ daily_niger <- rpicsa::daily_niger %>% dplyr::filter(year <= 1950)
 
 To calculate the start of rains in Niger, we can use the `start_rains()` function. In our case, we define the start of rains as the first instance where there is more than 25mm of rainfall over three days, and there is no more than nine days without rainfall within 21 days.
 
+We also calculate the end of rains. Here, we define the end of rains to be the first instance after day 121 (April 30th), where there is one day with no more than 10mm of rainfall.
+
 ```{r, message = FALSE, warning = FALSE, eval=FALSE, include=TRUE}
-start_rains(data = daily_niger, date_time = "date", station = "station_name",
+# Calculate Start of Rains
+start_rain_table <- start_rains(data = daily_niger, date_time = "date", station = "station_name",
             year = "year", doy = "doy", rain = "rain",
             total_rainfall = TRUE, over_days = 3, amount_rain = 25,
             dry_spell = TRUE, spell_interval = 21, spell_max_dry_days = 9
             )
+
+# Calculate End of Rains
+end_rain_table <- end_rains(data = daily_niger, date_time = "date", station = "station_name",
+            year = "year", doy = "doy", rain = "rain",
+            start_day = 121, interval_length = 1, min_rainfall = 10)
+
+# Combine into a table Start of Rains
+summary_rains_table <- dplyr::full_join(start_rain_table, end_rain_table)
 ```
+
+We can then use this to calculate other summary statistics - for example, length of season, or rain summaries in the season
+
+```{r, message = FALSE, warning = FALSE, eval=FALSE, include=TRUE}
+# Length of season
+season_length_table <- rpicsa::seasonal_length(summary_rains_table, start_date = "start_rains", end_date = "end_rains",
+                                               data = daily_niger, date_time = "date", station = "station_name",
+            year = "year", doy = "doy", rain = "rain")
+
+# We can also look at the total rainy days and rainfall amount in each season
+season_rain_table <- rpicsa::seasonal_rain(summary_rains_table, start_date = "start_rains", end_date = "end_rains",
+                                               data = daily_niger, date_time = "date", station = "station_name",
+            year = "year", doy = "doy", rain = "rain")
+
+```
+
 ```{r, message = FALSE, warning = FALSE, echo = FALSE}
-start_rains(data = daily_niger, date_time = "date", station = "station_name",
+# Calculate Start of Rains
+start_rain_table <- start_rains(data = daily_niger, date_time = "date", station = "station_name",
             year = "year", doy = "doy", rain = "rain",
             total_rainfall = TRUE, over_days = 3, amount_rain = 25,
             dry_spell = TRUE, spell_interval = 21, spell_max_dry_days = 9
-            ) %>%
+            )
+
+# Calculate End of Rains
+end_rain_table <- end_rains(data = daily_niger, date_time = "date", station = "station_name",
+            year = "year", doy = "doy", rain = "rain",
+            start_day = 121, interval_length = 1, min_rainfall = 10)
+
+# Combine into a table Start of Rains
+summary_rains_table <- dplyr::full_join(start_rain_table, end_rain_table)
+# Length of season
+season_length_table <- rpicsa::seasonal_length(summary_rains_table, start_date = "start_rains", end_date = "end_rains",
+                                               data = daily_niger, date_time = "date", station = "station_name",
+            year = "year", doy = "doy", rain = "rain")
+
+# We can also look at the total rainy days and rainfall amount in each season
+season_rain_table <- rpicsa::seasonal_rain(summary_rains_table, start_date = "start_rains", end_date = "end_rains",
+                                               data = daily_niger, date_time = "date", station = "station_name",
+            year = "year", doy = "doy", rain = "rain")
+# Bind together to view
+summary_rains_table <- dplyr::full_join(summary_rains_table, season_length_table)
+dplyr::full_join(summary_rains_table, season_rain_table) %>%
   knitr::kable()
 ```
