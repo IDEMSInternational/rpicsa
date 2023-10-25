@@ -1,7 +1,6 @@
 library(rpicsa)
 library(dplyr)
 library(testthat)
-library(here)
 
 # Test case 1
 test_that("Correct summaries are calculated", {
