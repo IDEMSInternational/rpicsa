@@ -9,6 +9,7 @@
 #' @param month \code{character(1)} The name of the month column in \code{data}. If \code{NULL} it will be created using \code{lubridate::month(data[[date_time]])}.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param to \code{character(1)} Default `annual`. The period of time to calculate the mean temperature columns over (options are `annual` or `monthly`).
+#' @param summaries \code{character} The summaries to display. Options are `"mean"`, `"max"`, `"min"`.
 #' @param na_rm \code{logical(1)}. Should missing values (including \code{NaN}) be removed?
 #' @param na_prop \code{integer(1)} Max proportion of missing values allowed
 #' @param na_n \code{integer(1)} Max number of missing values allowed

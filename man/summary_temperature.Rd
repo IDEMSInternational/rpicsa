@@ -38,6 +38,8 @@ summary_temperature(
 
 \item{to}{\code{character(1)} Default \code{annual}. The period of time to calculate the mean temperature columns over (options are \code{annual} or \code{monthly}).}
 
+\item{summaries}{\code{character} The summaries to display. Options are \code{"mean"}, \code{"max"}, \code{"min"}.}
+
 \item{na_rm}{\code{logical(1)}. Should missing values (including \code{NaN}) be removed?}
 
 \item{na_prop}{\code{integer(1)} Max proportion of missing values allowed}
