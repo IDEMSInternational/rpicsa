@@ -58,6 +58,6 @@ A data.frame with mean summaries for each year or year and month for the minimum
 }
 \examples{
 #daily_niger_1 <- daily_niger \%>\% filter(year < 1950)
-summary_temperature(data = daily_niger_1, date_time  = "date", station = "station_name",
-             tmax = "tmax", tmin = "tmin", na_prop = 0.05)
+#summary_temperature(data = daily_niger_1, date_time  = "date", station = "station_name",
+#             tmax = "tmax", tmin = "tmin", na_prop = 0.05)
 }
