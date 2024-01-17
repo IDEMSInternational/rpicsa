@@ -54,7 +54,7 @@ summary_temperature(
 A data.frame with mean summaries for each year or year and month for the minimum daily temperature and/or the maximum daily temperature.
 }
 \description{
-: Returns a summary data frame giving either the mean, minimum, and/or maximum temperatures each year from 1 Jan to 31 Dec, or by year and month.
+Returns a summary data frame giving either the mean, minimum, and/or maximum temperatures each year from 1 Jan to 31 Dec, or by year and month.
 }
 \examples{
 #daily_niger_1 <- daily_niger \%>\% filter(year < 1950)

@@ -1,5 +1,5 @@
 #' Summary Temperature (Month or annually)
-#' @description: Returns a summary data frame giving either the mean of the minimum and/or maximum temperatures each year from 1 Jan to 31 Dec, or by year and month.
+#' @description Returns a summary data frame giving either the mean of the minimum and/or maximum temperatures each year from 1 Jan to 31 Dec, or by year and month.
 #' 
 #' @param data The data.frame to calculate from.
 #' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
