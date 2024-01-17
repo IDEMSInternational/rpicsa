@@ -1,5 +1,5 @@
 #' Summary Temperature (Month or annually)
-#' @description: Returns a summary data frame giving either the mean, minimum, and/or maximum temperatures each year from 1 Jan to 31 Dec, or by year and month.
+#' @description: Returns a summary data frame giving either the mean of the minimum and/or maximum temperatures each year from 1 Jan to 31 Dec, or by year and month.
 #' 
 #' @param data The data.frame to calculate from.
 #' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
@@ -19,22 +19,22 @@
 #' @export
 #'
 #' @examples #daily_niger_1 <- daily_niger %>% filter(year < 1950)
-#' summary_temperature(data = daily_niger_1, date_time  = "date", station = "station_name",
+#' mean_temperature(data = daily_niger_1, date_time  = "date", station = "station_name",
 #'              tmax = "tmax", tmin = "tmin", na_prop = 0.05)
 
-summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
-                             month = NULL, station = NULL, to = c("annual", "monthly"),
-                             summaries = c("mean", "min", "max"), na_rm = FALSE,
-                             na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL) {
+mean_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
+                                month = NULL, station = NULL, to = c("annual", "monthly"),
+                                summaries = c("mean", "min", "max"), na_rm = FALSE,
+                                na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL) {
   to <- match.arg(to)
   summaries_all <- c()
   if ("mean" %in% summaries){ summaries_all <- cbind(summaries_all, mean = "mean")}
   if ("min" %in% summaries){ summaries_all <- cbind(summaries_all, min = "min")}
   if ("max" %in% summaries){ summaries_all <- cbind(summaries_all, max = "max")}
   climatic_summary(data = data, date_time = date_time, 
-                                  station = station, elements = c(tmin, tmax),
-                                  year = year, month = month, to = to, 
-                                  summaries = c(mean = "mean"), na_rm = na_rm, 
-                                  na_prop = na_prop, na_n = na_n, 
-                                  na_n_non = na_n_non, names = "{.fn}_{.col}")
+                   station = station, elements = c(tmin, tmax),
+                   year = year, month = month, to = to, 
+                   summaries = c(mean = "mean"), na_rm = na_rm, 
+                   na_prop = na_prop, na_n = na_n, 
+                   na_n_non = na_n_non, names = "{.fn}_{.col}")
 }
