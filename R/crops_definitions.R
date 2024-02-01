@@ -70,6 +70,7 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   } else {
     season_data <- season_data %>% dplyr::select(c(.data[[year]], start_day, end_day))
   }
+  season_data <- na.omit(season_data)
   df <- dplyr::full_join(df, season_data)
   #df <- df %>% dplyr::filter(stats::complete.cases(df))
   if (lubridate::is.Date(df[[start_day]])) 
