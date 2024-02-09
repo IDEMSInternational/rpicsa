@@ -100,7 +100,7 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
                                                    dplyr::first(.data[[date_time]])))
   } else {
     end_of_season <- end_of_season %>%
-      dplyr::summarise(end_season = ifelse(is.na(x=dplyr::first(wb)),
+      dplyr::summarise(end_season_doy = ifelse(is.na(x=dplyr::first(wb)),
                                            NA,
                                            dplyr::first(.data[[doy]])),
                        end_season_date = dplyr::if_else(is.na(x=dplyr::first(wb)),
