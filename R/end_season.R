@@ -53,8 +53,8 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
     data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy)
     year <- "year"
     doy <- "doy"
-    data[[year]] <- data[["s_doy"]]
-    data[[doy]] <- data[["s_year"]]
+    data[[year]] <- data[["s_year"]]
+    data[[doy]] <- data[["s_doy"]]
   } else {
     # calculate doy, year from date
     if(is.null(year)){#if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
@@ -100,12 +100,12 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
                                                    dplyr::first(.data[[date_time]])))
   } else {
     end_of_season <- end_of_season %>%
-      dplyr::summarise(end_season_doy = ifelse(is.na(x=dplyr::first(wb)),
-                                               NA,
-                                               dplyr::first(.data[[doy]]))) %>%
-      dplyr::summarise(end_season_date = dplyr::if_else(is.na(x=dplyr::first(wb)),
-                                                        as.Date(NA),
-                                                        dplyr::first(.data[[date_time]])))
+      dplyr::summarise(end_season = ifelse(is.na(x=dplyr::first(wb)),
+                                           NA,
+                                           dplyr::first(.data[[doy]])),
+                       end_season_date = dplyr::if_else(is.na(x=dplyr::first(wb)),
+                                                   as.Date(NA),
+                                                   dplyr::first(.data[[date_time]])))
   }
   return(end_of_season)
 }
