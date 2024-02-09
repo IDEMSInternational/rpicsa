@@ -22,6 +22,7 @@
 #' @param na_n \code{integer(1)} Max number of missing values allowed
 #' @param na_consec \code{integer(1)} Max number of consecutive missing values allowed
 #' @param na_n_non \code{integer(1)} Min number of non-missing values required
+#' @param s_start_doy The starting day of the year (DOY) for the shift.
 #' @param sor_start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param sor_end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
 #' @param sor_total_rainfall \code{logical(1)} default `TRUE`. Start of the rains to be defined by the total or proportion of rainfall over a period.
@@ -82,7 +83,8 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                            data, date_time, year = NULL, station = NULL, doy = NULL, 
                            rain = NULL, total_rain = TRUE, n_rain = TRUE, rain_day = 0.85, 
                            na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL, 
-                           na_n_non = NULL, threshold = 0.85, sor_start_day = 1, sor_end_day = 366, 
+                           na_n_non = NULL, threshold = 0.85, sor_start_day = 1, sor_end_day = 366,
+                           s_start_doy = NULL,
                            sor_total_rainfall = TRUE, sor_over_days = 1, sor_amount_rain = 20, 
                            sor_proportion = FALSE, sor_prob_rain_day = 0.8, sor_number_rain_days = FALSE, 
                            sor_min_rain_days = 1, sor_rain_day_interval = 2, sor_dry_spell = FALSE, 
@@ -143,6 +145,15 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of\n         'total_rain' or 'n_rain' must be TRUE.")
   }
+  
+  if(!is.null(s_start_doy) || any(grepl("-", summary_data[[year]]))){
+    data <- shift_dates(data = data, date = "date", s_start_doy = s_start_doy - 1)
+    year <- "year"
+    doy <- "doy"
+    data[[year]] <- data[["s_year"]]
+    data[[doy]] <- data[["s_doy"]]
+  }
+  
   summary_data <- dplyr::full_join(data %>% dplyr::select(c({{ station }}, {{ year }}, {{ date_time }}, 
                                                             {{ doy }}, {{ rain }})), summary_data)
   summary_data <- summary_data %>% dplyr::group_by(.data[[station]], .data[[year]])
