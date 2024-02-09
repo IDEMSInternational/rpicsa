@@ -25,6 +25,7 @@ seasonal_rain(
   threshold = 0.85,
   sor_start_day = 1,
   sor_end_day = 366,
+  s_start_doy = NULL,
   sor_total_rainfall = TRUE,
   sor_over_days = 1,
   sor_amount_rain = 20,
@@ -93,6 +94,8 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 \item{sor_start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
 
 \item{sor_end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
+
+\item{s_start_doy}{The starting day of the year (DOY) for the shift.}
 
 \item{sor_total_rainfall}{\code{logical(1)} default \code{TRUE}. Start of the rains to be defined by the total or proportion of rainfall over a period.}
 
