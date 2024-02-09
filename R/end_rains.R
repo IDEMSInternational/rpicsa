@@ -46,7 +46,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   
   # Do we have a shifted start doy?
   if (!is.null(s_start_doy)){
-    data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy)
+    data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
     year <- "year"
     doy <- "doy"
     data[[year]] <- data[["s_year"]]
