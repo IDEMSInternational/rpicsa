@@ -146,7 +146,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
     stop("No summaries selected. At least one of\n         'total_rain' or 'n_rain' must be TRUE.")
   }
   
-  if(!is.null(s_start_doy) || any(grepl("-", summary_data[[year]]))){
+  if(!is.null(s_start_doy)){ # any(grepl("-", summary_data[[year]]))){
     data <- shift_dates(data = data, date = "date", s_start_doy = s_start_doy - 1)
     year <- "year"
     doy <- "doy"
