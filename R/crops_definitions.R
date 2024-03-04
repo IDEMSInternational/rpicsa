@@ -19,10 +19,11 @@
 #' @export
 #'
 #' @examples #TODO
+#' 
 crops_definitions <- function (data, date_time, station = NULL, rain, year = NULL, 
-                              doy = NULL, water_requirements, planting_dates, planting_length, start_check = TRUE, 
-                              season_data = NULL, start_day, end_day) {
-  planting_day_name <- "planting_day"
+                                doy = NULL, water_requirements, planting_dates, planting_length, start_check = TRUE, 
+                                season_data = NULL, start_day, end_day) {
+  planting_day_name <- "planting_dates"
   planting_length_name <- "planting_length"
   water_requirements_name <- "water_requirements"
   is_station <- !is.null(station)
@@ -36,8 +37,8 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   checkmate::assert_string(doy, null.ok = TRUE)
   checkmate::assert_logical(start_check, null.ok = TRUE)
   assert_column_names(data, rain)
-  checkmate::assert(checkmate::check_date(data[[date_time]], 
-                                          null.ok = TRUE), checkmate::check_posixct(data[[date_time]], 
+  checkmate::assert(checkmate::check_date(data[[date_time]],
+                                          null.ok = TRUE), checkmate::check_posixct(data[[date_time]],
                                                                                     null.ok = TRUE))
   if (is.null(year)) {
     year <- "year"
@@ -47,6 +48,14 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
     doy <- "doy"
     data[[doy]] <- yday_366(data[[date_time]])
   }
+
+  # planting_dates and the offset:
+  # currently, our start_doy and end_doy include that there is an offset (e.g., if the offset is 183, then day 1 = July 1st?)
+  # if you then say day 92, then we assume that includes the offset, so is doy 92+183
+  # but what if start_date is read in not doy? Then, if there is an offset, we assume the user reads in planting_dates as dates.
+  if (lubridate::is.Date(planting_dates)) 
+    planting_dates <- yday_366(planting_dates)
+
   if (is.null(season_data)) 
     season_data <- data
   expand_list <- list()
@@ -84,7 +93,7 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   df[["water_requirements_actual"]] <- sapply(1:nrow(df), function(x) {
     ind <- data[[year]] == df[[year]][x] & data[[doy]] >= 
       df[[planting_day_name]][x] & data[[doy]] < (df[[planting_day_name]][x] + 
-                                                 df[[planting_length_name]][x])
+                                                    df[[planting_length_name]][x])
     if (is_station) 
       ind <- ind & (data[[station]] == df[[station]][x])
     rain_values <- data[[rain]][ind]

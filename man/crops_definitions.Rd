@@ -55,4 +55,5 @@ Calculate the probabilities of crop success for given planting maturity lengths,
 }
 \examples{
 #TODO
+
 }
