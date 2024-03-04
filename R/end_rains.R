@@ -46,11 +46,11 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   
   # Do we have a shifted start doy?
   if (!is.null(s_start_doy)){
-    data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy)
+    data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
     year <- "year"
     doy <- "doy"
-    data[[year]] <- data[["s_doy"]]
-    data[[doy]] <- data[["s_year"]]
+    data[[year]] <- data[["s_year"]]
+    data[[doy]] <- data[["s_doy"]]
   } else {
     # calculate doy, year from date
     if(is.null(year)){#if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
