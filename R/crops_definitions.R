@@ -48,16 +48,20 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
     doy <- "doy"
     data[[doy]] <- yday_366(data[[date_time]])
   }
-
+  
   # planting_dates and the offset:
   # currently, our start_doy and end_doy include that there is an offset (e.g., if the offset is 183, then day 1 = July 1st?)
   # if you then say day 92, then we assume that includes the offset, so is doy 92+183
   # but what if start_date is read in not doy? Then, if there is an offset, we assume the user reads in planting_dates as dates.
   if (lubridate::is.Date(planting_dates)) 
     planting_dates <- yday_366(planting_dates)
-
+  
   if (is.null(season_data)) 
     season_data <- data
+  
+  data[[year]] <- factor(data[[year]])
+  season_data[[year]] <- factor(season_data[[year]])
+  
   expand_list <- list()
   names_list <- c()
   if (is_station) {
@@ -79,7 +83,7 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   } else {
     season_data <- season_data %>% dplyr::select(c(.data[[year]], start_day, end_day))
   }
-  season_data <- stats::na.omit(season_data)
+  #season_data <- stats::na.omit(season_data)
   df <- dplyr::full_join(df, season_data)
   #df <- df %>% dplyr::filter(stats::complete.cases(df))
   if (lubridate::is.Date(df[[start_day]])) 
@@ -89,8 +93,9 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   if (start_check) {
     df$planting_day_cond <- (df[[start_day]] <= df[[planting_day_name]])
   }
-  df$length_cond <- (df[[planting_day_name]] + df[[planting_length_name]] <= 
-                       df[[end_day]])
+  
+  # length = planting day specified + planting length to be less than the end day given.
+  df$length_cond <- (df[[planting_day_name]] + df[[planting_length_name]] <= df[[end_day]])
   df[["water_requirements_actual"]] <- sapply(1:nrow(df), function(x) {
     ind <- data[[year]] == df[[year]][x] & data[[doy]] >= 
       df[[planting_day_name]][x] & data[[doy]] < (df[[planting_day_name]][x] + 
