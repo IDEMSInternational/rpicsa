@@ -68,6 +68,8 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   } else {
     end_of_rains <- data
   }
+  # to avoid dropping levels, set as factor
+  data[[year]] <- factor(data[[year]])
   
   end_of_rains <- end_of_rains %>%
     dplyr::mutate(roll_sum_rain = RcppRoll::roll_sumr(x = .data[[rain]], n = interval_length, fill = NA, na.rm = FALSE)) %>%

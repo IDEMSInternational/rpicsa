@@ -66,6 +66,8 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
       data[[doy]] <- yday_366(data[[date_time]])
     }
   }
+  # to avoid dropping levels, set as factor
+  data[[year]] <- factor(data[[year]])
   
   # Create variables for WB code
   data <- data %>%

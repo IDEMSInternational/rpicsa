@@ -34,12 +34,12 @@
 #' @examples #TODO#
 #' # check against R-Instat function
 start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL, threshold = 0.85,
-                        doy = NULL, start_day = 1, end_day = 366, s_start_doy = NULL,
-                        output = c("doy", "date", "both"),
-                        total_rainfall = TRUE, over_days = 1, amount_rain = 20, proportion = FALSE, prob_rain_day = 0.8,
-                        number_rain_days = FALSE, min_rain_days = 1, rain_day_interval = 2,
-                        dry_spell = FALSE, spell_interval = 21, spell_max_dry_days = 9,
-                        dry_period = FALSE, period_interval = 45, max_rain = 40, period_max_dry_days = 30) {
+                         doy = NULL, start_day = 1, end_day = 366, s_start_doy = NULL,
+                         output = c("doy", "date", "both"),
+                         total_rainfall = TRUE, over_days = 1, amount_rain = 20, proportion = FALSE, prob_rain_day = 0.8,
+                         number_rain_days = FALSE, min_rain_days = 1, rain_day_interval = 2,
+                         dry_spell = FALSE, spell_interval = 21, spell_max_dry_days = 9,
+                         dry_period = FALSE, period_interval = 45, max_rain = 40, period_max_dry_days = 30) {
   
   checkmate::assert_data_frame(data)
   checkmate::assert_character(rain)
@@ -82,7 +82,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
     if (period_interval < period_max_dry_days) stop("Value given in `period_interval` must be equal to or greater than the value given in `period_max_dry_days`")
   } 
   output <- match.arg(output)
-
+  
   # Do we have a shifted start doy?
   if (!is.null(s_start_doy)){
     data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
@@ -101,7 +101,10 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
       data[[doy]] <- yday_366(data[[date_time]])
     }
   }
-
+  
+  # to avoid dropping levels, set as factor
+  data[[year]] <- factor(data[[year]])
+  
   if (!is.null(station)){
     start_of_rains <- data %>% 
       dplyr::group_by(.data[[station]], .drop = FALSE) 
@@ -143,49 +146,52 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
       dplyr::mutate(roll_sum_rain_dry_period = dplyr::lead(x=RcppRoll::roll_suml(x=.data[[rain]], period_max_dry_days, fill=NA)),
                     n_dry_period = RcppRoll::roll_suml(x=roll_sum_rain_dry_period <= max_rain, n = period_interval - period_max_dry_days + 1, fill=NA, na.rm=FALSE))
   }
-
+  
   # filters 
   if (total_rainfall){
     start_of_rains <- start_of_rains %>% 
       dplyr::filter(((.data[[rain]] >= threshold) & roll_sum_rain > wet_spell) | is.na(x = .data[[rain]]) | is.na(x=roll_sum_rain), .preserve = TRUE)
   }
+  
   if (number_rain_days){
     start_of_rains <- start_of_rains %>% 
       dplyr::filter(((.data[[rain]] >= threshold) & roll_n_rain_days >= min_rain_days) | is.na(x = .data[[rain]]) | is.na(x=roll_n_rain_days), .preserve = TRUE)
   }
+  
   if (dry_spell){
     start_of_rains <- start_of_rains %>% 
       dplyr::filter(((.data[[rain]] >= threshold) & roll_max_dry_spell <= spell_max_dry_days) | is.na(x = .data[[rain]]) | is.na(x = roll_max_dry_spell), .preserve = TRUE)
   }
+  
   if (dry_period){
     start_of_rains <- start_of_rains %>% 
       dplyr::filter(((.data[[rain]] >= threshold) & n_dry_period == 0) | is.na(x = .data[[rain]]) | is.na(x = n_dry_period), .preserve = TRUE)
   }
-
-    start_of_rains <- start_of_rains %>% 
-      dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>% 
-      dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
-
+  
+  start_of_rains <- start_of_rains %>% 
+    dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>% 
+    dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
+  
   # start_rains   ifelse(test=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), yes=NA, no=dplyr::first(x=doy, default=NA))
   # start_rains_date   dplyr::if_else(condition=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), as.Date(NA), dplyr::first(date1, default=NA))
   if (output == "doy"){
     start_of_rains <- start_of_rains %>%
       dplyr::summarise(start_rains = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
-                                           NA,
-                                           dplyr::first(x=.data[[doy]], default=NA)))
+                                            NA,
+                                            dplyr::first(x=.data[[doy]], default=NA)))
   } else if (output == "date") {
     start_of_rains <- start_of_rains %>%
       dplyr::summarise(start_rains = dplyr::if_else(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
-                                                   as.Date(NA),
-                                                   dplyr::first(.data[[date_time]], default=NA)))
+                                                    as.Date(NA),
+                                                    dplyr::first(.data[[date_time]], default=NA)))
   } else {
     start_of_rains <- start_of_rains %>%
       dplyr::summarise(start_rains_doy = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
-                                               NA,
-                                               dplyr::first(x=.data[[doy]], default=NA)),
+                                                NA,
+                                                dplyr::first(x=.data[[doy]], default=NA)),
                        start_rains_date = dplyr::if_else(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
-                                                        as.Date(NA),
-                                                        dplyr::first(.data[[date_time]], default=NA)))
+                                                         as.Date(NA),
+                                                         dplyr::first(.data[[date_time]], default=NA)))
   }
   return(start_of_rains)
 }
