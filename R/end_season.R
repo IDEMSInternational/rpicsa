@@ -109,6 +109,6 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
                                                    as.Date(NA),
                                                    dplyr::first(.data[[date_time]])))
   }
-  end_of_season[[year]] <- as.integer(end_of_season[[year]])
+  end_of_season[[year]] <- as.integer(as.character(end_of_season[[year]]))
   return(end_of_season)
 }

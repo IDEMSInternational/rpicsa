@@ -193,6 +193,6 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
                                                          as.Date(NA),
                                                          dplyr::first(.data[[date_time]], default=NA)))
   }
-  start_of_rains[[year]] <- as.integer(start_of_rains[[year]])
+  start_of_rains[[year]] <- as.integer(as.character(start_of_rains[[year]]))
   return(start_of_rains)
 }

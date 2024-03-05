@@ -97,6 +97,6 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
                                                       as.Date(NA),
                                                       dplyr::last(.data[[date_time]], default=NA)))
   }
-  end_of_rains[[year]] <- as.integer(end_of_rains[[year]])
+  end_of_rains[[year]] <- as.integer(as.character(end_of_rains[[year]]))
   return(end_of_rains)
 }
