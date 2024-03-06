@@ -112,8 +112,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
     start_of_rains <- data
   }
   # start of rains can only occur on a day that rains
-  start_of_rains <- start_of_rains %>% 
-    dplyr::mutate(rain_day = .data[[rain]] >= threshold)
+  start_of_rains <- start_of_rains %>% dplyr::mutate(rain_day = .data[[rain]] >= threshold)
   
   # different conditions
   if (total_rainfall){
@@ -146,7 +145,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
       dplyr::mutate(roll_sum_rain_dry_period = dplyr::lead(x=RcppRoll::roll_suml(x=.data[[rain]], period_max_dry_days, fill=NA)),
                     n_dry_period = RcppRoll::roll_suml(x=roll_sum_rain_dry_period <= max_rain, n = period_interval - period_max_dry_days + 1, fill=NA, na.rm=FALSE))
   }
-  
+
   # filters 
   if (total_rainfall){
     start_of_rains <- start_of_rains %>% 
@@ -167,13 +166,11 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
     start_of_rains <- start_of_rains %>% 
       dplyr::filter(((.data[[rain]] >= threshold) & n_dry_period == 0) | is.na(x = .data[[rain]]) | is.na(x = n_dry_period), .preserve = TRUE)
   }
-  
+
   start_of_rains <- start_of_rains %>% 
     dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>% 
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
-  
-  # start_rains   ifelse(test=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), yes=NA, no=dplyr::first(x=doy, default=NA))
-  # start_rains_date   dplyr::if_else(condition=is.na(x=dplyr::first(x=rainfall)) | is.na(x=dplyr::first(x=roll_sum_rain)), as.Date(NA), dplyr::first(date1, default=NA))
+
   if (output == "doy"){
     start_of_rains <- start_of_rains %>%
       dplyr::summarise(start_rains = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
@@ -193,6 +190,5 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
                                                          as.Date(NA),
                                                          dplyr::first(.data[[date_time]], default=NA)))
   }
-  start_of_rains[[year]] <- as.integer(as.character(start_of_rains[[year]]))
   return(start_of_rains)
 }

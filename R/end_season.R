@@ -68,15 +68,7 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
   }
   # to avoid dropping levels, set as factor
   data[[year]] <- factor(data[[year]])
-  
-  # Create variables for WB code
-  data <- data %>%
-    # create rain_min with NA as 0
-    dplyr::mutate(rain_min = ifelse(is.na(.data[[rain]]), 0, .data[[rain]])) %>%
-    dplyr::mutate(wb_min = Reduce(f = function(x, y) pmin(pmax(x + y, 0), capacity), x = utils::tail(x=rain_min - evaporation_value, n=-1), init=0, accumulate=TRUE)) %>%
-    dplyr::mutate(rain_max = ifelse(is.na(.data[[rain]]), capacity, .data[[rain]])) %>%
-    dplyr::mutate(wb_max = Reduce(f = function(x, y) pmin(pmax(x + y, 0), capacity), x = utils::tail(x=rain_max - evaporation_value, n=-1), init=0, accumulate=TRUE)) %>%
-    dplyr::mutate(wb = ifelse((wb_min != wb_max) | is.na(.data[[rain]]), NA, wb_min))
+
   if (!is.null(station)){
     end_of_season <- data %>% 
       dplyr::group_by(.data[[station]], .add = TRUE, .drop = FALSE) 
@@ -85,6 +77,12 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
   }
   
   end_of_season <- end_of_season %>%
+    # create rain_min with NA as 0
+    dplyr::mutate(rain_min = ifelse(is.na(.data[[rain]]), 0, .data[[rain]])) %>%
+    dplyr::mutate(wb_min = Reduce(f = function(x, y) pmin(pmax(x + y, 0), capacity), x = utils::tail(x=rain_min - evaporation_value, n=-1), init=0, accumulate=TRUE)) %>%
+    dplyr::mutate(rain_max = ifelse(is.na(.data[[rain]]), capacity, .data[[rain]])) %>%
+    dplyr::mutate(wb_max = Reduce(f = function(x, y) pmin(pmax(x + y, 0), capacity), x = utils::tail(x=rain_max - evaporation_value, n=-1), init=0, accumulate=TRUE)) %>%
+    dplyr::mutate(wb = ifelse((wb_min != wb_max) | is.na(.data[[rain]]), NA, wb_min)) %>%
     dplyr::filter(wb <= water_balance_max | is.na(.data[[rain]])) %>%
     dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>%
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
@@ -109,6 +107,5 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
                                                    as.Date(NA),
                                                    dplyr::first(.data[[date_time]])))
   }
-  end_of_season[[year]] <- as.integer(as.character(end_of_season[[year]]))
   return(end_of_season)
 }

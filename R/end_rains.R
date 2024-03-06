@@ -62,14 +62,14 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
       data[[doy]] <- yday_366(data[[date_time]])
     }
   }
+  # to avoid dropping levels, set as factor
+  data[[year]] <- factor(data[[year]])
   if (!is.null(station)){
     end_of_rains <- data %>% 
       dplyr::group_by(.data[[station]], .drop = FALSE) 
   } else {
     end_of_rains <- data
   }
-  # to avoid dropping levels, set as factor
-  data[[year]] <- factor(data[[year]])
   
   end_of_rains <- end_of_rains %>%
     dplyr::mutate(roll_sum_rain = RcppRoll::roll_sumr(x = .data[[rain]], n = interval_length, fill = NA, na.rm = FALSE)) %>%
@@ -97,6 +97,5 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
                                                       as.Date(NA),
                                                       dplyr::last(.data[[date_time]], default=NA)))
   }
-  end_of_rains[[year]] <- as.integer(as.character(end_of_rains[[year]]))
   return(end_of_rains)
 }
