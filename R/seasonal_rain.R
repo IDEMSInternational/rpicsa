@@ -150,15 +150,9 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
     data[[doy]] <- data[["s_doy"]]
   }
   data[[year]] <- factor(data[[year]])
-  print("A")
-  print(names(data  %>% dplyr::select(c({{ station }}, {{ year }}, {{ date_time }}, 
-                                  {{ doy }}, {{ rain }}))))
-  print(names(summary_data))
-  
   summary_data <- dplyr::full_join(data %>% dplyr::select(c({{ station }}, {{ year }}, {{ date_time }}, 
                                                             {{ doy }}, {{ rain }})),
                                    summary_data)
-  print("B")
   summary_data <- summary_data %>% dplyr::group_by(.data[[station]], .data[[year]])
   if (lubridate::is.Date(summary_data[[start_date]])) {
     summary_data <- summary_data %>% dplyr::filter(.data[[date_time]] >= .data[[start_date]])
