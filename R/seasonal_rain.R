@@ -102,12 +102,8 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   if (is.null(year)) {
     data[["year"]] <- lubridate::year(data[[year]])
   }
-  if (is.null(summary_data)) {
-    summary_data <- tidyr::crossing(`:=`(!!station, 
-                                         unique(data[[station]])), `:=`(!!year, unique(data[[year]])))
-  }
   if (is.null(start_date)) {
-    start_rains_data <- start_rains(data = data, date_time = date_time, 
+    start_rains_data <- start_rains1(data = data, date_time = date_time, 
                                     station = station, year = year, rain = rain, threshold = threshold, 
                                     doy = doy, start_day = sor_start_day, end_day = sor_end_day, 
                                     output = "doy", total_rainfall = sor_total_rainfall, 
@@ -119,11 +115,11 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                                     dry_period = sor_dry_period, period_interval = sor_period_interval, 
                                     max_rain = sor_max_rain, period_max_dry_days = sor_period_max_dry_days)
     start_date <- "start_rains"
-    summary_data <- dplyr::full_join(summary_data, start_rains_data)
+    summary_data <- join_null_data(summary_data, start_rains_data)
   }
   if (is.null(end_date)) {
     if (end_type == "rains") {
-      end_rains_data <- end_rains(data = data, date_time = date_time, 
+      end_rains_data <- end_rains1(data = data, date_time = date_time, 
                                   station = station, year = year, rain = rain, 
                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, 
                                   output = "doy", interval_length = eor_interval_length, 
@@ -131,7 +127,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
       end_date <- "end_rains"
     }
     else {
-      end_rains_data <- end_season(data = data, date_time = date_time, 
+      end_rains_data <- end_season1(data = data, date_time = date_time, 
                                    station = station, year = year, rain = rain, 
                                    doy = doy, start_day = eos_start_day, end_day = eos_end_day, 
                                    output = "doy", capacity = eos_capacity, 
@@ -140,12 +136,12 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
       end_date <- "end_season"
     }
     #end_rains_data <- end_rains_data %>% dplyr::rename(end_date = end_season)
-    summary_data <- dplyr::full_join(summary_data, end_rains_data)
+    summary_data <- join_null_data(summary_data, end_rains_data)
   }
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of\n         'total_rain' or 'n_rain' must be TRUE.")
   }
-  
+
   if(!is.null(s_start_doy)){ # any(grepl("-", summary_data[[year]]))){
     data <- shift_dates(data = data, date = "date", s_start_doy = s_start_doy - 1)
     year <- "year"
@@ -153,9 +149,16 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
     data[[year]] <- data[["s_year"]]
     data[[doy]] <- data[["s_doy"]]
   }
+  data[[year]] <- factor(data[[year]])
+  print("A")
+  print(names(data  %>% dplyr::select(c({{ station }}, {{ year }}, {{ date_time }}, 
+                                  {{ doy }}, {{ rain }}))))
+  print(names(summary_data))
   
   summary_data <- dplyr::full_join(data %>% dplyr::select(c({{ station }}, {{ year }}, {{ date_time }}, 
-                                                            {{ doy }}, {{ rain }})), summary_data)
+                                                            {{ doy }}, {{ rain }})),
+                                   summary_data)
+  print("B")
   summary_data <- summary_data %>% dplyr::group_by(.data[[station]], .data[[year]])
   if (lubridate::is.Date(summary_data[[start_date]])) {
     summary_data <- summary_data %>% dplyr::filter(.data[[date_time]] >= .data[[start_date]])
