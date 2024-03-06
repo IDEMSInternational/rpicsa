@@ -13,8 +13,8 @@
 #' 
 #' @examples
 #' # data(daily_niger)
-#' # filtered_data <- get_extremes(data = daily_niger, element = "rain", type = "threshold", value = 50)
-get_extremes <- function(data, element, type = c("percentile", "threshold"), value = 95, direction = c("greater", "less")) {
+#' filtered_data <- get_extremes1(data = daily_niger, station = NULL, year = "year", element = "rain", type = "threshold", value = 50)
+get_extremes1 <- function(data, station = NULL, year, element, type = c("percentile", "threshold"), value = 95, direction = c("greater", "less")) {
   type <- match.arg(type)
   direction <- match.arg(direction)
   
@@ -32,10 +32,18 @@ get_extremes <- function(data, element, type = c("percentile", "threshold"), val
   
   # Filter data based on the threshold and direction
   if (direction == "greater") {
-    extreme_data <- data %>% dplyr::filter(.data[[element]] > threshold_value)
+    extreme_data <- data %>% dplyr::filter(.data[[element]] > threshold_value, .preserve = TRUE)
   } else {
-    extreme_data <- data %>% dplyr::filter(.data[[element]] < threshold_value)
+    extreme_data <- data %>% dplyr::filter(.data[[element]] < threshold_value,  .preserve = TRUE)
+  } 
+  
+  if (!is.null(station)){
+    extreme_data <- extreme_data %>% dplyr::group_by(.data[[station]], .drop = FALSE)
   }
+  extreme_data[[year]] <- factor(extreme_data[[year]])
+  extreme_data <- extreme_data %>%
+    dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>%
+    summarise(count = n())
   
   return(extreme_data)
 }
