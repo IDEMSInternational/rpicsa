@@ -103,7 +103,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
     data[["year"]] <- lubridate::year(data[[year]])
   }
   if (is.null(start_date)) {
-    start_rains_data <- start_rains1(data = data, date_time = date_time, 
+    start_rains_data <- start_rains(data = data, date_time = date_time, 
                                     station = station, year = year, rain = rain, threshold = threshold, 
                                     doy = doy, start_day = sor_start_day, end_day = sor_end_day, 
                                     output = "doy", total_rainfall = sor_total_rainfall, 
@@ -119,7 +119,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   }
   if (is.null(end_date)) {
     if (end_type == "rains") {
-      end_rains_data <- end_rains1(data = data, date_time = date_time, 
+      end_rains_data <- end_rains(data = data, date_time = date_time, 
                                   station = station, year = year, rain = rain, 
                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, 
                                   output = "doy", interval_length = eor_interval_length, 
@@ -127,7 +127,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
       end_date <- "end_rains"
     }
     else {
-      end_rains_data <- end_season1(data = data, date_time = date_time, 
+      end_rains_data <- end_season(data = data, date_time = date_time, 
                                    station = station, year = year, rain = rain, 
                                    doy = doy, start_day = eos_start_day, end_day = eos_end_day, 
                                    output = "doy", capacity = eos_capacity, 
