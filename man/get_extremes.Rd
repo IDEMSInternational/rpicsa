@@ -6,6 +6,8 @@
 \usage{
 get_extremes(
   data,
+  station = NULL,
+  year,
   element,
   type = c("percentile", "threshold"),
   value = 95,
@@ -14,6 +16,10 @@ get_extremes(
 }
 \arguments{
 \item{data}{A data frame containing the data to be analysed.}
+
+\item{station}{The name of the \code{station} column in 'data'. Default \code{NULL}.}
+
+\item{year}{The name of the \code{year} column in 'data'.}
 
 \item{element}{The name of the column in 'data' for which extremes are to be found.}
 
@@ -31,5 +37,5 @@ This function identifies extreme values in a specified element (column) of a dat
 }
 \examples{
 # data(daily_niger)
-# filtered_data <- get_extremes(data = daily_niger, element = "rain", type = "threshold", value = 50)
+# filtered_data <- get_extremes(data = daily_niger, station = NULL, year = "year", element = "rain", type = "threshold", value = 50)
 }

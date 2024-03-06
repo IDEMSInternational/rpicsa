@@ -3,6 +3,8 @@
 #' This function identifies extreme values in a specified element (column) of a data frame. It can operate in two modes: percentile-based and threshold-based.
 #' 
 #' @param data A data frame containing the data to be analysed.
+#' @param station The name of the `station` column in 'data'. Default `NULL`.
+#' @param year The name of the `year` column in 'data'.
 #' @param element The name of the column in 'data' for which extremes are to be found.
 #' @param type A character string specifying the mode of operation. It can be either `"percentile"` or `"threshold"`. Here, `"percentile"` identifies values above a certain percentile (e.g., 95th percentile); `"threshold"` identifies values above a specific threshold value.
 #' @param value A numeric value specifying the percentile or threshold, depending on the 'type' parameter. If `type == "percentile"`, `value` is the percentile (e.g., 95 for 95th percentile). If `type == "threshold"`, `value` is the threshold value (e.g., 50 mm for rainfall).
@@ -13,8 +15,8 @@
 #' 
 #' @examples
 #' # data(daily_niger)
-#' filtered_data <- get_extremes1(data = daily_niger, station = NULL, year = "year", element = "rain", type = "threshold", value = 50)
-get_extremes1 <- function(data, station = NULL, year, element, type = c("percentile", "threshold"), value = 95, direction = c("greater", "less")) {
+#' # filtered_data <- get_extremes(data = daily_niger, station = NULL, year = "year", element = "rain", type = "threshold", value = 50)
+get_extremes <- function(data, station = NULL, year, element, type = c("percentile", "threshold"), value = 95, direction = c("greater", "less")) {
   type <- match.arg(type)
   direction <- match.arg(direction)
   
