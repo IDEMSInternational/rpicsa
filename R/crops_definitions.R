@@ -20,6 +20,7 @@
 #'
 #' @examples #TODO
 #' 
+#' 
 crops_definitions <- function (data, date_time, station = NULL, rain, year = NULL, 
                                 doy = NULL, water_requirements, planting_dates, planting_length, start_check = TRUE, 
                                 season_data = NULL, start_day, end_day) {
@@ -29,14 +30,11 @@ crops_definitions <- function (data, date_time, station = NULL, rain, year = NUL
   is_station <- !is.null(station)
   checkmate::assert_data_frame(data)
   checkmate::assert_data_frame(season_data)
-  assert_column_names(season_data, start_day)
-  assert_column_names(season_data, end_day)
   checkmate::assert_character(rain)
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
   checkmate::assert_logical(start_check, null.ok = TRUE)
-  assert_column_names(data, rain)
   checkmate::assert(checkmate::check_date(data[[date_time]],
                                           null.ok = TRUE), checkmate::check_posixct(data[[date_time]],
                                                                                     null.ok = TRUE))
