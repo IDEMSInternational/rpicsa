@@ -9,6 +9,7 @@ daily_data <- rpicsa::daily_niger %>%
   filter(station_name == "Agades")
 test_1_results <- readRDS("testdata/test_1_annual_summaries.rds") %>%
   dplyr::select(c(year, station_name, start_rains)) %>%
+  dplyr::mutate(year = factor(year)) %>%
   dplyr::arrange(year)
 
 test_that("Correct summaries are calculated", {
