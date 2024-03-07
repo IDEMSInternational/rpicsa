@@ -33,16 +33,12 @@ probability_season_start <- function(data, station = NULL, start_rains, doy_form
     summary_proportion <- purrr::map_df(.x = specified_day,
                                         .f =~ data %>% dplyr::mutate(LT = ifelse(.data[[start_rains]] < .x, 1, 0)) %>%
                                           dplyr::group_by(.data[[station]], .drop = FALSE) %>%
-                                          dplyr::summarise(value = .x, proportion = sum(LT, na.rm = TRUE)/dplyr::n()))
-    summary_proportion <- summary_proportion %>%
-      tidyr::pivot_wider(id_cols = .data[[station]], names_from = value, values_from = proportion, names_prefix = "proportion_")
+                                          dplyr::summarise(day = .x, proportion = sum(LT, na.rm = TRUE)/dplyr::n()))
   } else {
     summary_proportion <- purrr::map_df(.x = specified_day,
                                         .f =~ data %>% dplyr::mutate(LT = ifelse(.data[[start_rains]] < .x, 1, 0)) %>%
-                                          dplyr::summarise(value = .x, proportion = sum(LT, na.rm = TRUE)/dplyr::n()))
+                                          dplyr::summarise(day = .x, proportion = sum(LT, na.rm = TRUE)/dplyr::n()))
     #dplyr::summarise("proportion_{.x}" := sum(LT, na.rm = TRUE)/dplyr::n()))
-    summary_proportion <- summary_proportion %>%
-      tidyr::pivot_wider(names_from = value, values_from = proportion, names_prefix = "proportion_")
   } 
   return(summary_proportion)
 }
