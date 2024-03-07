@@ -32,7 +32,7 @@ probability_season_start <- function(data, station = NULL, start_rains, doy_form
   if (!is.null(station)){
     summary_proportion <- purrr::map_df(.x = specified_day,
                                         .f =~ data %>% dplyr::mutate(LT = ifelse(.data[[start_rains]] < .x, 1, 0)) %>%
-                                          dplyr::group_by(.data[[station]], .drop = FALSE) %>%
+                                          dplyr::group_by(.data[[station]], .drop = TRUE) %>%
                                           dplyr::summarise(day = .x, proportion = sum(LT, na.rm = TRUE)/dplyr::n()))
   } else {
     summary_proportion <- purrr::map_df(.x = specified_day,

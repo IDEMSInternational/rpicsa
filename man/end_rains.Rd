@@ -12,6 +12,7 @@ end_rains(
   rain = NULL,
   doy = NULL,
   s_start_doy = NULL,
+  drop = TRUE,
   start_day = 1,
   end_day = 366,
   output = c("doy", "date", "both"),
@@ -33,6 +34,8 @@ end_rains(
 \item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
 
 \item{s_start_doy}{\code{numerical(1)} Default \code{NULL} (if \code{NULL}, \code{s_start_doy = 1}. The day of year to state is the first day of year.}
+
+\item{drop}{\code{logical(1)} default \code{TRUE}. Whether to drop years where there are \code{NA} data for the rainfall.}
 
 \item{start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
 

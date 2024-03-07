@@ -15,6 +15,7 @@ start_rains(
   start_day = 1,
   end_day = 366,
   s_start_doy = NULL,
+  drop = TRUE,
   output = c("doy", "date", "both"),
   total_rainfall = TRUE,
   over_days = 1,
@@ -53,6 +54,8 @@ start_rains(
 \item{end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
 
 \item{s_start_doy}{\code{numerical(1)} Default \code{NULL} (if \code{NULL}, \code{s_start_doy = 1}. The day of year to state is the first day of year.}
+
+\item{drop}{\code{logical(1)} default \code{TRUE}. Whether to drop years where there are \code{NA} data for the rainfall.}
 
 \item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
 

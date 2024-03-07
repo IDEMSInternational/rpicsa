@@ -8,6 +8,7 @@
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
 #' @param s_start_doy \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_doy = 1`. The day of year to state is the first day of year.
+#' @param drop \code{logical(1)} default `TRUE`. Whether to drop years where there are `NA` data for the rainfall.
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
 #' @param output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
@@ -26,7 +27,7 @@
 #' #capacity = 60, water_balance_max = 0.5,
 #' #evaporation_value = 5)
 end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
-                       doy = NULL,  s_start_doy = NULL,
+                       doy = NULL,  s_start_doy = NULL, drop = TRUE,
                        start_day = 1, end_day = 366, output = c("doy", "date", "both"),
                        capacity = 60, water_balance_max = 0.5, evaporation = c("value", "variable"),
                        evaporation_value = 5, evaporation_variable = NULL){
@@ -71,7 +72,7 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
 
   if (!is.null(station)){
     end_of_season <- data %>% 
-      dplyr::group_by(.data[[station]], .add = TRUE, .drop = FALSE) 
+      dplyr::group_by(.data[[station]], .add = TRUE, .drop = drop) 
   } else {
     end_of_season <- data
   }
@@ -84,7 +85,7 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
     dplyr::mutate(wb_max = Reduce(f = function(x, y) pmin(pmax(x + y, 0), capacity), x = utils::tail(x=rain_max - evaporation_value, n=-1), init=0, accumulate=TRUE)) %>%
     dplyr::mutate(wb = ifelse((wb_min != wb_max) | is.na(.data[[rain]]), NA, wb_min)) %>%
     dplyr::filter(wb <= water_balance_max | is.na(.data[[rain]])) %>%
-    dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>%
+    dplyr::group_by(.data[[year]], .add = TRUE, .drop = drop) %>%
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
   
   if (output == "doy"){

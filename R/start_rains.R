@@ -11,6 +11,7 @@
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
 #' @param s_start_doy \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_doy = 1`. The day of year to state is the first day of year.
+#' @param drop \code{logical(1)} default `TRUE`. Whether to drop years where there are `NA` data for the rainfall.
 #' @param output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
 #' @param total_rainfall \code{logical(1)} default `TRUE`. Start of the rains to be defined by the total or proportion of rainfall over a period.
 #' @param over_days \code{numerical(1)} Only works if `total_rainfall = TRUE`. This is the number of days to total the rainfall over.
@@ -35,6 +36,7 @@
 #' # check against R-Instat function
 start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL, threshold = 0.85,
                          doy = NULL, start_day = 1, end_day = 366, s_start_doy = NULL,
+                        drop = TRUE,
                          output = c("doy", "date", "both"),
                          total_rainfall = TRUE, over_days = 1, amount_rain = 20, proportion = FALSE, prob_rain_day = 0.8,
                          number_rain_days = FALSE, min_rain_days = 1, rain_day_interval = 2,
@@ -107,7 +109,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   
   if (!is.null(station)){
     start_of_rains <- data %>% 
-      dplyr::group_by(.data[[station]], .drop = FALSE) 
+      dplyr::group_by(.data[[station]], .drop = drop) 
   } else {
     start_of_rains <- data
   }
@@ -168,7 +170,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   }
 
   start_of_rains <- start_of_rains %>% 
-    dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>% 
+    dplyr::group_by(.data[[year]], .add = TRUE, .drop = drop) %>% 
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
 
   if (output == "doy"){

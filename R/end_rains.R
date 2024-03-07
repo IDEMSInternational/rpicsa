@@ -8,6 +8,7 @@
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
 #' @param s_start_doy \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_doy = 1`. The day of year to state is the first day of year.
+#' @param drop \code{logical(1)} default `TRUE`. Whether to drop years where there are `NA` data for the rainfall.
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
 #' @param output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
@@ -20,7 +21,7 @@
 #' @examples #TODO#
 #' # is same as R-Instat
 end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
-                      doy = NULL,  s_start_doy = NULL,
+                      doy = NULL,  s_start_doy = NULL, drop = TRUE,
                       start_day = 1, end_day = 366, output = c("doy", "date", "both"),
                       interval_length = 1, min_rainfall = 10){
   
@@ -66,7 +67,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   data[[year]] <- factor(data[[year]])
   if (!is.null(station)){
     end_of_rains <- data %>% 
-      dplyr::group_by(.data[[station]], .drop = FALSE) 
+      dplyr::group_by(.data[[station]], .drop = drop) 
   } else {
     end_of_rains <- data
   }
@@ -74,7 +75,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   end_of_rains <- end_of_rains %>%
     dplyr::mutate(roll_sum_rain = RcppRoll::roll_sumr(x = .data[[rain]], n = interval_length, fill = NA, na.rm = FALSE)) %>%
     dplyr::filter((roll_sum_rain > min_rainfall) | is.na(x=roll_sum_rain)) %>% 
-    dplyr::group_by(.data[[year]], .add = TRUE, .drop = FALSE) %>%
+    dplyr::group_by(.data[[year]], .add = TRUE, .drop = drop) %>%
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
   
   if (output == "doy"){
