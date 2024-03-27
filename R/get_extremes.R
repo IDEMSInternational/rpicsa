@@ -45,7 +45,7 @@ get_extremes <- function(data, station = NULL, year, element, type = c("percenti
   extreme_data[[year]] <- factor(extreme_data[[year]])
   extreme_data <- extreme_data %>%
     dplyr::group_by(.data[[year]], .add = TRUE) %>%
-    summarise(count = n())
+    dplyr::summarise(count = n())
   
   return(extreme_data)
 }
