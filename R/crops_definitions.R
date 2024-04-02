@@ -24,9 +24,9 @@
 crops_definitions <- function (data, date_time, station = NULL, rain, year = NULL, 
                                 doy = NULL, water_requirements, planting_dates, planting_length, start_check = TRUE, 
                                 season_data = NULL, start_day, end_day) {
-  planting_day_name <- "planting_dates"
-  planting_length_name <- "planting_length"
-  water_requirements_name <- "water_requirements"
+  planting_day_name <- "plant_day"
+  planting_length_name <- "plant_length"
+  water_requirements_name <- "rain_total"
   is_station <- !is.null(station)
   checkmate::assert_data_frame(data)
   checkmate::assert_data_frame(season_data)
