@@ -9,6 +9,7 @@ annual_rain(
   date_time,
   rain,
   year = NULL,
+  s_start_doy = NULL,
   total_rain = TRUE,
   n_rain = TRUE,
   rain_day = 0.85,
@@ -28,6 +29,8 @@ annual_rain(
 \item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
 
 \item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+
+\item{s_start_doy}{\code{character(1)} Default \code{NULL}, otherwise the first DOY defined for the year. This will create a shifted start year.}
 
 \item{total_rain}{\code{logical(1)} default \code{TRUE}. Display the total rainfall value for each year.}
 

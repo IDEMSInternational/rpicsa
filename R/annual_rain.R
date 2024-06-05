@@ -5,6 +5,7 @@
 #' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
+#' @param s_start_doy \code{character(1)} Default `NULL`, otherwise the first DOY defined for the year. This will create a shifted start year.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param total_rain \code{logical(1)} default `TRUE`. Display the total rainfall value for each year.
 #' @param n_rain \code{logical(1)} default `TRUE`. Display the number of rainfall days.
@@ -22,13 +23,19 @@
 #' #annual_rain(data = daily_niger, date_time  = "date", station = "station_name",
 #' #            rain = "rain", na_prop = 0.9)
 
-annual_rain <- function(data, date_time, rain, year = NULL, total_rain = TRUE,
+annual_rain <- function(data, date_time, rain, year = NULL, s_start_doy = NULL, total_rain = TRUE,
                         n_rain = TRUE, rain_day = 0.85, station = NULL, 
                         na_rm = FALSE, na_prop = NULL, na_n = NULL, 
                         na_consec = NULL, na_n_non = NULL) {
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of
          'total_rain' or 'n_rain' must be TRUE.")
+  }
+  if (!is.null(s_start_doy)) {
+    data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
+    year <- "year"
+    doy <- "doy"
+    data[[year]] <- data[["s_year"]]
   }
   summaries <- c()
   if (total_rain) summaries <- c(total_rain = "sum")
@@ -41,4 +48,5 @@ annual_rain <- function(data, date_time, rain, year = NULL, total_rain = TRUE,
                                   na_prop = na_prop, na_n = na_n, 
                                   na_n_non = na_n_non, names = "{.fn}")
   if (total_rain) climatic_output <- climatic_output %>% dplyr::rename(annual_rain = total_rain)
+  return(climatic_output)
 }
