@@ -12,6 +12,7 @@ mean_temperature(
   year = NULL,
   month = NULL,
   station = NULL,
+  s_start_doy = NULL,
   to = c("annual", "monthly"),
   summaries = c("mean", "min", "max"),
   na_rm = FALSE,
@@ -35,6 +36,8 @@ mean_temperature(
 \item{month}{\code{character(1)} The name of the month column in \code{data}. If \code{NULL} it will be created using \code{lubridate::month(data[[date_time]])}.}
 
 \item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
+
+\item{s_start_doy}{\code{character(1)} Default \code{NULL}, otherwise the first DOY defined for the year. This will create a shifted start year.}
 
 \item{to}{\code{character(1)} Default \code{annual}. The period of time to calculate the mean temperature columns over (options are \code{annual} or \code{monthly}).}
 
