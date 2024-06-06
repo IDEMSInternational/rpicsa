@@ -36,14 +36,20 @@ mean_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = N
     doy <- "doy"
     data[[year]] <- data[["s_year"]]
   }
-  summaries_all <- c()
-  if ("mean" %in% summaries){ summaries_all <- cbind(summaries_all, mean = "mean")}
-  if ("min" %in% summaries){ summaries_all <- cbind(summaries_all, min = "min")}
-  if ("max" %in% summaries){ summaries_all <- cbind(summaries_all, max = "max")}
+  summaries_all <- list()
+  
+  # Dynamically add summaries to the summaries_all list based on conditions
+  if ("mean" %in% summaries) { summaries_all <- c(summaries_all, mean = "mean") }
+  if ("min" %in% summaries) { summaries_all <- c(summaries_all, min = "min") }
+  if ("max" %in% summaries) { summaries_all <- c(summaries_all, max = "max") }
+  
+  # Convert the summaries_all list to a named vector
+  summaries_all <- unlist(summaries_all)
+  #todo: fix issue in summaries = c(mean = "mean")
   climatic_summary(data = data, date_time = date_time, 
                    station = station, elements = c(tmin, tmax),
                    year = year, month = month, to = to, 
-                   summaries = c(mean = "mean"), na_rm = na_rm, 
+                   summaries = summaries_all, na_rm = na_rm, 
                    na_prop = na_prop, na_n = na_n, 
                    na_n_non = na_n_non, names = "{.fn}_{.col}")
 }
