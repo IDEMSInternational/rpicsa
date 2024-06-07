@@ -10,7 +10,7 @@
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param s_start_doy \code{character(1)} Default `NULL`, otherwise the first DOY defined for the year. This will create a shifted start year.
 #' @param to \code{character(1)} Default `annual`. The period of time to calculate the mean temperature columns over (options are `annual` or `monthly`).
-#' @param summaries \code{character} The summaries to display. Options are `"mean"`, `"max"`, `"min"`.
+#' @param summaries \code{character} The summaries to display. Options are `"mean"`, `"max"`, `"min"`. By default, `summaries = "mean"`.
 #' @param na_rm \code{logical(1)}. Should missing values (including \code{NaN}) be removed?
 #' @param na_prop \code{integer(1)} Max proportion of missing values allowed
 #' @param na_n \code{integer(1)} Max number of missing values allowed
@@ -27,7 +27,7 @@
 mean_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
                                 month = NULL, station = NULL, s_start_doy = NULL,
                              to = c("annual", "monthly"),
-                                summaries = c("mean", "min", "max"), na_rm = FALSE,
+                                summaries = c("mean"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL) {
   to <- match.arg(to)
   if (!is.null(s_start_doy)) {

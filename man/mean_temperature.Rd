@@ -14,7 +14,7 @@ mean_temperature(
   station = NULL,
   s_start_doy = NULL,
   to = c("annual", "monthly"),
-  summaries = c("mean", "min", "max"),
+  summaries = c("mean"),
   na_rm = FALSE,
   na_prop = NULL,
   na_n = NULL,
@@ -41,7 +41,7 @@ mean_temperature(
 
 \item{to}{\code{character(1)} Default \code{annual}. The period of time to calculate the mean temperature columns over (options are \code{annual} or \code{monthly}).}
 
-\item{summaries}{\code{character} The summaries to display. Options are \code{"mean"}, \code{"max"}, \code{"min"}.}
+\item{summaries}{\code{character} The summaries to display. Options are \code{"mean"}, \code{"max"}, \code{"min"}. By default, \code{summaries = "mean"}.}
 
 \item{na_rm}{\code{logical(1)}. Should missing values (including \code{NaN}) be removed?}
 
