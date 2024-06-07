@@ -17,6 +17,7 @@ start_rains(
   s_start_doy = NULL,
   drop = TRUE,
   output = c("doy", "date", "both"),
+  include_status = FALSE,
   total_rainfall = TRUE,
   over_days = 1,
   amount_rain = 20,
@@ -58,6 +59,8 @@ start_rains(
 \item{drop}{\code{logical(1)} default \code{TRUE}. Whether to drop years where there are \code{NA} data for the rainfall.}
 
 \item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
+
+\item{include_status}{\code{logical(1)} Default \code{FALSE}. If \code{drop = TRUE}, this status indicates whether the \code{NA} is due to no start date for that year, or due to a lack of data available. If \code{start_rain_status} is \code{TRUE} in the data, then that indicates the \code{NA} is due to a lack of data; if it is \code{FALSE} indicates the \code{NA} is due to no start rain fitting the definition for that year.}
 
 \item{total_rainfall}{\code{logical(1)} default \code{TRUE}. Start of the rains to be defined by the total or proportion of rainfall over a period.}
 

@@ -13,6 +13,7 @@
 #' @param s_start_doy \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_doy = 1`. The day of year to state is the first day of year.
 #' @param drop \code{logical(1)} default `TRUE`. Whether to drop years where there are `NA` data for the rainfall.
 #' @param output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
+#' @param include_status \code{logical(1)} Default `FALSE`. If `drop = TRUE`, this status indicates whether the `NA` is due to no start date for that year, or due to a lack of data available. If `start_rain_status` is `TRUE` in the data, then that indicates the `NA` is due to a lack of data; if it is `FALSE` indicates the `NA` is due to no start rain fitting the definition for that year.
 #' @param total_rainfall \code{logical(1)} default `TRUE`. Start of the rains to be defined by the total or proportion of rainfall over a period.
 #' @param over_days \code{numerical(1)} Only works if `total_rainfall = TRUE`. This is the number of days to total the rainfall over.
 #' @param amount_rain \code{numerical(1)} If `total_rainfall = TRUE` and `proportion = FALSE`, the amount of rainfall to expect over the period defined in `over_days`. 
@@ -38,6 +39,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
                          doy = NULL, start_day = 1, end_day = 366, s_start_doy = NULL,
                         drop = TRUE,
                          output = c("doy", "date", "both"),
+                        include_status = FALSE,
                          total_rainfall = TRUE, over_days = 1, amount_rain = 20, proportion = FALSE, prob_rain_day = 0.8,
                          number_rain_days = FALSE, min_rain_days = 1, rain_day_interval = 2,
                          dry_spell = FALSE, spell_interval = 21, spell_max_dry_days = 9,
@@ -172,7 +174,9 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   start_of_rains <- start_of_rains %>% 
     dplyr::group_by(.data[[year]], .add = TRUE, .drop = drop) %>% 
     dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
-
+  
+  if (include_status) start_of_rains2 <- start_of_rains %>% summarise(start_rain_status = n() > 0)
+    
   if (output == "doy"){
     start_of_rains <- start_of_rains %>%
       dplyr::summarise(start_rains = ifelse(is.na(x=dplyr::first(x=.data[[rain]])) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_max_dry_spell)), 
@@ -192,5 +196,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
                                                          as.Date(NA),
                                                          dplyr::first(.data[[date_time]], default=NA)))
   }
+  if (include_status) start_of_rains <- dplyr::full_join(start_of_rains, start_of_rains2)
+  
   return(start_of_rains)
 }
