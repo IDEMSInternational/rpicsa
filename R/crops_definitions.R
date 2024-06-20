@@ -34,9 +34,6 @@ crops_definitions <- function(data = NULL, date_time = NULL, station = NULL, rai
     if (is.null(start_day)){ stop("If the data is NULL then start_day must be given")}
     if (is.null(seasonal_length)){ stop("If the data is NULL then seasonal_length must be given")}
     if (is.null(seasonal_rain)){ stop("If the data is NULL then seasonal_rain must be given")}
-    assert_column_names(season_data, start_day)
-    assert_column_names(season_data, seasonal_length)
-    assert_column_names(season_data, seasonal_rain)
     
     expand_list <- list()
     names_list <- c()
@@ -73,13 +70,13 @@ crops_definitions <- function(data = NULL, date_time = NULL, station = NULL, rai
         if (is_station) station_results <- station_results %>% dplyr::group_by(station)
         
         station_results <- station_results %>%
-          dplyr::summarise(prop_success = sum(overall_cond, na.rm = TRUE) / dplyr::n())
+          dplyr::summarise(prop_success = sum(overall_cond, na.rm = TRUE) / dplyr::n()) %>%
+          dplyr::mutate(rain_total = water_req, plant_day = plant_day, plant_length = plant_len)
         
         result_df <- dplyr::bind_rows(result_df, station_results)
       }
-      result_df <- dplyr::bind_cols(criteria_df, result_df)
       if (is_station){
-        result_df <- result_df %>% dplyr::select(c(station, rain_total = water_requirements, plant_day = planting_day, plant_length = planting_length, prop_success = prop_success))
+        result_df <- result_df %>% dplyr::select(c(station, rain_total, plant_day, plant_length, prop_success = prop_success))
       } else {
         result_df <- result_df %>% dplyr::select(c(rain_total = water_requirements, plant_day = planting_day, plant_length = planting_length, prop_success = prop_success))
       }
@@ -175,6 +172,4 @@ crops_definitions <- function(data = NULL, date_time = NULL, station = NULL, rai
     df$prop_success <- round(df$prop_success, 2)
     return(df)
   }
-  
-  
 }
