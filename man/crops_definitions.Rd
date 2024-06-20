@@ -5,10 +5,10 @@
 \title{Crop Definitions}
 \usage{
 crops_definitions(
-  data,
-  date_time,
+  data = NULL,
+  date_time = NULL,
   station = NULL,
-  rain,
+  rain = NULL,
   year = NULL,
   doy = NULL,
   water_requirements,
@@ -17,7 +17,9 @@ crops_definitions(
   start_check = TRUE,
   season_data = NULL,
   start_day,
-  end_day
+  end_day = NULL,
+  seasonal_length = NULL,
+  seasonal_rain = NULL
 )
 }
 \arguments{
@@ -46,6 +48,10 @@ crops_definitions(
 \item{start_day}{\code{character(1)} The name of the column in the season_data data frame that represents the start day. This can be calculated prior to using this function by the \code{start_rains} function.}
 
 \item{end_day}{\code{character(1)} The name of the column in the season_data data frame that represents the end day. This should be calculated prior to using this function by the \code{end_rains} function.}
+
+\item{seasonal_length}{\code{character(1)} If \code{data} is \code{NULL} then you can read in the seasonal length amount from the \code{season_data} data frame.}
+
+\item{seasonal_rain}{\code{character(1)} If \code{data} is \code{NULL} then you can read in the seasonal rainfall amount from the \code{season_data} data frame.}
 }
 \value{
 TODO
@@ -55,6 +61,4 @@ Calculate the probabilities of crop success for given planting maturity lengths,
 }
 \examples{
 #TODO
-
-
 }
