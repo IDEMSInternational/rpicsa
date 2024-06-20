@@ -170,6 +170,7 @@ crops_definitions <- function(data = NULL, date_time = NULL, station = NULL, rai
     df <- df %>% dplyr::summarise(prop_success = sum(overall_cond, 
                                                      na.rm = TRUE)/length(stats::na.omit(overall_cond)))
     df$prop_success <- round(df$prop_success, 2)
+    df <- df %>% dplyr::select(c(station, rain_total = water_requirements, plant_day = planting_day, plant_length = planting_length, prop_success = prop_success))
     return(df)
   }
 }
