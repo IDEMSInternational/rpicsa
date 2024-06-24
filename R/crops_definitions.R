@@ -22,9 +22,9 @@
 #'
 #' @examples #TODO
 crops_definitions <- function(data = NULL, date_time = NULL, station = NULL, rain = NULL, year = NULL, 
-                              doy = NULL, water_requirements, planting_dates, planting_length, start_check = TRUE, 
-                              season_data = NULL, start_day, end_day = NULL, seasonal_length = NULL,
-                              seasonal_rain = NULL) {
+              doy = NULL, water_requirements, planting_dates, planting_length, start_check = TRUE, 
+              season_data = NULL, start_day, end_day = NULL, seasonal_length = NULL,
+              seasonal_rain = NULL) {
   planting_day_name <- "planting_day"
   planting_length_name <- "planting_length"
   water_requirements_name <- "water_requirements"
@@ -60,11 +60,14 @@ crops_definitions <- function(data = NULL, date_time = NULL, station = NULL, rai
         
         if (start_check) {
           station_results <- station_results %>%
-            dplyr::mutate(planting_day_cond = station_results[[start_day]] <= plant_day)
+            dplyr::mutate(planting_day_cond = !!rlang::sym(start_day) <= plant_day)
         }
+        
+        if (!"seasonal_rain" %in% names(station_results)) stop("Cannot calculate without raw data. Missing seasonal rain.")
+        
         station_results <- station_results %>%
-          dplyr::mutate(length_cond = (plant_len) <= seasonal_length) %>%
-          dplyr::mutate(rain_cond = (water_req) <= seasonal_rain) %>%
+          dplyr::mutate(length_cond = (plant_len) <= !!rlang::sym(seasonal_length) & !is.na(!!rlang::sym(seasonal_length))) %>%
+          dplyr::mutate(rain_cond = (water_req) <= !!rlang::sym(seasonal_rain) & !is.na(!!rlang::sym(seasonal_rain))) %>%
           dplyr::mutate(overall_cond = ((if (start_check) planting_day_cond else TRUE) & length_cond & rain_cond))
         
         if (is_station) station_results <- station_results %>% dplyr::group_by(station)
@@ -85,9 +88,7 @@ crops_definitions <- function(data = NULL, date_time = NULL, station = NULL, rai
     
     # Execute the function
     result_df <- calculate_success_percentage(season_data, criteria_df, start_check = start_check)
-    
     # Display the result
-    return(result_df)
   } else {
     is_station <- !is.null(station)
     checkmate::assert_data_frame(data)
