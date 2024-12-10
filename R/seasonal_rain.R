@@ -143,11 +143,12 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   }
 
   if(!is.null(s_start_doy)){ # any(grepl("-", summary_data[[year]]))){
-    data <- shift_dates(data = data, date = "date", s_start_doy = s_start_doy - 1)
-    year <- "year"
-    doy <- "doy"
-    data[[year]] <- data[["s_year"]]
+    # The shifting has already happened in R-Instat
+    #data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
+    year <- "s_year"
+    doy <- "s_doy"
     data[[doy]] <- data[["s_doy"]]
+    data[[year]] <- data[["s_year"]]
   }
   data[[year]] <- factor(data[[year]])
   summary_data <- dplyr::full_join(data %>% dplyr::select(c({{ station }}, {{ year }}, {{ date_time }}, 
