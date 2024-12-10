@@ -89,9 +89,10 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   
   # Do we have a shifted start doy?
   if (!is.null(s_start_doy)){
-    data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
-    year <- "year"
-    doy <- "doy"
+    # The shifting has already happened in R-Instat
+    #data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
+    year <- "s_year"
+    doy <- "s_doy"
     data[[doy]] <- data[["s_doy"]]
     data[[year]] <- data[["s_year"]]
   } else {
