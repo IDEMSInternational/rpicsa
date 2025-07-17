@@ -2,11 +2,9 @@
 #' @description Returns a summary data frame giving the total rainfall each year from 1 Jan to 31 Dec.
 #' 
 #' @param data The data.frame to calculate from.
-#' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
-#' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
-#' @param s_start_doy \code{character(1)} Default `NULL`, otherwise the first DOY defined for the year. This will create a shifted start year.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
+#' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param total_rain \code{logical(1)} default `TRUE`. Display the total rainfall value for each year.
 #' @param n_rain \code{logical(1)} default `TRUE`. Display the number of rainfall days.
 #' @param rain_day \code{numerical(1)} If `n_rain = TRUE`, the minimum rainfall value in a day for that day to count as a rainfall day.
@@ -22,32 +20,57 @@
 #' @examples #daily_niger_1 <- daily_niger %>% dplyr::filter(year > 1960)
 #' #annual_rain(data = daily_niger, date_time  = "date", station = "station_name",
 #' #            rain = "rain", na_prop = 0.9)
-
-annual_rain <- function(data, date_time, rain, year = NULL, s_start_doy = NULL, total_rain = TRUE,
-                        n_rain = TRUE, rain_day = 0.85, station = NULL, 
-                        na_rm = FALSE, na_prop = NULL, na_n = NULL, 
-                        na_consec = NULL, na_n_non = NULL) {
+annual_rain <- function(data, year = NULL, station = NULL, rain,
+                        total_rain = TRUE, n_rain = TRUE, rain_day = 0.85,
+                        na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL,
+                        na_n_non = NULL) {
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of
          'total_rain' or 'n_rain' must be TRUE.")
   }
-  if (!is.null(s_start_doy)) {
-    # The shifting has already happened in R-Instat
-    #data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
-    year <- "s_year"
-    doy <- "s_doy"
-    data[[year]] <- data[["s_year"]]
+  
+  columns_to_summarise <- c()
+  # Create a variable which gives a 1 if it's a rain day, and 0 otherwise. 
+  if (total_rain){
+    columns_to_summarise <- c("rain", columns_to_summarise)
   }
-  summaries <- c()
-  if (total_rain) summaries <- c(total_rain = "sum")
-  if (n_rain) summaries <- c(summaries, 
-                             n_rain = paste0("~sum(.x > ", rain_day, ")"))
-  climatic_output <- climatic_summary(data = data, date_time = date_time, 
-                                  station = station, elements = rain,
-                                  year = year, to = "annual", 
-                                  summaries = summaries, na_rm = na_rm, 
-                                  na_prop = na_prop, na_n = na_n, 
-                                  na_n_non = na_n_non, names = "{.fn}")
-  if (total_rain) climatic_output <- climatic_output %>% dplyr::rename(annual_rain = total_rain)
-  return(climatic_output)
+  if (n_rain){
+    rain_day <- instatCalculations::instat_calculation$new(type = "calculation",
+                                              function_exp = paste0(rain, " >= ", rain_day),
+                                              result_name = "rain_day",
+                                              calculated_from = setNames(list(rain), data))
+    transform_calculation <- instatCalculations::instat_calculation$new(type = "calculation",
+                                              function_exp = "zoo::rollapply(data = rain_day, width = 1, FUN = sum, align = 'right', fill = NA)",
+                                              result_name = "rainfall_count",
+                                              sub_calculations = list(rain_day), 
+                                              save = 2, # do we need to save it?
+                                              before = FALSE,
+                                              adjacent_column = rain)
+    data_book$run_instat_calculation(calc = transform_calculation, display = FALSE)
+    columns_to_summarise <- c("rainfall_count", columns_to_summarise)
+  }
+
+  factors_by <- c(year, station)
+  factors_by <- factors_by[!sapply(factors_by, is.null)]
+  
+  na_type <- c(
+    if (!is.null(na_n))        "n",
+    if (!is.null(na_n_non))    "n_non_miss",
+    if (!is.null(na_prop))     "prop",
+    if (!is.null(na_consec))   "con"
+  )
+  
+  data_book$calculate_summary(data_name = data,
+                              columns_to_summarise = columns_to_summarise,
+                              factors = factors_by,
+                              store_results = TRUE,
+                              return_output = FALSE,
+                              summaries = c("summary_sum"),
+                              silent = TRUE,
+                              na.rm = na_rm,
+                              na_type = na_type, 
+                              na_max_n = na_n,
+                              na_min_n = na_n_non,
+                              na_consecutive_n = na_consec,
+                              na_max_prop = na_prop)
 }
