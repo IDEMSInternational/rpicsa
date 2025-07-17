@@ -6,14 +6,12 @@
 \usage{
 annual_rain(
   data,
-  date_time,
-  rain,
   year = NULL,
-  s_start_doy = NULL,
+  station = NULL,
+  rain,
   total_rain = TRUE,
   n_rain = TRUE,
   rain_day = 0.85,
-  station = NULL,
   na_rm = FALSE,
   na_prop = NULL,
   na_n = NULL,
@@ -24,21 +22,17 @@ annual_rain(
 \arguments{
 \item{data}{The data.frame to calculate from.}
 
-\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
-
-\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
-
 \item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
 
-\item{s_start_doy}{\code{character(1)} Default \code{NULL}, otherwise the first DOY defined for the year. This will create a shifted start year.}
+\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
+
+\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
 
 \item{total_rain}{\code{logical(1)} default \code{TRUE}. Display the total rainfall value for each year.}
 
 \item{n_rain}{\code{logical(1)} default \code{TRUE}. Display the number of rainfall days.}
 
 \item{rain_day}{\code{numerical(1)} If \code{n_rain = TRUE}, the minimum rainfall value in a day for that day to count as a rainfall day.}
-
-\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
 
 \item{na_rm}{\code{logical(1)}. Should missing values (including \code{NaN}) be removed?}
 
