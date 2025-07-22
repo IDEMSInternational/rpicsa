@@ -24,7 +24,8 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
                       doy = NULL,  s_start_doy = NULL, drop = TRUE,
                       start_day = 1, end_day = 366, output = c("doy", "date", "both"),
                       interval_length = 1, min_rainfall = 10){
-  
+
+  # 1. Checks
   checkmate::assert_data_frame(data)
   checkmate::assert_character(rain)
   assert_column_names(data, rain)
@@ -45,7 +46,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   if (end_day <= start_day) stop("The `end_day` must be after the `start_day`")
   output <- match.arg(output)
   
-  # Do we have a shifted start doy?
+  # 2. Can Remove all of this if statement: Do we have a shifted start doy?  
   if (!is.null(s_start_doy)){
     # The shifting has already happened in R-Instat
     #data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
@@ -64,6 +65,10 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
       data[[doy]] <- yday_366(data[[date_time]])
     }
   }
+
+  # 3. Add in R code to create DOY and Year if they are NULL (like in summary_temp)
+
+  # 4. From here we are using the End of Rains Dialog R Code, so this can all be replaced with that code directly
   # to avoid dropping levels, set as factor
   data[[year]] <- factor(data[[year]])
   if (!is.null(station)){
