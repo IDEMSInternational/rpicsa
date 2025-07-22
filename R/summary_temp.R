@@ -32,6 +32,7 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
   if ("min" %in% summaries){ summaries_all <- c(summaries_all, min = "min")}
   if ("max" %in% summaries){ summaries_all <- c(summaries_all, max = "max")}
   
+  # hello there
   # Use the dynamically created summaries_all in your climatic_summary function, if it's not empty
   if (length(summaries_all) > 0) {
     climatic_summary(data = data, date_time = date_time, 
