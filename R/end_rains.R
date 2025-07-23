@@ -25,7 +25,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
                       start_day = 1, end_day = 366, output = c("doy", "date", "status"),
                       interval_length = 1, min_rainfall = 10){
     # 1. Checks
-    checkmate::assert_data_frame(data)
+    checkmate::assert_character(data)
     checkmate::assert_character(rain)
     assert_column_names(data, rain)
     checkmate::assert(checkmate::check_date(data[[date_time]], null.ok = TRUE), 
