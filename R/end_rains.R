@@ -53,7 +53,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
     }
     
     if (is.null(doy)){
-      data_book$split_date(data_name="dodoma", col_name="date", day_in_year_366 =TRUE, s_start_month=1)
+      data_book$split_date(data_name = data, col_name=date_time, day_in_year_366 =TRUE, s_start_month=1)
       doy <- "doy"
     }
     
