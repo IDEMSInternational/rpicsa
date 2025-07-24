@@ -54,6 +54,26 @@ A data.frame with the day of year and/or date for the end of the rains for each 
 Last occurrence from day q with at least z mm rainfall on a set of days.
 }
 \examples{
-#TODO#
-# is same as R-Instat
+
+# Call in databook package and set up the environment
+library(databook)
+data_book <- DataBook$new()
+
+# Filter our data so we are only considering a small portion of it
+daily_data <- rpicsa::daily_niger \%>\%
+  dplyr::filter(year <= 1950) \%>\%
+  dplyr::filter(year > 1945) \%>\%
+  dplyr::mutate(year = as.numeric(year)) \%>\%
+  dplyr::filter(station_name == "Agades")
+data_book$import_data(list(daily_data = daily_data))
+
+ # Run End-Rains:
+end_rains(data = "daily_data", date_time = "date", station = "station_name",
+          year = "year", rain = "rain",
+          start_day = 121, end_day = 300,
+          output = "doy")
+          
+ # View output
+daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
+head(daily_data_by_station_name_year)
 }
