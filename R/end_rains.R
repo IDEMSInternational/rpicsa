@@ -11,7 +11,7 @@
 #' @param drop \code{logical(1)} default `TRUE`. Whether to drop years where there are `NA` data for the rainfall.
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
-#' @param output \code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default `"doy"`.
+#' @param output \code{character(1)} Whether to give the start of rains by day of year (doy), date, and/or status. Default all three selected.
 #' @param interval_length \code{numerical(1)} Number of days for the minimum rainfall to fall in.
 #' @param min_rainfall \code{numerical(1)} Minimum amount of rainfall to occur on the set of days defined in `interval_length`.
 #'
@@ -22,87 +22,76 @@
 #' # is same as R-Instat
 end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
                       doy = NULL,  s_start_doy = NULL, drop = TRUE,
-                      start_day = 1, end_day = 366, output = c("doy", "date", "both"),
+                      start_day = 1, end_day = 366, output = c("doy", "date", "status"),
                       interval_length = 1, min_rainfall = 10){
-
-  # 1. Checks
-  checkmate::assert_data_frame(data)
-  checkmate::assert_character(rain)
-  assert_column_names(data, rain)
-  checkmate::assert(checkmate::check_date(data[[date_time]], null.ok = TRUE), 
-                    checkmate::check_posixct(data[[date_time]],  null.ok = TRUE))
-  checkmate::assert_string(station, null.ok = TRUE)
-  checkmate::assert_string(year, null.ok = TRUE)
-  checkmate::assert_string(doy, null.ok = TRUE)
-  checkmate::assert_numeric(s_start_doy, lower = 1, upper = 366, null.ok = TRUE)
-  # if (!is.null(station)) assert_column_names(data, station)
-  # if (!is.null(date_time)) assert_column_names(data, date_time)
-  # if (!is.null(year)) assert_column_names(data, year)
-  # if (!is.null(doy)) assert_column_names(data, doy)
-  checkmate::assert_int(start_day, lower = 1, upper = 365)
-  checkmate::assert_int(end_day, lower = 2, upper = 366)
-  checkmate::assert_int(interval_length, lower = 1)
-  checkmate::assert_int(min_rainfall, lower = 0)
-  if (end_day <= start_day) stop("The `end_day` must be after the `start_day`")
-  output <- match.arg(output)
-  
-  # 2. Can Remove all of this if statement: Do we have a shifted start doy?  
-  if (!is.null(s_start_doy)){
-    # The shifting has already happened in R-Instat
-    #data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
-    year <- "s_year"
-    doy <- "s_doy"
-    data[[doy]] <- data[["s_doy"]]
-    data[[year]] <- data[["s_year"]]
-  } else {
-    # calculate doy, year from date
-    if(is.null(year)){#if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
-      year <- "year"
-      data[[year]] <- lubridate::year(data[[date_time]])
-    }
-    if(is.null(doy)){ #(!doy %in% names(data)) {
-      doy <- "doy"
-      data[[doy]] <- yday_366(data[[date_time]])
-    }
-  }
-
-  # 3. Add in R code to create DOY and Year if they are NULL (like in summary_temp)
-
-  # 4. From here we are using the End of Rains Dialog R Code, so this can all be replaced with that code directly
-  # to avoid dropping levels, set as factor
-  data[[year]] <- factor(data[[year]])
-  if (!is.null(station)){
-    end_of_rains <- data %>% 
-      dplyr::group_by(.data[[station]], .drop = drop) 
-  } else {
-    end_of_rains <- data
-  }
-  
-  end_of_rains <- end_of_rains %>%
-    dplyr::mutate(roll_sum_rain = RcppRoll::roll_sumr(x = .data[[rain]], n = interval_length, fill = NA, na.rm = FALSE)) %>%
-    dplyr::filter((roll_sum_rain > min_rainfall) | is.na(x=roll_sum_rain)) %>% 
-    dplyr::group_by(.data[[year]], .add = TRUE, .drop = drop) %>%
-    dplyr::filter(.data[[doy]] >= start_day & .data[[doy]] <= end_day, .preserve = TRUE)
-  
-  if (output == "doy"){
-    end_of_rains <- end_of_rains %>%
-      dplyr::summarise(end_rains = ifelse(is.na(x = dplyr::last(x = roll_sum_rain)), 
-                                         NA, 
-                                         dplyr::last(x=.data[[doy]], default=NA)))
+    # 1. Checks
+    checkmate::assert_character(data)
+    checkmate::assert_character(rain)
+    assert_column_names(data, rain)
+    checkmate::assert(checkmate::check_date(data[[date_time]], null.ok = TRUE), 
+                      checkmate::check_posixct(data[[date_time]],  null.ok = TRUE))
+    checkmate::assert_string(station, null.ok = TRUE)
+    checkmate::assert_string(year, null.ok = TRUE)
+    checkmate::assert_string(doy, null.ok = TRUE)
+    checkmate::assert_numeric(s_start_doy, lower = 1, upper = 366, null.ok = TRUE)
+    # if (!is.null(station)) assert_column_names(data, station)
+    # if (!is.null(date_time)) assert_column_names(data, date_time)
+    # if (!is.null(year)) assert_column_names(data, year)
+    # if (!is.null(doy)) assert_column_names(data, doy)
+    checkmate::assert_int(start_day, lower = 1, upper = 365)
+    checkmate::assert_int(end_day, lower = 2, upper = 366)
+    checkmate::assert_int(interval_length, lower = 1)
+    checkmate::assert_int(min_rainfall, lower = 0)
+    if (end_day <= start_day) stop("The `end_day` must be after the `start_day`")    
     
-  } else if (output == "date") {
-    end_of_rains <- end_of_rains %>%
-      dplyr::summarise(end_rains = dplyr::if_else(is.na(x = dplyr::last(x = roll_sum_rain)), 
-                                                 as.Date(NA),
-                                                 dplyr::last(.data[[date_time]], default=NA)))
-  } else {
-    end_of_rains <- end_of_rains %>%
-      dplyr::summarise(end_rains_doy = ifelse(is.na(x = dplyr::last(x = roll_sum_rain)), 
-                                             NA, 
-                                             dplyr::last(x=.data[[doy]], default=NA)),
-                       end_rains_date = dplyr::if_else(is.na(x = dplyr::last(x = roll_sum_rain)), 
-                                                      as.Date(NA),
-                                                      dplyr::last(.data[[date_time]], default=NA)))
-  }
-  return(end_of_rains)
+    # 3. Add in R code to create DOY and Year if they are NULL (like in summary_temp)
+    if (is.null(year)) {
+      data_book$split_date(data_name=data, col_name=date_time, year_val=TRUE, s_start_month=1)
+      year <- "year"
+    }
+    
+    if (is.null(doy)){
+      data_book$split_date(data_name = data, col_name=date_time, day_in_year_366 =TRUE, s_start_month=1)
+      doy <- "doy"
+    }
+    
+    # 4. From here we are using the End of Rains Dialog R Code, so this can all be replaced with that code directly
+    # to avoid dropping levels, set as factor
+    year_type <- data_book$get_column_data_types(data_name=data, columns=year)
+    data_book$convert_column_to_type(data_name=data, col_names=year, to_type="factor")
+    data_book$convert_linked_variable(from_data_frame=data, link_cols=c(year))
+    roll_sum_rain <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("RcppRoll::roll_sumr(x=rain, n = ", interval_length, ", fill=NA, na.rm=FALSE)"), result_name="roll_sum_rain", calculated_from=setNames(list(rain), data))
+    conditions_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp=paste0("(roll_sum_rain > ", min_rainfall, ") | is.na(x=roll_sum_rain)"), sub_calculations=list(roll_sum_rain))
+    grouping_by_station_year <- instatCalculations::instat_calculation$new(type="by", calculated_from=setNames(list(year), data))
+    doy_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp=paste0("doy >=", start_day, " & doy <= ", end_day), calculated_from=databook::calc_from_convert(x=setNames(list(doy), data)))
+    
+    # If "DOY (End Rains) is checked then run this line:
+    if ("day" %in% output){
+      end_rains <- instatCalculations::instat_calculation$new(type="summary", function_exp="ifelse(test=is.na(x=dplyr::last(x=roll_sum_rain)), yes=NA, no=dplyr::last(x=doy))", result_name="end_rains", calculated_from=setNames(list(doy), data), save=2)
+    }
+    # If Date (End Rains) is checked then run this line:
+    if ("date" %in% output){
+      end_rains_date <- instatCalculations::instat_calculation$new(type="summary", function_exp="dplyr::if_else(condition=is.na(x=dplyr::last(x=roll_sum_rain)), true=as.Date(NA), false=dplyr::last(x=date_time))", result_name="end_rains_date", calculated_from=setNames(list(date_time), data), save=2)
+    }
+    # If Status (End Rains) is checked then run this line:
+    if ("status" %in% output) {
+      end_rains_status <- instatCalculations::instat_calculation$new(type="summary", function_exp="ifelse(n() > 0, yes=ifelse(is.na(x=dplyr::last(x=roll_sum_rain)), yes=NA, no=TRUE), no=FALSE)", result_name="end_rains_status", save=2)
+    }
+    
+    # Now collect only the ones you created into a list:
+    sub_calcs <- list()
+    if (exists("end_rains"))         sub_calcs <- c(sub_calcs, list(end_rains))
+    if (exists("end_rains_date"))    sub_calcs <- c(sub_calcs, list(end_rains_date))
+    if (exists("end_rains_status"))  sub_calcs <- c(sub_calcs, list(end_rains_status))
+  
+    # In Combined, we run all that were checked out of end_rains, end_rains_date, end_rains_status and put them in sub_calculations
+    end_of_rains_combined <- instatCalculations::instat_calculation$new(type="combination", manipulations=list(conditions_filter, grouping_by_station_year, doy_filter), sub_calculations = sub_calcs)
+
+    # Then we would always run this line (no changes needed here!)
+    data_book$run_instat_calculation(display=FALSE, param_list=list(drop=FALSE), calc=end_of_rains_combined)
+    
+    linked_data_name <- data_book$get_linked_to_data_name(data, link_cols=c(year))
+    
+    data_book$convert_column_to_type(data_name=data, col_names=year, to_type=year_type)
+    data_book$convert_column_to_type(data_name=linked_data_name, col_names=year, to_type=year_type)
 }
