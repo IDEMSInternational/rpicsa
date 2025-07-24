@@ -1,22 +1,46 @@
-# library(rpicsa)
-# library(dplyr)
-# library(testthat)
-# 
-# # Test case 1
-# daily_data <- rpicsa::daily_niger %>%
-#   filter(year <= 1950) %>%
-#   filter(year > 1945) %>%
-#   filter(station_name == "Agades")
-# test_1_results <- readRDS("testdata/test_1_annual_summaries.rds") %>%
-#   dplyr::select(c(year, station_name, end_season)) %>%
-#   dplyr::mutate(year = factor(year)) %>%
-#   dplyr::arrange(year)
-# 
-# test_that("Correct summaries are calculated", {
-#   result <- end_season(data = daily_data, date_time = "date", station = "station_name",
-#                       year = "year", doy = "doy", rain = "rain",
-#                       start_day = 121)
-#   result <- full_join(result, test_1_results, by = c("station_name" = "station_name",
-#                                                      "year" = "year"))
-#   expect_true(identical(result$end_season.x, result$end_season.y))
-# })
+test_that("Correct summaries are calculated", {
+  # Testing Load packages --------------------
+  library(databook)
+  expected_station_year_results <- readRDS("testdata/end_season_by_station_year.rds")
+  expected_year_results <- readRDS("testdata/end_season_by_year.rds")
+  
+  # Setting up R Code --------------------
+  data_book <- DataBook$new()
+  daily_data <- rpicsa::daily_niger %>%
+    dplyr::filter(year <= 1950) %>%
+    dplyr::filter(year > 1945) %>%
+    dplyr::mutate(year = as.numeric(year)) %>%
+    dplyr::filter(station_name == "Agades") %>%
+    dplyr::mutate(evap_var = 5)
+  data_book$import_data(list(daily_data = daily_data))
+  data_book$add_key("daily_data", "date", "key")
+  
+  daily_data <- data_book$get_data_frame("daily_data")
+  suppressWarnings(end_season(data = "daily_data",
+             date_time = "date",
+             station = "station_name",
+             rain = "rain",
+             start_day = 121,
+             end_day = 300,
+             data_book = data_book))
+  daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
+  
+  suppressWarnings(end_season(data = "daily_data",
+                              date_time = "date",
+                              rain = "rain",
+                              year = "year",
+                              start_day = 121,
+                              end_day = 300,
+                              evaporation  = "variable",
+                              evaporation_variable = "evap_var",
+                              reducing = TRUE,
+                              data_book = data_book))
+  daily_data_by_year <- data_book$get_data_frame("daily_data_by_year")
+  
+  # saveRDS(daily_data_by_station_name_year, "testdata/end_season_by_station_year.rds")
+  # saveRDS(daily_data_by_year, "testdata/end_season_by_year.rds")
+  
+  expect_identical(expected_station_year_results, daily_data_by_station_name_year)
+  expect_identical(expected_year_results, daily_data_by_year)
+  
+})
