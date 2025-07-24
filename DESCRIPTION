@@ -17,6 +17,7 @@ Imports:
     dplyr,
     instatExtras,
     instatCalculations,
+    instatClimatic,
     lubridate,
     magrittr,
     naflex,
@@ -30,5 +31,6 @@ Imports:
 Remotes:
     IDEMSInternational/databook,
     IDEMSInternational/instatCalculations,
+    IDEMSInternational/instatClimatic,
     IDEMSInternational/instatExtras
 LazyData: true
