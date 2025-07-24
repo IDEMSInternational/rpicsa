@@ -111,7 +111,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
     
     if ("doy" %in% output) end_rains <- instatCalculations::instat_calculation$new(type="summary", function_exp=paste0("ifelse(test=is.na(x=dplyr::last(x=roll_sum_rain)), yes=NA, no=dplyr::last(x=", doy, "))"), result_name="end_rains", calculated_from=setNames(list(doy), data), save=2)
     if ("date" %in% output) end_rains_date <- instatCalculations::instat_calculation$new(type="summary", function_exp=paste0("dplyr::if_else(condition=is.na(x=dplyr::last(x=roll_sum_rain)), true=as.Date(NA), false=dplyr::last(x=", date_time, "))"), result_name="end_rains_date", calculated_from=setNames(list(date_time), data), save=2)
-    if ("status" %in% output) end_rains_status <- instatCalculations::instat_calculation$new(type="summary", function_exp="ifelse(n() > 0, yes=ifelse(is.na(x=dplyr::last(x=roll_sum_rain)), yes=NA, no=TRUE), no=FALSE)", result_name="end_rains_status", save=2)
+    if ("status" %in% output) end_rains_status <- instatCalculations::instat_calculation$new(type="summary", function_exp="ifelse(dplyr::n() > 0, yes=ifelse(is.na(x=dplyr::last(x=roll_sum_rain)), yes=NA, no=TRUE), no=FALSE)", result_name="end_rains_status", save=2)
     
     # Now collect only the ones you created into a list:
     sub_calcs <- list()
