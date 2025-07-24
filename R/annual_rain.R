@@ -13,6 +13,7 @@
 #' @param na_n \code{integer(1)} Max number of missing values allowed
 #' @param na_consec \code{integer(1)} Max number of consecutive missing values allowed
 #' @param na_n_non \code{integer(1)} Min number of non-missing values required
+#' @param data_book The data book object where the data object is stored, default `NULL`.
 #'
 #' @return A data.frame with rainfall summaries for each year
 #' @export
@@ -23,7 +24,11 @@
 annual_rain <- function(data, year = NULL, station = NULL, rain,
                         total_rain = TRUE, n_rain = TRUE, rain_day = 0.85,
                         na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL,
-                        na_n_non = NULL) {
+                        na_n_non = NULL, data_book = NULL) {
+  if (is.null(data_book)) {
+    data_book <- DataBook$new()
+  }
+  
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of
          'total_rain' or 'n_rain' must be TRUE.")

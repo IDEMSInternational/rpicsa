@@ -17,7 +17,8 @@ end_rains(
   end_day = 366,
   output = c("doy", "date", "status"),
   interval_length = 1,
-  min_rainfall = 10
+  min_rainfall = 10,
+  data_book = NULL
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ end_rains(
 \item{interval_length}{\code{numerical(1)} Number of days for the minimum rainfall to fall in.}
 
 \item{min_rainfall}{\code{numerical(1)} Minimum amount of rainfall to occur on the set of days defined in \code{interval_length}.}
+
+\item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
 }
 \value{
 A data.frame with the day of year and/or date for the end of the rains for each year (and station).
@@ -71,7 +74,7 @@ data_book$import_data(list(daily_data = daily_data))
 end_rains(data = "daily_data", date_time = "date", station = "station_name",
           year = "year", rain = "rain",
           start_day = 121, end_day = 300,
-          output = "doy")
+          output = "doy", data_book = data_book)
           
  # View output
 daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
