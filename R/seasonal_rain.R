@@ -57,28 +57,6 @@
 #' @importFrom rlang :=
 #' @importFrom rlang .data
 #' @examples # TODO
-#' data(daily_niger)
-#' 
-#' seasonal_rain(data = daily_niger, station = "station_name", date_time = "date", eos_start_day = 100,
-#' year = "year", doy = "doy", rain = "rain", end_type = "rains")
-#' 
-#' seasonal_rain(data = daily_niger, station = "station_name", date_time = "date",
-#' year = "year", doy = "doy", rain = "rain", sor_start_day = 1, eos_start_day = 100)
-#' 
-#' # Using data
-#' start_output <- start_rains(data = daily_niger, station = "station_name", date_time = "date",
-#'                             year = "year", doy = "doy", rain = "rain")
-#' end_output <- end_rains(data = daily_niger, station = "station_name", date_time = "date",
-#'                         year = "year", doy = "doy", rain = "rain")
-#' summary_data <- dplyr::full_join(start_output, end_output)
-#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date",
-#' station = "station_name", data = daily_niger, year = "year", start_date = "start_rains",
-#' end_date = "end_rains", rain = "rain")
-#' 
-#' # Or to create one of the start rains in the function:
-#' summary_data <- end_output
-#' start_output <- seasonal_rain(summary_data = summary_data, date_time = "date", station = "station_name", data = daily_niger, year = "year", end_date = "end_rains", rain = "rain", threshold = 20)
-
 seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NULL, 
                            data, date_time, year = NULL, station = NULL, doy = NULL, 
                            rain = NULL, total_rain = TRUE, n_rain = TRUE, rain_day = 0.85, 
