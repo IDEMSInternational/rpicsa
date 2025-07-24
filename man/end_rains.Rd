@@ -15,7 +15,7 @@ end_rains(
   drop = TRUE,
   start_day = 1,
   end_day = 366,
-  output = c("doy", "date", "both"),
+  output = c("doy", "date", "status"),
   interval_length = 1,
   min_rainfall = 10
 )
@@ -41,7 +41,7 @@ end_rains(
 
 \item{end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
 
-\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
+\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, and/or status. Default all three selected.}
 
 \item{interval_length}{\code{numerical(1)} Number of days for the minimum rainfall to fall in.}
 

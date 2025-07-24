@@ -24,7 +24,7 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
                                 month = NULL, station = NULL, to = c("annual", "monthly"),
                                 summaries = c("mean", "min", "max"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL) {
-  
+  to <- match.arg(to)
   if (is.null(tmin) && is.null(tmax)) { stop("At least one of 'tmin' or 'tmax' must be provided.") }
   
   # creating the year and month columns if they do not exist

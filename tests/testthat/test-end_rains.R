@@ -1,22 +1,36 @@
 library(rpicsa)
 library(dplyr)
-library(testthat)
+library(databook)
 
+# Testing annual_rain function --------------------
+data_book <- DataBook$new()
 # Test case 1
 daily_data <- rpicsa::daily_niger %>%
   filter(year <= 1950) %>%
   filter(year > 1945) %>%
+  mutate(year = as.numeric(year)) %>%
   filter(station_name == "Agades")
-test_1_results <- readRDS("testdata/test_1_annual_summaries.rds") %>%
-  dplyr::select(c(year, station_name, end_rains)) %>%
-  dplyr::mutate(year = factor(year)) %>%
-  dplyr::arrange(year)
+data_book$import_data(list(daily_data = daily_data))
+
+devtools::load_all()
+daily_data <- data_book$get_data_frame("daily_data")
+
+end_rains(data = "daily_data", date_time = "date", station = "station_name",
+          year = "year", rain = "rain",
+          start_day = 121, end_day = 300,
+          output = "doy")
+daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
+
+end_rains(data = "daily_data", date_time = "date",
+          year = "year", rain = "rain",
+          start_day = 121, end_day = 300,
+          output = "doy")
+daily_data_by_year <- data_book$get_data_frame("daily_data_by_year")
+
+expected_station_year_results <- readRDS("testdata/end_rains_by_station_year.rds")
+expected_year_results <- readRDS("testdata/end_rains_by_year.rds")
 
 test_that("Correct summaries are calculated", {
-  result <- end_rains(data = daily_data, date_time = "date", station = "station_name",
-                      year = "year", doy = "doy", rain = "rain",
-                      start_day = 121, interval_length = 1, min_rainfall = 10)
-  result <- full_join(result, test_1_results, by = c("station_name" = "station_name",
-                                                     "year" = "year"))
-  expect_true(identical(result$end_rains.x, result$end_rains.y))
+  expect_true(identical(expected_station_year_results, daily_data_by_station_name_year))
+  expect_true(identical(expected_year_results, daily_data_by_year))
 })
