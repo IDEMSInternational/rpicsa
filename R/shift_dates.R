@@ -15,14 +15,9 @@
 #' @examples
 #' data <- data.frame(date = as.Date(c("2023-03-15", "2024-02-29")), year = c(2023, 2024))
 #' shifted_data <- shift_dates(data, "date", 50, "shifted_doy", "shifted_year")
-#'
-#' @seealso
-#' \code{\link{yday_366}}: A helper function to calculate day of the year for leap years.
-#'
-#' @importFrom lubridate yday
 shift_dates <- function(data, date, s_start_doy, doy_shift_name = "s_doy", year_shift_name = "s_year"){
   # Calculate day of the year for leap years (366 days)
-  doy <- yday_366(data[[date]])
+  doy <- instatExtras::yday_366(data[[date]])
   
   # Calculate the DOY shift
   doy_shift <- (doy - s_start_doy) %% 366
