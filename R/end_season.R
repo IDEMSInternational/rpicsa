@@ -17,6 +17,7 @@
 #' @param evaporation \code{character(1)} Whether to give evaporation as a value or variable. Default `"value"`.
 #' @param evaporation_value \code{numerical(1)} If `evaporation = "value"`, the numerical value of amount of evaporation per day (default `5`).
 #' @param evaporation_variable \code{character(1)} If `evaporation = "variable"`, the variable in `data` that corresponds to the evaporation column.
+#' @param data_book The data book object where the data object is stored, default `NULL`.
 #'
 #' @return A data.frame with the day of year and/or date for the end of the season for each year (and station).
 #' @export
@@ -25,7 +26,12 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
                        doy = NULL,  s_start_doy = NULL, drop = TRUE,
                        start_day = 1, end_day = 366, output = c("doy", "date", "status"),
                        capacity = 60, water_balance_max = 0.5, evaporation = c("value", "variable"),
-                       evaporation_value = 5, evaporation_variable = NULL, reducing=FALSE, reducing_value=0.5){
+                       evaporation_value = 5, evaporation_variable = NULL, reducing=FALSE, reducing_value=0.5, data_book = NULL) {
+  
+    if (is.null(data_book)) {
+      data_book <- DataBook$new()
+    }
+    
     # TODO: set up evaporation_variable
     checkmate::assert_character(data)
     checkmate::assert_character(rain)
