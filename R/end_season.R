@@ -35,9 +35,10 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
     # TODO: set up evaporation_variable
     checkmate::assert_character(data)
     checkmate::assert_character(rain)
-    assert_column_names(data, rain)
-    checkmate::assert(checkmate::check_date(data[[date_time]], null.ok = TRUE), 
-                      checkmate::check_posixct(data[[date_time]],  null.ok = TRUE))
+    data_frame <- data_book$get_data_frame(data)
+    assert_column_names(data_frame, rain)
+    checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
+                      checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
     checkmate::assert_string(station, null.ok = TRUE)
     checkmate::assert_string(year, null.ok = TRUE)
     checkmate::assert_string(doy, null.ok = TRUE)
@@ -119,11 +120,11 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
     }
     
     first_sub_calcs <- list()
-    if (exists(end_season)) first_sub_calcs <- c(first_sub_calcs, list(end_season))
-    if (exists(end_season_date)) first_sub_calcs <- c(first_sub_calcs, list(end_season_date))
+    if (exists("end_season")) first_sub_calcs <- c(first_sub_calcs, list(end_season))
+    if (exists("end_season_date")) first_sub_calcs <- c(first_sub_calcs, list(end_season_date))
     
-    end_of_season_combined <- instatCalculations::instat_calculation$new(type="combination", manipulations=list(conditions_filter, grouping_by_station_year, doy_filter), sub_calculations=list(end_season, end_season_date))
-    data_book$run_instat_calculation(display=FALSE, param_list=list(drop=FALSE), calc=end_of_season_combined)
+    end_of_season_combined <- instatCalculations::instat_calculation$new(type="combination", manipulations=list(conditions_filter, grouping_by_station_year, doy_filter), sub_calculations = first_sub_calcs)
+    data_book$run_instat_calculation(display=FALSE, param_list=list(drop = drop), calc=end_of_season_combined)
     
     if ("status" %in% output){
       conditions_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp="conditions_check == 1 | is.na(conditions_check) | conditions_check == 0", sub_calculations=list(conditions_check))
