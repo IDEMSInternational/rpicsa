@@ -15,12 +15,14 @@ end_season(
   drop = TRUE,
   start_day = 1,
   end_day = 366,
-  output = c("doy", "date", "both"),
+  output = c("doy", "date", "status"),
   capacity = 60,
   water_balance_max = 0.5,
   evaporation = c("value", "variable"),
   evaporation_value = 5,
-  evaporation_variable = NULL
+  evaporation_variable = NULL,
+  reducing = FALSE,
+  reducing_value = 0.5
 )
 }
 \arguments{
@@ -44,7 +46,7 @@ end_season(
 
 \item{end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
 
-\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
+\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, and/or status. Default all three selected.}
 
 \item{capacity}{\code{numerical(1)} Water capacity of the soil (default \code{60}).}
 
@@ -61,11 +63,4 @@ A data.frame with the day of year and/or date for the end of the season for each
 }
 \description{
 Last occurrence from day q with at least z mm rainfall on a set of days.
-}
-\examples{
-#TODO # is same as R-Instat
-# end_season(niger_daily_1, date_time = "date", year = "year",
-#rain = "rain", doy = "doy", output = "doy",
-#capacity = 60, water_balance_max = 0.5,
-#evaporation_value = 5)
 }
