@@ -43,21 +43,8 @@
 #' @return A data.frame with length of rainfall season for each year in the specified season (between start of the rains and end of season).
 #' @export
 #'
-#' @examples # Example of season
-#' data(daily_niger)
-#' 
-#' seasonal_length(data = daily_niger, station = "station_name", date_time = "date",
-#' year = "year", doy = "doy", rain = "rain")
-#' 
-#' # Using data
-#' start_output <- start_rains(data = daily_niger, station = "station_name", date_time = "date",
-#'                             year = "year", doy = "doy", rain = "rain")
-#' end_output <- end_rains(data = daily_niger, station = "station_name", date_time = "date",
-#'                         year = "year", doy = "doy", rain = "rain")
-#' end_output_2 <- end_season(data = daily_niger, station = "station_name", date_time = "date",
-#'                         year = "year", doy = "doy", rain = "rain")
-#' summary_data <- dplyr::full_join(dplyr::full_join(start_output, end_output), end_output_2)
-#' output_1 <- seasonal_length(summary_data = summary_data, start_date = "start_rains", end_date = "end_rains")
+#' @examples
+#' # Example of season
 seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = NULL,
                           data = NULL, date_time = NULL, rain = NULL, year = NULL, station = NULL, doy = NULL, 
                           # start of rains parameters

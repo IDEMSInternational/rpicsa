@@ -16,7 +16,8 @@ annual_rain(
   na_prop = NULL,
   na_n = NULL,
   na_consec = NULL,
-  na_n_non = NULL
+  na_n_non = NULL,
+  data_book = NULL
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ annual_rain(
 \item{na_consec}{\code{integer(1)} Max number of consecutive missing values allowed}
 
 \item{na_n_non}{\code{integer(1)} Min number of non-missing values required}
+
+\item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
 }
 \value{
 A data.frame with rainfall summaries for each year

@@ -18,7 +18,8 @@ summary_temperature(
   na_prop = NULL,
   na_n = NULL,
   na_consec = NULL,
-  na_n_non = NULL
+  na_n_non = NULL,
+  data_book = NULL
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ summary_temperature(
 \item{na_consec}{\code{integer(1)} Max number of consecutive missing values allowed}
 
 \item{na_n_non}{\code{integer(1)} Min number of non-missing values required}
+
+\item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
 }
 \value{
 A data.frame with mean summaries for each year or year and month for the minimum daily temperature and/or the maximum daily temperature.

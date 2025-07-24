@@ -1,22 +1,40 @@
-library(rpicsa)
-library(dplyr)
-library(testthat)
-
-# Test case 1
-daily_data <- rpicsa::daily_niger %>%
-  filter(year <= 1950) %>%
-  filter(year > 1945) %>%
-  filter(station_name == "Agades")
-test_1_results <- readRDS("testdata/test_1_annual_summaries.rds") %>%
-  dplyr::select(c(year, station_name, end_rains)) %>%
-  dplyr::mutate(year = factor(year)) %>%
-  dplyr::arrange(year)
-
 test_that("Correct summaries are calculated", {
-  result <- end_rains(data = daily_data, date_time = "date", station = "station_name",
-                      year = "year", doy = "doy", rain = "rain",
-                      start_day = 121, interval_length = 1, min_rainfall = 10)
-  result <- full_join(result, test_1_results, by = c("station_name" = "station_name",
-                                                     "year" = "year"))
-  expect_true(identical(result$end_rains.x, result$end_rains.y))
+  # Testing Load packages --------------------
+  library(databook)
+  
+  # Setting up R Code --------------------
+  data_book <- DataBook$new()
+  daily_data <- rpicsa::daily_niger %>%
+    dplyr::filter(year <= 1950) %>%
+    dplyr::filter(year > 1945) %>%
+    dplyr::mutate(year = as.numeric(year)) %>%
+    dplyr::filter(station_name == "Agades")
+  data_book$import_data(list(daily_data = daily_data))
+  
+  daily_data <- data_book$get_data_frame("daily_data")
+  
+  suppressWarnings(end_rains(data = "daily_data",
+                             date_time = "date",
+                             station = "station_name",
+                             year = "year",
+                             rain = "rain",
+                             start_day = 121,
+                             end_day = 300,
+                             data_book = data_book))
+  daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
+  
+  suppressWarnings(end_rains(data = "daily_data",
+                             date_time = "date",
+                             year = "year",
+                             rain = "rain",
+                             start_day = 121,
+                             end_day = 300,
+                             data_book = data_book))
+  daily_data_by_year <- data_book$get_data_frame("daily_data_by_year")
+  
+  expected_station_year_results <- readRDS("testdata/end_rains_by_station_year.rds")
+  expected_year_results <- readRDS("testdata/end_rains_by_year.rds")
+  
+  expect_true(identical(expected_station_year_results, daily_data_by_station_name_year))
+  expect_true(identical(expected_year_results, daily_data_by_year))
 })

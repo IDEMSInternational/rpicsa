@@ -15,6 +15,7 @@
 #' @param na_n \code{integer(1)} Max number of missing values allowed
 #' @param na_consec \code{integer(1)} Max number of consecutive missing values allowed
 #' @param na_n_non \code{integer(1)} Min number of non-missing values required
+#' @param data_book The data book object where the data object is stored, default `NULL`.
 #'
 #' @return A data.frame with mean summaries for each year or year and month for the minimum daily temperature and/or the maximum daily temperature.
 #' @export
@@ -23,8 +24,13 @@
 summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
                                 month = NULL, station = NULL, to = c("annual", "monthly"),
                                 summaries = c("mean", "min", "max"), na_rm = FALSE,
-                                na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL) {
+                                na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
+                                data_book = NULL) {
+  if (is.null(data_book)) {
+    data_book <- DataBook$new()
+  }
   
+  to <- match.arg(to)
   if (is.null(tmin) && is.null(tmax)) { stop("At least one of 'tmin' or 'tmax' must be provided.") }
   
   # creating the year and month columns if they do not exist

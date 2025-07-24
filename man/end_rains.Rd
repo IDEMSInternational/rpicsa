@@ -15,9 +15,10 @@ end_rains(
   drop = TRUE,
   start_day = 1,
   end_day = 366,
-  output = c("doy", "date", "both"),
+  output = c("doy", "date", "status"),
   interval_length = 1,
-  min_rainfall = 10
+  min_rainfall = 10,
+  data_book = NULL
 )
 }
 \arguments{
@@ -41,11 +42,13 @@ end_rains(
 
 \item{end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
 
-\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
+\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, and/or status. Default all three selected.}
 
 \item{interval_length}{\code{numerical(1)} Number of days for the minimum rainfall to fall in.}
 
 \item{min_rainfall}{\code{numerical(1)} Minimum amount of rainfall to occur on the set of days defined in \code{interval_length}.}
+
+\item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
 }
 \value{
 A data.frame with the day of year and/or date for the end of the rains for each year (and station).
@@ -54,6 +57,26 @@ A data.frame with the day of year and/or date for the end of the rains for each 
 Last occurrence from day q with at least z mm rainfall on a set of days.
 }
 \examples{
-#TODO#
-# is same as R-Instat
+
+# Call in databook package and set up the environment
+library(databook)
+data_book <- DataBook$new()
+
+# Filter our data so we are only considering a small portion of it
+daily_data <- rpicsa::daily_niger \%>\%
+  dplyr::filter(year <= 1950) \%>\%
+  dplyr::filter(year > 1945) \%>\%
+  dplyr::mutate(year = as.numeric(year)) \%>\%
+  dplyr::filter(station_name == "Agades")
+data_book$import_data(list(daily_data = daily_data))
+
+ # Run End-Rains:
+end_rains(data = "daily_data", date_time = "date", station = "station_name",
+          year = "year", rain = "rain",
+          start_day = 121, end_day = 300,
+          output = "doy", data_book = data_book)
+          
+ # View output
+daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
+head(daily_data_by_station_name_year)
 }
