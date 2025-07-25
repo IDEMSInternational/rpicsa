@@ -113,13 +113,14 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
     
     year_type <- data_book$get_column_data_types(data_name=data, columns=year)
     data_book$convert_column_to_type(data_name=data, col_names=year, to_type="factor")
+    data_book$convert_linked_variable(from_data_frame=data, link_cols=c(year))
+    
     if (station) {
       station_type <- data_book$get_column_data_types(data_name=data, columns=station)
       data_book$convert_column_to_type(data_name = data, col_names = station, to_type="factor")
       data_book$convert_linked_variable(from_data_frame=data, link_cols=c(year, station))
       grouping_by_station <- instatCalculations::instat_calculation$new(type="by", calculated_from=setNames(list(station), data))
     }
-    data_book$convert_linked_variable(from_data_frame=data, link_cols=c(year))
     
     if (evaporation) {
       fraction_evap <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0(evaporation_variable, " * ", fraction), result_name="fraction_evap", calculated_from=setNames(list(evaporation_variable), data))
