@@ -132,12 +132,38 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
     }
     else {
       roll_sum_rain <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("RcppRoll::roll_sumr(x=", rain, ", n=", over_days, ", fill=NA, na.rm=FALSE)"), result_name="roll_sum_rain", calculated_from=setNames(list(rain), data))
-      
     }
     
     rain_day <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0(rain, " >= ", threshold), result_name="rain_day", calculated_from=setNames(list(rain), data))
     if (total_rainfall && proportion){
       total_rainfall_wet_spell <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("quantile(x=roll_sum_rain, probs=", prob_rain_day, ", na.rm=TRUE)"), result_name="wet_spell", sub_calculations=list(roll_sum_rain))
+    }
+    
+    # If all three of number_rain_days, dry_spells or dry_period is TRUE, set the appropriate conditions_filter function and the selected options for output
+    if (number_rain_days && dry_spell && dry_period){
+      roll_n_rain_days <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("RcppRoll::roll_sumr(x=rain_day, n=", rain_day_interval, ", fill=NA, na.rm=FALSE)"), result_name="roll_n_rain_days", sub_calculations=list(rain_day))
+      dry_spell <- instatCalculations::instat_calculation$new(type="calculation", function_exp="instatClimatic::spells(x=rain_day == 0)", result_name="dry_spell", sub_calculations=list(rain_day))
+      roll_max_dry_spell <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("dplyr::lead(x=RcppRoll::roll_maxl(n=", spell_interval, ", x=dry_spell, fill=NA))"), result_name="roll_max_dry_spell", sub_calculations=list(dry_spell))
+      roll_sum_rain_dry_period <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("lead(x=RcppRoll::roll_suml(x=", rain, ", n=", period_max_dry_days, ", fill=NA))"), result_name="roll_sum_rain_dry_period", calculated_from=setNames(list(rain), data))
+      n_dry_period <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("RcppRoll::roll_suml(x=roll_sum_rain_dry_period <= ", max_rain, ", n=", period_interval, " - ", period_max_dry_days, " + 1, fill=NA, na.rm=FALSE)"), result_name="n_dry_period", sub_calculations=list(roll_sum_rain_dry_period))
+      # setting conditions filter under this setting
+      if (total_rainfall && proportion) {
+        conditions_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp=paste0("((", rain, " >= ", threshold, ") & roll_sum_rain > wet_spell & roll_n_rain_days >= ", min_rain_days, " & roll_max_dry_spell <= ", spell_max_dry_days, " & n_dry_period == 0) | is.na(x=", rain, ") | is.na(x=roll_sum_rain) | is.na(x=roll_n_rain_days) | is.na(x=roll_max_dry_spell) | is.na(x=n_dry_period)"), sub_calculations=list(roll_sum_rain, roll_n_rain_days, roll_max_dry_spell, n_dry_period, total_rainfall_wet_spell))
+      }
+      else if (evaporation){
+        conditions_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp=paste0("((", rain, " >= ", threshold, ") & roll_sum_rain > roll_sum_evap & roll_n_rain_days >= ", min_rain_days, " & roll_max_dry_spell <= ", spell_max_dry_days, " & n_dry_period == 0) | is.na(x=", rain, ") | is.na(x=roll_sum_rain) | is.na(x=roll_n_rain_days) | is.na(x=roll_max_dry_spell) | is.na(x=n_dry_period)"), sub_calculations=list(roll_sum_rain, roll_sum_evap, roll_n_rain_days, roll_max_dry_spell, n_dry_period))
+      }
+      else {
+        conditions_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp=paste0("((", rain, " >= ", threshold, ") & roll_sum_rain > ", amount_rain, " & roll_n_rain_days >= ", min_rain_days, " & roll_max_dry_spell <= ", spell_max_dry_days, " & n_dry_period == 0) | is.na(x=", rain, ") | is.na(x=roll_sum_rain) | is.na(x=roll_n_rain_days) | is.na(x=roll_max_dry_spell) | is.na(x=n_dry_period)"), sub_calculations=list(roll_sum_rain, roll_n_rain_days, roll_max_dry_spell, n_dry_period))
+      }
+      
+      # setting output options under this setting
+      if ("doy" %in% output){
+        start_of_rains_doy <- instatCalculations::instat_calculation$new(type="summary", function_exp=paste0("ifelse(test=is.na(x=dplyr::first(x=", rain, ")) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_n_rain_days)) | is.na(x=dplyr::first(x=roll_max_dry_spell)) | is.na(x=dplyr::first(x=n_dry_period)), yes=NA, no=dplyr::first(x=", doy, ", default=NA))"), result_name="start_rain", save=2)
+      }
+      if ("date" %in% output){
+        start_rain_date <- instatCalculations::instat_calculation$new(type="summary", function_exp=paste0("dplyr::if_else(condition=is.na(x=dplyr::first(x=", rain, ")) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_n_rain_days)) | is.na(x=dplyr::first(x=roll_max_dry_spell)) | is.na(x=dplyr::first(x=n_dry_period)), true=as.Date(NA), false=dplyr::first(", date, ", default=NA))"), result_name="start_rain_date", save=2)
+      }      
     }
     
     # If either one of number_rain_days, dry_spells or dry_period is TRUE, set the appropriate conditions_filter function and the selected options for output
@@ -208,33 +234,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
       }        
     }
     
-    # If all three of number_rain_days, dry_spells or dry_period is TRUE, set the appropriate conditions_filter function and the selected options for output
-    if (number_rain_days && dry_spell && dry_period){
-      roll_n_rain_days <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("RcppRoll::roll_sumr(x=rain_day, n=", rain_day_interval, ", fill=NA, na.rm=FALSE)"), result_name="roll_n_rain_days", sub_calculations=list(rain_day))
-      dry_spell <- instatCalculations::instat_calculation$new(type="calculation", function_exp="instatClimatic::spells(x=rain_day == 0)", result_name="dry_spell", sub_calculations=list(rain_day))
-      roll_max_dry_spell <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("dplyr::lead(x=RcppRoll::roll_maxl(n=", spell_interval, ", x=dry_spell, fill=NA))"), result_name="roll_max_dry_spell", sub_calculations=list(dry_spell))
-      roll_sum_rain_dry_period <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("lead(x=RcppRoll::roll_suml(x=", rain, ", n=", period_max_dry_days, ", fill=NA))"), result_name="roll_sum_rain_dry_period", calculated_from=setNames(list(rain), data))
-      n_dry_period <- instatCalculations::instat_calculation$new(type="calculation", function_exp=paste0("RcppRoll::roll_suml(x=roll_sum_rain_dry_period <= ", max_rain, ", n=", period_interval, " - ", period_max_dry_days, " + 1, fill=NA, na.rm=FALSE)"), result_name="n_dry_period", sub_calculations=list(roll_sum_rain_dry_period))
-      # setting conditions filter under this setting
-      if (total_rainfall && proportion) {
-        conditions_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp=paste0("((", rain, " >= ", threshold, ") & roll_sum_rain > wet_spell & roll_n_rain_days >= ", min_rain_days, " & roll_max_dry_spell <= ", spell_max_dry_days, " & n_dry_period == 0) | is.na(x=", rain, ") | is.na(x=roll_sum_rain) | is.na(x=roll_n_rain_days) | is.na(x=roll_max_dry_spell) | is.na(x=n_dry_period)"), sub_calculations=list(roll_sum_rain, roll_n_rain_days, roll_max_dry_spell, n_dry_period, total_rainfall_wet_spell))
-      }
-      else if (evaporation){
-        conditions_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp=paste0("((", rain, " >= ", threshold, ") & roll_sum_rain > roll_sum_evap & roll_n_rain_days >= ", min_rain_days, " & roll_max_dry_spell <= ", spell_max_dry_days, " & n_dry_period == 0) | is.na(x=", rain, ") | is.na(x=roll_sum_rain) | is.na(x=roll_n_rain_days) | is.na(x=roll_max_dry_spell) | is.na(x=n_dry_period)"), sub_calculations=list(roll_sum_rain, roll_sum_evap, roll_n_rain_days, roll_max_dry_spell, n_dry_period))
-      }
-      else {
-        conditions_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp=paste0("((", rain, " >= ", threshold, ") & roll_sum_rain > ", amount_rain, " & roll_n_rain_days >= ", min_rain_days, " & roll_max_dry_spell <= ", spell_max_dry_days, " & n_dry_period == 0) | is.na(x=", rain, ") | is.na(x=roll_sum_rain) | is.na(x=roll_n_rain_days) | is.na(x=roll_max_dry_spell) | is.na(x=n_dry_period)"), sub_calculations=list(roll_sum_rain, roll_n_rain_days, roll_max_dry_spell, n_dry_period))
-      }
-      
-      # setting output options under this setting
-      if ("doy" %in% output){
-        start_of_rains_doy <- instatCalculations::instat_calculation$new(type="summary", function_exp=paste0("ifelse(test=is.na(x=dplyr::first(x=", rain, ")) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_n_rain_days)) | is.na(x=dplyr::first(x=roll_max_dry_spell)) | is.na(x=dplyr::first(x=n_dry_period)), yes=NA, no=dplyr::first(x=", doy, ", default=NA))"), result_name="start_rain", save=2)
-      }
-      if ("date" %in% output){
-        start_rain_date <- instatCalculations::instat_calculation$new(type="summary", function_exp=paste0("dplyr::if_else(condition=is.na(x=dplyr::first(x=", rain, ")) | is.na(x=dplyr::first(x=roll_sum_rain)) | is.na(x=dplyr::first(x=roll_n_rain_days)) | is.na(x=dplyr::first(x=roll_max_dry_spell)) | is.na(x=dplyr::first(x=n_dry_period)), true=as.Date(NA), false=dplyr::first(", date, ", default=NA))"), result_name="start_rain_date", save=2)
-      }      
-      
-    }
+    
     
     # If none of number_rain_days, dry_spells or dry_period is TRUE, set the appropriate conditions_filter function
     if (!number_rain_days && !dry_spell && !dry_period) {
