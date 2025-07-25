@@ -16,7 +16,7 @@ start_rains(
   end_day = 366,
   s_start_doy = NULL,
   drop = TRUE,
-  output = c("doy", "date", "both"),
+  output = c("doy", "date", "status"),
   include_status = FALSE,
   total_rainfall = TRUE,
   over_days = 1,
@@ -32,7 +32,11 @@ start_rains(
   dry_period = FALSE,
   period_interval = 45,
   max_rain = 40,
-  period_max_dry_days = 30
+  period_max_dry_days = 30,
+  data_book = NULL,
+  evaporation = FALSE,
+  evaporation_variable = NULL,
+  fraction = 0.5
 )
 }
 \arguments{
@@ -58,7 +62,7 @@ start_rains(
 
 \item{drop}{\code{logical(1)} default \code{TRUE}. Whether to drop years where there are \code{NA} data for the rainfall.}
 
-\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
+\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, and/or status. Default all three selected.}
 
 \item{include_status}{\code{logical(1)} Default \code{FALSE}. If \code{drop = TRUE}, this status indicates whether the \code{NA} is due to no start date for that year, or due to a lack of data available. If \code{start_rain_status} is \code{TRUE} in the data, then that indicates the \code{NA} is due to a lack of data; if it is \code{FALSE} indicates the \code{NA} is due to no start rain fitting the definition for that year.}
 
@@ -91,6 +95,14 @@ start_rains(
 \item{max_rain}{\code{numerical(1)} Only if \code{dry_period = TRUE}, the maximum rainfall to occur in a given period.}
 
 \item{period_max_dry_days}{\code{numerical(1)} Only if \code{dry_period = TRUE}. the maximum period of dry days to occur in a given period.}
+
+\item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
+
+\item{evaporation}{\code{Logical(1)} If \code{TRUE}, the function will include evaporation data in the calculation of the wet spell threshold. This allows comparing rainfall against evaporative demand to determine the start of rains more accurately.}
+
+\item{evaporation_variable}{\code{Character(1)} The name of the variable (column) in the dataset representing evaporation values. Required if \code{evaporation = TRUE}. This variable should be numeric and represent daily evaporation measurements.}
+
+\item{fraction}{\code{Numeric(1)} A multiplier applied to the evaporation variable to represent the proportion of evaporation considered significant in rainfall evaluation. Defaults to 0.5. Only used if \code{evaporation = TRUE}.}
 }
 \value{
 A data.frame with the date and/or day of year for the start of the rains for each year
