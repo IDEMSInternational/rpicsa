@@ -3,6 +3,7 @@ test_that("Correct summaries are calculated", {
   library(databook)
   expected_station_year_results <- readRDS("testdata/end_season_by_station_year.rds")
   expected_year_results <- readRDS("testdata/end_season_by_year.rds")
+  expected_year_no_reducing_results <- readRDS("testdata/end_season_by_year_no_reducing.rds")
   
   # Setting up R Code --------------------
   data_book <- DataBook$new()
@@ -37,10 +38,21 @@ test_that("Correct summaries are calculated", {
                               data_book = data_book))
   daily_data_by_year <- data_book$get_data_frame("daily_data_by_year")
   
-  # saveRDS(daily_data_by_station_name_year, "testdata/end_season_by_station_year.rds")
-  # saveRDS(daily_data_by_year, "testdata/end_season_by_year.rds")
+  suppressWarnings(end_season(data = "daily_data",
+                              date_time = "date",
+                              rain = "rain",
+                              year = "year",
+                              start_day = 121,
+                              end_day = 300,
+                              evaporation  = "variable",
+                              evaporation_variable = "evap_var",
+                              reducing = FALSE,
+                              data_book = data_book))
+  daily_data_by_year_no_reducing <- data_book$get_data_frame("daily_data_by_year")
   
+  # saveRDS(daily_data_by_station_name_year, "testdata/end_season_by_station_year.rds")
+
   expect_identical(expected_station_year_results, daily_data_by_station_name_year)
   expect_identical(expected_year_results, daily_data_by_year)
-  
+  expect_identical(expected_year_no_reducing_results, daily_data_by_year_no_reducing)
 })
