@@ -55,7 +55,7 @@ start_rains(
 
 \item{end_day}{\code{integer(1)} Latest day of year (1–366) to consider. Default \code{366}.}
 
-\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “water‐year” when creating \code{year} or \code{doy}. Default \code{NULL} (assumes January).}
+\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “year” when creating \code{year} or \code{doy}. Default \code{NULL} (assumes January).}
 
 \item{drop}{\code{logical(1)} If \code{TRUE}, drop years with no valid start‐rain calculation. Default \code{TRUE}.}
 

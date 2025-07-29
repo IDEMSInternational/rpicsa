@@ -8,6 +8,7 @@ seasonal_length(
   summary_data = NULL,
   start_date = NULL,
   end_date = NULL,
+  s_start_month = 1,
   data = NULL,
   date_time = NULL,
   rain = NULL,
@@ -17,11 +18,12 @@ seasonal_length(
   threshold = 0.85,
   sor_start_day = 1,
   sor_end_day = 366,
-  sor_total_rainfall = TRUE,
+  sor_total_rainfall_comparison = c("amount", "proportion", "evaporation"),
   sor_over_days = 1,
   sor_amount_rain = 20,
-  sor_proportion = FALSE,
   sor_prob_rain_day = 0.8,
+  sor_evaporation_variable = NULL,
+  sor_fraction = 0.5,
   sor_number_rain_days = FALSE,
   sor_min_rain_days = 1,
   sor_rain_day_interval = 2,
@@ -52,6 +54,8 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 
 \item{end_date}{\code{character(1)} The name of the end of season column in \code{summary_data}. If \code{NULL} it will be created using the \code{end_of_seasons} function.}
 
+\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “year” when creating \code{year} or \code{doy}. Default \code{NULL} (assumes January).}
+
 \item{data}{The daily data.frame to calculate rainfall from.}
 
 \item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
@@ -70,15 +74,17 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 
 \item{sor_end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
 
-\item{sor_total_rainfall}{\code{logical(1)} default \code{TRUE}. Start of the rains to be defined by the total or proportion of rainfall over a period.}
+\item{sor_total_rainfall_comparison}{Method for multi‐day definition: \code{"amount"}, \code{"proportion"}, or \code{"evaporation"}. Default \code{"amount"}.}
 
 \item{sor_over_days}{\code{numerical(1)} Only works if \code{total_rainfall = TRUE}. This is the number of days to total the rainfall over.}
 
-\item{sor_amount_rain}{\code{numerical(1)} If \code{total_rainfall = TRUE} and \code{proportion = FALSE}, the amount of rainfall to expect over the period defined in \code{over_days}.}
+\item{sor_amount_rain}{\code{numerical(1)} If \code{sor_total_rainfall_comparison = "amount"}, the amount of rainfall to expect over the period defined in \code{over_days}.}
 
-\item{sor_proportion}{\code{logical(1)} default \code{FALSE}, only valid if \code{total_rainfall = TRUE}. If \code{TRUE}, Start of the rains to be defined by proportion of rainfall over a period. This proportion is given in \code{prob_rain_day}. Otherwise, defined by the amount of rainfall over a period. The amount is given in \code{amount_rain}.}
+\item{sor_prob_rain_day}{\code{numerical(1)} Only works if \code{sor_total_rainfall_comparison = "proportion"} This is the proportion.}
 
-\item{sor_prob_rain_day}{\code{numerical(1)} Only works if \code{total_rainfall = TRUE} and \code{proportion = TRUE} This is the number}
+\item{sor_evaporation_variable}{\code{character(1)} Only works if \code{sor_total_rainfall_comparison = "evaporation"}. Name of evaporation (mm) column, if using \code{"evaporation"}. Default \code{NULL}.}
+
+\item{sor_fraction}{\code{numeric(1)} Multiplier (0–1) applied to evaporation values when \code{total_rainfall_comparison="evaporation"}. Default \code{0.5}.}
 
 \item{sor_number_rain_days}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by the number of rainy days (\code{min_rain_days}) over a period. The period is given in days in the \code{rain_day_interval} parameter.}
 

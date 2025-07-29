@@ -13,7 +13,6 @@
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
-#' @param threshold \code{numerical(1)} threshold value for amount (mm) of rainfall in order to count it as a rainy day.
 #' @param total_rain \code{logical(1)} default `TRUE`. Display the total rainfall value for each year.
 #' @param n_rain \code{logical(1)} default `TRUE`. Display the number of rainfall days.
 #' @param rain_day \code{numerical(1)} If `n_rain = TRUE`, the minimum rainfall value in a day for that day to count as a rainfall day.
@@ -22,14 +21,16 @@
 #' @param na_n \code{integer(1)} Max number of missing values allowed
 #' @param na_consec \code{integer(1)} Max number of consecutive missing values allowed
 #' @param na_n_non \code{integer(1)} Min number of non-missing values required
-#' @param s_start_doy The starting day of the year (DOY) for the shift.
+#' @param s_start_month \code{integer(1)} Month (1–12) to treat as the start of the “year” when creating \code{year} or \code{doy}. Default \code{NULL} (assumes January).
+#' @param threshold \code{numerical(1)} threshold value for amount (mm) of rainfall in order to count it as a rainy day.
 #' @param sor_start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param sor_end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
-#' @param sor_total_rainfall \code{logical(1)} default `TRUE`. Start of the rains to be defined by the total or proportion of rainfall over a period.
-#' @param sor_over_days \code{numerical(1)} Only works if `total_rainfall = TRUE`. This is the number of days to total the rainfall over.
-#' @param sor_amount_rain \code{numerical(1)} If `total_rainfall = TRUE` and `proportion = FALSE`, the amount of rainfall to expect over the period defined in `over_days`. 
-#' @param sor_proportion \code{logical(1)} default `FALSE`, only valid if `total_rainfall = TRUE`. If `TRUE`, Start of the rains to be defined by proportion of rainfall over a period. This proportion is given in `prob_rain_day`. Otherwise, defined by the amount of rainfall over a period. The amount is given in `amount_rain`.
-#' @param sor_prob_rain_day \code{numerical(1)} Only works if `total_rainfall = TRUE` and `proportion = TRUE` This is the number 
+#' @param sor_total_rainfall_comparison Method for multi‐day definition: \code{"amount"}, \code{"proportion"}, or \code{"evaporation"}. Default \code{"amount"}.
+#' @param sor_over_days \code{numerical(1)} This is the number of days to total the rainfall over.
+#' @param sor_amount_rain \code{numerical(1)} If `sor_total_rainfall_comparison = "amount"`, the amount of rainfall to expect over the period defined in `over_days`. 
+#' @param sor_prob_rain_day \code{numerical(1)} Only works if `sor_total_rainfall_comparison = "proportion"` This is the proportion.
+#' @param sor_evaporation_variable \code{character(1)} Only works if `sor_total_rainfall_comparison = "evaporation"`. Name of evaporation (mm) column, if using \code{"evaporation"}. Default \code{NULL}.
+#' @param sor_fraction \code{numeric(1)} Multiplier (0–1) applied to evaporation values when \code{total_rainfall_comparison="evaporation"}. Default \code{0.5}.
 #' @param sor_number_rain_days \code{logical(1)} default `FALSE`. If `TRUE`, define start of the rains by the number of rainy days (`min_rain_days`) over a period. The period is given in days in the `rain_day_interval` parameter.
 #' @param sor_min_rain_days \code{numerical(1)} Only if `number_rain_days = TRUE`. This is the minimum number of rainy days to define start of rains in a given period. The period is given in days in the `rain_day_interval` parameter.
 #' @param sor_rain_day_interval \code{numerical(1)} Only if `number_rain_days = TRUE`, the interval in days that the `number_rain_days` is defined in.
@@ -57,17 +58,20 @@
 #' @importFrom rlang :=
 #' @importFrom rlang .data
 #' @examples # TODO
-seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NULL, 
+seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NULL, s_start_month = 1,
                            data, date_time, year = NULL, station = NULL, doy = NULL, 
                            rain = NULL, total_rain = TRUE, n_rain = TRUE, rain_day = 0.85, 
                            na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL, 
-                           na_n_non = NULL, threshold = 0.85, sor_start_day = 1, sor_end_day = 366,
-                           s_start_doy = NULL,
-                           sor_total_rainfall = TRUE, sor_over_days = 1, sor_amount_rain = 20, 
-                           sor_proportion = FALSE, sor_prob_rain_day = 0.8, sor_number_rain_days = FALSE, 
-                           sor_min_rain_days = 1, sor_rain_day_interval = 2, sor_dry_spell = FALSE, 
-                           sor_spell_interval = 21, sor_spell_max_dry_days = 9, sor_dry_period = FALSE, 
-                           sor_period_interval = 45, sor_max_rain = 40, sor_period_max_dry_days = 30, 
+                           na_n_non = NULL, 
+                           # start of rains parameters
+                           threshold = 0.85, sor_start_day = 1, sor_end_day = 366,
+                           sor_total_rainfall_comparison = c("amount", "proportion", "evaporation"),
+                           sor_over_days = 1, sor_amount_rain = 20, sor_prob_rain_day = 0.8,
+                           sor_evaporation_variable = NULL, sor_fraction = 0.5,
+                           sor_number_rain_days = FALSE, sor_min_rain_days = 1, sor_rain_day_interval = 2,
+                           sor_dry_spell = FALSE, sor_spell_interval = 21, sor_spell_max_dry_days = 9,
+                           sor_dry_period = FALSE, sor_period_interval = 45, sor_max_rain = 40, sor_period_max_dry_days = 30,
+                           # end of rains parameters
                            end_type = c("season", "rains"), eos_start_day = 1, 
                            eos_end_day = 366, eor_interval_length = 1, eor_min_rainfall = 10, 
                            eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
@@ -81,17 +85,16 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
     data[["year"]] <- lubridate::year(data[[year]])
   }
   if (is.null(start_date)) {
-    start_rains_data <- start_rains(data = data, date_time = date_time, 
-                                    station = station, year = year, rain = rain, threshold = threshold, 
-                                    doy = doy, start_day = sor_start_day, end_day = sor_end_day, 
-                                    output = "doy", total_rainfall = sor_total_rainfall, 
-                                    over_days = sor_over_days, amount_rain = sor_amount_rain, 
-                                    proportion = sor_proportion, prob_rain_day = sor_prob_rain_day, 
-                                    number_rain_days = sor_number_rain_days, min_rain_days = sor_min_rain_days, 
-                                    rain_day_interval = sor_rain_day_interval, dry_spell = sor_dry_spell, 
-                                    spell_interval = sor_spell_interval, spell_max_dry_days = sor_spell_max_dry_days, 
-                                    dry_period = sor_dry_period, period_interval = sor_period_interval, 
-                                    max_rain = sor_max_rain, period_max_dry_days = sor_period_max_dry_days)
+    start_rains_data <- start_rains(data = data, date_time = date_time, station = station, year = year, rain = rain, threshold = threshold,
+                                    doy = doy, start_day = sor_start_day, end_day = sor_end_day, output = "doy",
+                                    s_start_month = s_start_month, drop = drop,
+                                    total_rainfall_over_days = sor_over_days, total_rainfall_comparison = sor_total_rainfall_comparison,
+                                    amount_rain = sor_amount_rain, prob_rain_day = sor_prob_rain_day,             
+                                    evaporation_variable = sor_evaporation_variable, fraction = sor_fraction,
+                                    number_rain_days = sor_number_rain_days, min_rain_days = sor_min_rain_days, rain_day_interval = sor_rain_day_interval,
+                                    dry_spell = sor_dry_spell, spell_interval = sor_spell_interval, spell_max_dry_days = sor_spell_max_dry_days,
+                                    dry_period = sor_dry_period, period_interval = sor_period_interval, max_rain = sor_max_rain, period_max_dry_days = sor_period_max_dry_days,
+                                    data_book = data_book)
     start_date <- "start_rains"
     summary_data <- join_null_data(summary_data, start_rains_data)
   }

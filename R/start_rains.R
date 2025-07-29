@@ -13,7 +13,7 @@
 #' @param doy \code{character(1)} Name of the day‐of‐year column. If \code{NULL}, it will be created from \code{date_time}.
 #' @param start_day \code{integer(1)} Earliest day of year (1–366) to consider. Default \code{1}.
 #' @param end_day \code{integer(1)} Latest day of year (1–366) to consider. Default \code{366}.
-#' @param s_start_month \code{integer(1)} Month (1–12) to treat as the start of the “water‐year” when creating \code{year} or \code{doy}. Default \code{NULL} (assumes January).
+#' @param s_start_month \code{integer(1)} Month (1–12) to treat as the start of the “year” when creating \code{year} or \code{doy}. Default \code{NULL} (assumes January).
 #' @param drop \code{logical(1)} If \code{TRUE}, drop years with no valid start‐rain calculation. Default \code{TRUE}.
 #' @param output \code{character} Which outputs to produce: one or more of \code{"doy"}, \code{"date"}, \code{"status"}. Default all three.
 #' @param total_rainfall_over_days \code{integer(1)} Number of days over which to total rainfall for the “total rainfall” definition. Default \code{1}.
