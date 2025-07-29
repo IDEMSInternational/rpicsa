@@ -326,7 +326,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   if ("status" %in% output){
     start_of_rains_status <- instatCalculations::instat_calculation$new(
       type="summary", 
-      function_exp=paste0("ifelse(n() > 0, ifelse(dplyr::first(is.na(roll_sum_rain)), NA, TRUE), FALSE)"), 
+      function_exp=paste0("ifelse(dplyr::n() > 0, ifelse(dplyr::first(is.na(roll_sum_rain)), NA, TRUE), FALSE)"), 
       result_name="start_rain_status", 
       save=2)
   }
