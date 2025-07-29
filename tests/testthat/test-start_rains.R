@@ -1,7 +1,6 @@
 library(databook)
 library(dplyr)
 library(lubridate)
-devtools::load_all()  # loads instatCalculations and your start_rains()
 
 # Helper to run and fetch result
 run_start <- function(df, args){

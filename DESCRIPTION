@@ -33,4 +33,6 @@ Remotes:
     IDEMSInternational/instatCalculations,
     IDEMSInternational/instatClimatic,
     IDEMSInternational/instatExtras
+Suggests:
+    tibble
 LazyData: true
