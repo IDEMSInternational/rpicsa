@@ -47,4 +47,12 @@ test_that("Returns correct yearly summaries", {
   
   expect_length(y_year, 5)
   expect_equal(as.numeric(x_month$mean_tmin - y_month$mean_tmin), c(rep(0, 48)))
+  
+  expect_error(summary_temperature(data = "niger",
+                                   year = "year",
+                                   date_time = "date",
+                                   station = "station_name",
+                                   to = "monthly",
+                                   data_book = data_book),
+               "At least one of 'tmin' or 'tmax' must be provided.")
 })
