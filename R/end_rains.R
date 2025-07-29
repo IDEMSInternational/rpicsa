@@ -69,8 +69,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   checkmate::assert_int(end_day, lower = 2, upper = 366)
   checkmate::assert_int(interval_length, lower = 1)
   checkmate::assert_int(min_rainfall, lower = 0)
-  if (end_day <= start_day) stop("The `end_day` must be after the `start_day`")    
-  
+
   # 3. Add in R code to create DOY and Year if they are NULL (like in summary_temp)
   if (is.null(year)) {
     data_book$split_date(data_name=data, col_name=date_time, year_val=TRUE, s_start_month=1)
