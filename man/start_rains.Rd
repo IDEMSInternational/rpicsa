@@ -2,7 +2,7 @@
 % Please edit documentation in R/start_rains.R
 \name{start_rains}
 \alias{start_rains}
-\title{Start of the rains}
+\title{Start of the Rains}
 \usage{
 start_rains(
   data,
@@ -14,15 +14,15 @@ start_rains(
   doy = NULL,
   start_day = 1,
   end_day = 366,
-  s_start_doy = NULL,
+  s_start_month = 1,
   drop = TRUE,
-  output = c("doy", "date", "both"),
-  include_status = FALSE,
-  total_rainfall = TRUE,
-  over_days = 1,
+  output = c("doy", "date", "status"),
+  total_rainfall_over_days = 1,
+  total_rainfall_comparison = c("amount", "proportion", "evaporation"),
   amount_rain = 20,
-  proportion = FALSE,
   prob_rain_day = 0.8,
+  evaporation_variable = NULL,
+  fraction = 0.5,
   number_rain_days = FALSE,
   min_rain_days = 1,
   rain_day_interval = 2,
@@ -32,73 +32,99 @@ start_rains(
   dry_period = FALSE,
   period_interval = 45,
   max_rain = 40,
-  period_max_dry_days = 30
+  period_max_dry_days = 30,
+  data_book = NULL
 )
 }
 \arguments{
-\item{data}{The data.frame to calculate from.}
+\item{data}{\code{character(1)} Name of the data frame in the \code{data_book}.}
 
-\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
+\item{date_time}{\code{character(1)} Name of the date (Date or POSIXct) column in \code{data}.}
 
-\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
+\item{station}{\code{character(1)} Name of the station column, if multiple stations are present. Default \code{NULL}.}
 
-\item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+\item{year}{\code{character(1)} Name of the year column. If \code{NULL}, it will be created from \code{date_time}.}
 
-\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
+\item{rain}{\code{character(1)} Name of the rainfall column (mm) to evaluate.}
 
-\item{threshold}{\code{numerical(1)} threshold value for amount (mm) of rainfall in order to count it as a rainy day.}
+\item{threshold}{\code{numeric(1)} Minimum rainfall on a single day to count as “rain.” Default \code{0.85} mm.}
 
-\item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
+\item{doy}{\code{character(1)} Name of the day‐of‐year column. If \code{NULL}, it will be created from \code{date_time}.}
 
-\item{start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
+\item{start_day}{\code{integer(1)} Earliest day of year (1–366) to consider. Default \code{1}.}
 
-\item{end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
+\item{end_day}{\code{integer(1)} Latest day of year (1–366) to consider. Default \code{366}.}
 
-\item{s_start_doy}{\code{numerical(1)} Default \code{NULL} (if \code{NULL}, \code{s_start_doy = 1}. The day of year to state is the first day of year.}
+\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “water‐year” when creating \code{year} or \code{doy}. Default \code{NULL} (assumes January).}
 
-\item{drop}{\code{logical(1)} default \code{TRUE}. Whether to drop years where there are \code{NA} data for the rainfall.}
+\item{drop}{\code{logical(1)} If \code{TRUE}, drop years with no valid start‐rain calculation. Default \code{TRUE}.}
 
-\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
+\item{output}{\code{character} Which outputs to produce: one or more of \code{"doy"}, \code{"date"}, \code{"status"}. Default all three.}
 
-\item{include_status}{\code{logical(1)} Default \code{FALSE}. If \code{drop = TRUE}, this status indicates whether the \code{NA} is due to no start date for that year, or due to a lack of data available. If \code{start_rain_status} is \code{TRUE} in the data, then that indicates the \code{NA} is due to a lack of data; if it is \code{FALSE} indicates the \code{NA} is due to no start rain fitting the definition for that year.}
+\item{total_rainfall_over_days}{\code{integer(1)} Number of days over which to total rainfall for the “total rainfall” definition. Default \code{1}.}
 
-\item{total_rainfall}{\code{logical(1)} default \code{TRUE}. Start of the rains to be defined by the total or proportion of rainfall over a period.}
+\item{total_rainfall_comparison}{\code{character} Method for multi‐day definition: \code{"amount"}, \code{"proportion"}, or \code{"evaporation"}. Default \code{"amount"}.}
 
-\item{over_days}{\code{numerical(1)} Only works if \code{total_rainfall = TRUE}. This is the number of days to total the rainfall over.}
+\item{amount_rain}{\code{numeric(1)} If \code{total_rainfall_comparison="amount"}, the total rainfall (mm) threshold. Default \code{20}.}
 
-\item{amount_rain}{\code{numerical(1)} If \code{total_rainfall = TRUE} and \code{proportion = FALSE}, the amount of rainfall to expect over the period defined in \code{over_days}.}
+\item{prob_rain_day}{\code{numeric(1)} If \code{total_rainfall_comparison="proportion"}, the quantile (0–1) of the rolling total to use. Default \code{0.8}.}
 
-\item{proportion}{\code{logical(1)} default \code{FALSE}, only valid if \code{total_rainfall = TRUE}. If \code{TRUE}, Start of the rains to be defined by proportion of rainfall over a period. This proportion is given in \code{prob_rain_day}. Otherwise, defined by the amount of rainfall over a period. The amount is given in \code{amount_rain}.}
+\item{evaporation_variable}{\code{character(1)} Name of evaporation (mm) column, if using \code{"evaporation"}. Default \code{NULL}.}
 
-\item{prob_rain_day}{\code{numerical(1)} Only works if \code{total_rainfall = TRUE} and \code{proportion = TRUE} This is the number}
+\item{fraction}{\code{numeric(1)} Multiplier (0–1) applied to evaporation values when \code{total_rainfall_comparison="evaporation"}. Default \code{0.5}.}
 
-\item{number_rain_days}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by the number of rainy days (\code{min_rain_days}) over a period. The period is given in days in the \code{rain_day_interval} parameter.}
+\item{number_rain_days}{\code{logical(1)} If \code{TRUE}, define start by minimum rainy days in an interval. Default \code{FALSE}.}
 
-\item{min_rain_days}{\code{numerical(1)} Only if \code{number_rain_days = TRUE}. This is the minimum number of rainy days to define start of rains in a given period. The period is given in days in the \code{rain_day_interval} parameter.}
+\item{min_rain_days}{\code{integer(1)} Minimum count of rainy days if \code{number_rain_days=TRUE}. Default \code{1}.}
 
-\item{rain_day_interval}{\code{numerical(1)} Only if \code{number_rain_days = TRUE}, the interval in days that the \code{number_rain_days} is defined in.}
+\item{rain_day_interval}{\code{integer(1)} Interval length (days) for \code{number_rain_days}. Default \code{2}.}
 
-\item{dry_spell}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by a maximum number of dry days (\code{spell_max_dry_days}) over a given period of days (\code{spell_interval}).}
+\item{dry_spell}{\code{logical(1)} If \code{TRUE}, define start by a maximum dry‐spell length. Default \code{FALSE}.}
 
-\item{spell_interval}{\code{numerical(1)} Only if \code{dry_spell = TRUE}, the interval in days that the \code{dry_spell} is defined in.}
+\item{spell_interval}{\code{integer(1)} Interval length (days) for the dry‐spell test. Default \code{21}.}
 
-\item{spell_max_dry_days}{\code{numerical(1)} Only if \code{dry_spell = TRUE}. This is the maximum number of dry days to define start of rains in a given period. The period is given in days in the \code{spell_interval} parameter.}
+\item{spell_max_dry_days}{\code{integer(1)} Maximum consecutive dry days if \code{dry_spell=TRUE}. Default \code{9}.}
 
-\item{dry_period}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by the maximum rain and maximum dry days in a given interval. The maximum rainfall amount is given in the \code{max_rain} parameter, the maximum dry days is given in the \code{period_max_dry_days} parameter, and the interval length is given in the \code{period_interval} parameter.}
+\item{dry_period}{\code{logical(1)} If \code{TRUE}, define start by combining max rainfall and max dry days in a period. Default \code{FALSE}.}
 
-\item{period_interval}{\code{numerical(1)} Only if \code{dry_period = TRUE}, the interval in days that the \code{dry_period} is defined in.}
+\item{period_interval}{\code{integer(1)} Interval length (days) for \code{dry_period}. Default \code{45}.}
 
-\item{max_rain}{\code{numerical(1)} Only if \code{dry_period = TRUE}, the maximum rainfall to occur in a given period.}
+\item{max_rain}{\code{numeric(1)} Maximum total rainfall (mm) allowed in \code{period_interval} if \code{dry_period=TRUE}. Default \code{40}.}
 
-\item{period_max_dry_days}{\code{numerical(1)} Only if \code{dry_period = TRUE}. the maximum period of dry days to occur in a given period.}
+\item{period_max_dry_days}{\code{integer(1)} Maximum dry days if \code{dry_period=TRUE}. Default \code{30}.}
+
+\item{data_book}{A \code{DataBook} object to use. If \code{NULL}, a new one is created. Default \code{NULL}.}
 }
 \value{
-A data.frame with the date and/or day of year for the start of the rains for each year
+Invisibly returns the used \code{data_book}.  The side effect is that a new
+linked data frame (e.g.\ \code{<data>_by_<station>_<year>}) is created with columns
+\code{start_rain}, \code{start_rain_date}, and/or \code{start_rain_status}.
 }
 \description{
-Used to present or summarise daily rainfall data in a way that corresponds to the start of the rainy season for many definitions.
+Identify the first day, date, and/or status marking the start of the rainy season
+according to a variety of definitions (single‐day threshold, total rainfall over
+days, proportion, spell length, etc.).
 }
 \examples{
-#TODO#
-# check against R-Instat function
+library(databook)
+data_book <- DataBook$new()
+daily_data <- rpicsa::daily_niger \%>\%
+  dplyr::filter(year <= 1950) \%>\%
+  dplyr::filter(year > 1945) \%>\%
+  dplyr::mutate(year = as.numeric(year)) \%>\%
+  dplyr::filter(station_name == "Agades")
+data_book$import_data(list(daily_data = daily_data))
+
+daily_data <- data_book$get_data_frame("daily_data")
+
+suppressWarnings(start_rains(data = "daily_data",
+                             date_time = "date",
+                             station = "station_name",
+                             year = "year",
+                             rain = "rain",
+                             start_day = 121,
+                             end_day = 300,
+                             output = c("doy", "date", "status"),
+                             data_book = data_book))
+daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year.rds")
 }
