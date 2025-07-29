@@ -38,4 +38,14 @@ test_that("Returns correct annual totals for one summary", {
   expect_length(x_both, 4)
   expect_equal(as.numeric(x_both$annual_rain - y_both$sum_rain), c(rep(0, 8)))
   expect_equal(as.numeric(x_both$n_rain - y_both$sum_rainfall_count ), c(rep(0, 8)))
+  
+  expect_error(annual_rain(data = "niger",
+                           rain_day = 0.85,
+                           station = "station_name",
+                           year = "year",
+                           rain = "rain",
+                           data_book = data_book,
+                           total_rain = FALSE,
+                           n_rain = FALSE),
+               "No summaries selected. At least one of\n         'total_rain' or 'n_rain' must be TRUE.")
 })
