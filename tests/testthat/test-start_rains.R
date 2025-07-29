@@ -36,6 +36,28 @@ test_that("single-day threshold gives correct doy, date, status", {
   expect_true(res$start_rain_status)
 })
 
+# 2) Single-day threshold (default) – doy, date, status - without station
+test_that("single-day threshold gives correct doy, date, status", {
+  df <- tibble::tibble(
+    date = as.Date("2000-01-01") + 0:4,
+    station_name = "S1",
+    rain = c(0, 1, 2, 4, 0)
+  )
+  res <- suppressWarnings(run_start(df, list(
+    date_time = "date",
+    rain      = "rain",
+    threshold = 0.85,
+    start_day = 2,
+    total_rainfall_over_days = 2,
+    amount_rain              = 4
+  )))
+  
+  # first day >=0.85 is 3rd row: doy=3, date="2000-01-03", status=TRUE
+  expect_equal(as.numeric(res$start_rain), 4)
+  expect_equal(as.numeric(res$start_rain_date), as.numeric(as.Date("2000-01-04")))
+  expect_true(res$start_rain_status)
+})
+
 # 3) proportion definition
 test_that("proportion definition", {
   df <- tibble::tibble(
