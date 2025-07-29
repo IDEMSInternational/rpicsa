@@ -43,7 +43,7 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
     data_book$split_date(data_name=data, col_name=date_time, month_val=TRUE, s_start_month=1)
     month <- "month"
   }
-  
+
   # creating the grouping list
   grouping_vars <- c()
   if (!is.null(station)) { grouping_vars <- c(grouping_vars, station) }
