@@ -288,9 +288,6 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   
   ### Set up the Filters ----------------------------------------------------------
   conditions_filter_function_exp <- paste0("(", conditions_filter_and_part, ") | ", conditions_filter_or_part)
-  print(conditions_filter_and_part)
-  print(conditions_filter_or_part)
-  print(conditions_filter_function_exp)
   
   conditions_filter <- instatCalculations::instat_calculation$new(
     type = "filter",
