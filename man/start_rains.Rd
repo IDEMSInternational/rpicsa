@@ -126,5 +126,5 @@ suppressWarnings(start_rains(data = "daily_data",
                              end_day = 300,
                              output = c("doy", "date", "status"),
                              data_book = data_book))
-daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year.rds")
+daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
 }
