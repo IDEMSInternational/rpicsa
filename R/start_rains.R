@@ -377,6 +377,6 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   
   if (!is.null(station)){
     data_book$remove_unused_station_year_combinations(data_name=data, year=year, station=station)
-    data_book$convert_linked_variable(from_data_frame="data", link_cols=link_cols) 
+    data_book$convert_linked_variable(from_data_frame=data, link_cols=link_cols) 
   } 
 }
