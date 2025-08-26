@@ -44,7 +44,7 @@
 #' @param eos_evaporation_value \code{numerical(1)} If `evaporation = "value"`, the numerical value of amount of evaporation per day (default `5`).
 #' @param eos_evaporation_variable \code{character(1)} If `evaporation = "variable"`, the variable in `data` that corresponds to the evaporation column.
 #' @param start_rain_status \code{character(1)} The name of the variable that indicates the start of rain status
-#' @param start_rain_status \code{character(1)} The name of the variable that indicates the end of rain status
+#' @param end_rain_status \code{character(1)} The name of the variable that indicates the end of rain status
 #' @param season_length_save_name \code{character(1)} The name used to save the length of season
 #' @param occurrence_save_name \code{character(1)} The name used to save the status results
 #' @param data_book The data book object where the data object is stored, default `NULL`.

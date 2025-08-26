@@ -137,7 +137,9 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 
 \item{occurrence_save_name}{\code{character(1)} The name used to save the status results}
 
-\item{start_rain_status}{\code{character(1)} The name of the variable that indicates the end of rain status}
+\item{start_rain_status}{\code{character(1)} The name of the variable that indicates the start of rain status}
+
+\item{end_rain_status}{\code{character(1)} The name of the variable that indicates the end of rain status}
 }
 \value{
 A data.frame with length of rainfall season for each year in the specified season (between start of the rains and end of season).
