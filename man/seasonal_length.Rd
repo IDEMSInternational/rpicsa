@@ -149,7 +149,7 @@ Number of days between start of the rains and end of the season
 # Example of season
 library(databook)
 data_book <- DataBook$new()
-new_RDS <- readRDS(file="C:/Users/HP/Downloads/EPICSA_Example.RDS")
+new_RDS <- readRDS(file="EPICSA_Example.RDS")
 data_book$import_RDS(data_RDS=new_RDS)
 my_data <- data_book$get_data_frame("ghana_by_station_year")
 rm(new_RDS)
