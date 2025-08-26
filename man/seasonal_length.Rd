@@ -146,18 +146,6 @@ A data.frame with length of rainfall season for each year in the specified seaso
 Number of days between start of the rains and end of the season
 }
 \examples{
-# Example of season
-library(databook)
-data_book <- DataBook$new()
-new_RDS <- readRDS(file="EPICSA_Example.RDS")
-data_book$import_RDS(data_RDS=new_RDS)
-my_data <- data_book$get_data_frame("ghana_by_station_year")
-rm(new_RDS)
-seasonal_length(start_date = "start_rain", 
-                end_date = "end_rains", 
-                s_start_month = 1,
-                data = "my_data", 
-                data_book = NULL, 
-                start_rain_status = "start_rain_status", 
-                end_rain_status = "end_rains_status")
+# TODO
+
 }
