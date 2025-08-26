@@ -1,3 +1,4 @@
+
 #' Length of the season
 #' @description Number of days between start of the rains and end of the season
 #'
@@ -42,73 +43,84 @@
 #' @param eos_evaporation \code{character(1)} Whether to give evaporation as a value or variable. Default `"value"`.
 #' @param eos_evaporation_value \code{numerical(1)} If `evaporation = "value"`, the numerical value of amount of evaporation per day (default `5`).
 #' @param eos_evaporation_variable \code{character(1)} If `evaporation = "variable"`, the variable in `data` that corresponds to the evaporation column.
+#' @param start_rain_status \code{character(1)} The name of the variable that indicates the start of rain status
+#' @param start_rain_status \code{character(1)} The name of the variable that indicates the end of rain status
+#' @param season_length_save_name \code{character(1)} The name used to save the length of season
+#' @param occurrence_save_name \code{character(1)} The name used to save the status results
+#' @param data_book The data book object where the data object is stored, default `NULL`.
 #' @return A data.frame with length of rainfall season for each year in the specified season (between start of the rains and end of season).
-#' @export
+#' @export 
 #'
 #' @examples
 #' # Example of season
+#' library(databook)
+#' data_book <- DataBook$new()
+#' new_RDS <- readRDS(file="C:/Users/HP/Downloads/EPICSA_Example.RDS")
+#' data_book$import_RDS(data_RDS=new_RDS)
+#' my_data <- data_book$get_data_frame("ghana_by_station_year")
+#' rm(new_RDS)
+#' seasonal_length(start_date = "start_rain", 
+#'                 end_date = "end_rains", 
+#'                 s_start_month = 1,
+#'                 data = "my_data", 
+#'                 data_book = NULL, 
+#'                 start_rain_status = "start_rain_status", 
+#'                 end_rain_status = "end_rains_status")
+
 seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = NULL, s_start_month = 1,
-                          data = NULL, date_time = NULL, rain = NULL, year = NULL, station = NULL, doy = NULL, 
-                          # start of rains parameters
-                          threshold = 0.85, sor_start_day = 1, sor_end_day = 366,
-                          sor_total_rainfall_comparison = c("amount", "proportion", "evaporation"), sor_over_days = 1, sor_amount_rain = 20, sor_prob_rain_day = 0.8,
-                          sor_evaporation_variable = NULL, sor_fraction = 0.5,
-                          sor_number_rain_days = FALSE, sor_min_rain_days = 1, sor_rain_day_interval = 2,
-                          sor_dry_spell = FALSE, sor_spell_interval = 21, sor_spell_max_dry_days = 9,
-                          sor_dry_period = FALSE, sor_period_interval = 45, sor_max_rain = 40, sor_period_max_dry_days = 30,
-                          # end of rains parameters
-                          end_type = c("season", "rains"),
-                          eos_start_day = 1, eos_end_day = 366,
-                          eor_interval_length = 1, eor_min_rainfall = 10,
-                          eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
-                          eos_evaporation_value = 5, eos_evaporation_variable = NULL)
+                            data = NULL, date_time = NULL, rain = NULL, year = NULL, station = NULL, doy = NULL, 
+                            # start of rains parameters
+                            threshold = 0.85, sor_start_day = 1, sor_end_day = 366,
+                            sor_total_rainfall_comparison = c("amount", "proportion", "evaporation"), sor_over_days = 1, sor_amount_rain = 20, sor_prob_rain_day = 0.8,
+                            sor_evaporation_variable = NULL, sor_fraction = 0.5,
+                            sor_number_rain_days = FALSE, sor_min_rain_days = 1, sor_rain_day_interval = 2,
+                            sor_dry_spell = FALSE, sor_spell_interval = 21, sor_spell_max_dry_days = 9,
+                            sor_dry_period = FALSE, sor_period_interval = 45, sor_max_rain = 40, sor_period_max_dry_days = 30,
+                            # end of rains parameters
+                            end_type = c("season", "rains"),
+                            eos_start_day = 1, eos_end_day = 366,
+                            eor_interval_length = 1, eor_min_rainfall = 10,
+                            eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
+                            eos_evaporation_value = 5, eos_evaporation_variable = NULL, data_book, season_length_save_name="length", 
+                            occurrence_save_name="length_status", start_rain_status = NULL, end_rain_status = NULL)
 {
   end_type <- match.arg(end_type)
-  if (is.null(start_date)){
-    start_rains_data <- start_rains(data = data, date_time = date_time, station = station, year = year, rain = rain, threshold = threshold,
-                                    doy = doy, start_day = sor_start_day, end_day = sor_end_day, output = "doy",
-                                    s_start_month = s_start_month, drop = drop,
-                                    total_rainfall_over_days = sor_over_days, total_rainfall_comparison = sor_total_rainfall_comparison,
-                                    amount_rain = sor_amount_rain, prob_rain_day = sor_prob_rain_day,             
-                                    evaporation_variable = sor_evaporation_variable, fraction = sor_fraction,
-                                    number_rain_days = sor_number_rain_days, min_rain_days = sor_min_rain_days, rain_day_interval = sor_rain_day_interval,
-                                    dry_spell = sor_dry_spell, spell_interval = sor_spell_interval, spell_max_dry_days = sor_spell_max_dry_days,
-                                    dry_period = sor_dry_period, period_interval = sor_period_interval, max_rain = sor_max_rain, period_max_dry_days = sor_period_max_dry_days,
-                                    data_book = data_book)
-    summary_data <- join_null_data(summary_data, start_rains_data)
-  } else {
-    # what if doy 365?
-    if (lubridate::is.Date(data[[start_date]])){
-        data[[start_date]] <- yday_366(as.Date(data[[start_date]]))
-    }
+  
+  # creating the a new databook object if it doesn't exist
+  if (is.null(data_book)){
+    data_book = DataBook$new()
   }
-  if (is.null(end_date)){
-    if (end_type == "season"){
-      end_rains_data <- end_season(data = data, date_time = date_time, station = station, year = year, rain = rain,
-                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
-                                   capacity = eos_capacity, water_balance_max = eos_water_balance_max,
-                                   evaporation = eos_evaporation, evaporation_value = eos_evaporation_value,
-                                   evaporation_variable = eos_evaporation_variable)
-      summary_data <- join_null_data(summary_data, end_rains_data)
-      summary_data <- summary_data %>% dplyr::mutate(season_length = end_season - start_rains)
-    } else {
-      end_rains_data <- end_rains(data = data, date_time = date_time, station = station, year = year, rain = rain,
-                                  doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
-                                  interval_length = eor_interval_length, min_rainfall = eor_min_rainfall) 
-      summary_data <- join_null_data(summary_data, end_rains_data)
-      summary_data <- summary_data %>% dplyr::mutate(season_length = end_rains - start_rains)
-    }
-  } else {
-    if (lubridate::is.Date(data[[end_date]])){
-      data[[end_date]] <- yday_366(as.Date(data[[end_date]]))
-    }
-    # check end_rains/end_season is doy_366. Convert. 
-    if (is.null(start_date)){
-      summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - start_rains)
-    } else {
-      # check start_date is doy_366. Convert. 
-      summary_data <- summary_data %>% dplyr::mutate(season_length = .data[[end_date]] - .data[[start_date]])
-    }
+  
+  # from "start" and "end" variables columns (this should always run):
+  length_of_season <- instatCalculations::instat_calculation$new(
+    type="calculation", 
+    function_exp=paste0(end_date, " - ", start_date), 
+    result_name=season_length_save_name, 
+    calculated_from=setNames(list(start_date, end_date), c(summary_data, summary_data)), 
+    save=2)
+  
+  # if the "status" variables are given (this should be optional):
+  if (!is.null(start_rain_status) | !is.null(end_rain_status)){
+    start_end_status <- instatCalculations::instat_calculation$new(
+      type="calculation", 
+      function_exp=paste0("dplyr::case_when(is.na(", start_rain_status, ") | is.na(", end_rain_status, ") ~ NA_character_, ", start_rain_status, " == ", end_rain_status, " ~ as.character(", start_rain_status, "), ", start_rain_status, " == FALSE & ", end_rain_status, " == TRUE ~ 'NONE', ", start_rain_status, " == TRUE & ", end_rain_status, " == FALSE ~ 'MORE')"), 
+      result_name=occurrence_save_name, 
+      calculated_from=setNames(list(start_rain_status, end_rain_status), c(data, data)), 
+      save=2)
   }
-  return(summary_data)
+  
+  
+  # if "status" variables are given, we need to run a combination as we are giving two calculations:
+  if (!is.null(start_rain_status) | !is.null(end_rain_status)){
+    length_rains_combined <- instatCalculations::instat_calculation$new(
+      type="combination", 
+      sub_calculation=list(length_of_season, start_end_status))
+    data_book$run_instat_calculation(calc=length_rains_combined, display=FALSE)
+  } 
+  # if "status" variables are not given, we only need to run the one calculation of length_of_season:
+  else {
+    data_book$run_instat_calculation(calc=length_of_season, display=FALSE)
+  }
+  
+  data_book$convert_column_to_type(data_name=data, col_names=occurrence_save_name, to_type="factor")
 }
