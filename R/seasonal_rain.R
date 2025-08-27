@@ -51,7 +51,13 @@
 #' @param eos_evaporation \code{character(1)} Whether to give evaporation as a value or variable. Default `"value"`.
 #' @param eos_evaporation_value \code{numerical(1)} If `evaporation = "value"`, the numerical value of amount of evaporation per day (default `5`).
 #' @param eos_evaporation_variable \code{character(1)} If `evaporation = "variable"`, the variable in `data` that corresponds to the evaporation column.
-
+#' @param na_rm \code{logical(1)}. Should missing values (including \code{NaN}) be removed?
+#' @param na_prop \code{integer(1)} Max proportion of missing values allowed
+#' @param na_n \code{integer(1)} Max number of missing values allowed
+#' @param na_consec \code{integer(1)} Max number of consecutive missing values allowed
+#' @param na_n_non \code{integer(1)} Min number of non-missing values required
+#' @param data_book The data book object where the data object is stored, default `NULL`.
+#' 
 #' @return A data.frame with rainfall summaries for each year in the specified season (between start of the rains and end of season).
 #' @export
 #'
@@ -77,12 +83,25 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                            eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
                            eos_evaporation_value = 5, eos_evaporation_variable = NULL) {
   end_type <- match.arg(end_type)
-  if (is.null(doy)) {
+  
+  if (is.null(data_book)){
+    data_book = DataBook$new()
+  }
+  
+  # calculate doy, year from date
+  if(is.null(doy)){ 
+    data_book$split_date(data_name = data,
+                         col_name = date_time,
+                         day_in_year_366 =TRUE,
+                         s_start_month = s_start_month)
     doy <- "doy"
-    data <- data %>% dplyr::mutate(doy != yday_366(.data[[date_time]]))
   }
   if (is.null(year)) {
-    data[["year"]] <- lubridate::year(data[[year]])
+    data_book$split_date(data_name = data, 
+                         col_name = date_time, 
+                         year_val = TRUE, 
+                         s_start_month = s_start_month)
+    year <- "year"
   }
   if (is.null(start_date)) {
     start_rains_data <- start_rains(data = data, date_time = date_time, station = station, year = year, rain = rain, threshold = threshold,
@@ -116,49 +135,44 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                                    evaporation_value = eos_evaporation_value, evaporation_variable = eos_evaporation_variable)
       end_date <- "end_season"
     }
-    #end_rains_data <- end_rains_data %>% dplyr::rename(end_date = end_season)
     summary_data <- join_null_data(summary_data, end_rains_data)
   }
+  
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of\n         'total_rain' or 'n_rain' must be TRUE.")
   }
-
-  if(!is.null(s_start_doy)){ # any(grepl("-", summary_data[[year]]))){
-    # The shifting has already happened in R-Instat
-    #data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
-    year <- "s_year"
-    doy <- "s_doy"
-    data[[doy]] <- data[["s_doy"]]
-    data[[year]] <- data[["s_year"]]
-  }
-  data[[year]] <- factor(data[[year]])
-  summary_data <- dplyr::full_join(data %>% dplyr::select(c({{ station }}, {{ year }}, {{ date_time }}, 
-                                                            {{ doy }}, {{ rain }})),
-                                   summary_data)
-  summary_data <- summary_data %>% dplyr::group_by(.data[[station]], .data[[year]])
-  if (lubridate::is.Date(summary_data[[start_date]])) {
-    summary_data <- summary_data %>% dplyr::filter(.data[[date_time]] >= .data[[start_date]])
-  }
-  else {
-    summary_data <- summary_data %>% dplyr::filter(.data[[doy]] >= .data[[start_date]])
-  }
-  if (lubridate::is.Date(summary_data[[end_date]])) {
-    summary_data <- summary_data %>% dplyr::filter(.data[[date_time]] <= .data[[end_date]])
-  }
-  else {
-    summary_data <- summary_data %>% dplyr::filter(.data[[doy]] <= .data[[end_date]])
-  }
-  summaries <- c()
-  if (total_rain) 
-    summaries <- c(total_rain = "sum")
-  if (n_rain) 
-    summaries <- c(summaries, n_rain = paste0("~sum(.x > ", rain_day, ")"))
-  climatic_output <- climatic_summary(data = summary_data, 
-                                                     date_time = date_time, station = station, elements = rain, 
-                                                     year = year, to = "annual", summaries = summaries, 
-                                                     na_rm = na_rm, na_prop = na_prop, na_n = na_n, na_n_non = na_n_non, 
-                                                     names = "{.fn}")
-  if (total_rain) climatic_output <- climatic_output %>% dplyr::rename(seasonal_rain = total_rain)
-  if (n_rain) climatic_output <- climatic_output %>% dplyr::rename(n_seasonal_rain = n_rain)
-  return(climatic_output)
+  
+  # day filter which gets the days from the start of rains to the end of rains
+  day_filter <- instatCalculations::instat_calculation$new(
+    type="filter", 
+    function_exp=paste0("doy >= ", start_date, " & doy <= ", end_date), 
+    calculated_from=databook::calc_from_convert(x=setNames(
+      list(doy, c(start_date, end_date)),
+      c(data, summary_data))))
+  
+  factors_by <- c(year, station)
+  factors_by <- factors_by[!sapply(factors_by, is.null)]
+  
+  na_type <- c(
+    if (!is.null(na_n))        "n",
+    if (!is.null(na_n_non))    "n_non_miss",
+    if (!is.null(na_prop))     "prop",
+    if (!is.null(na_consec))   "con"
+  )
+  
+  # then we just calculate the summaries for those days
+  data_book$calculate_summary(
+    columns_to_summarise=rain, 
+    data_name=data, 
+    factors=factors_by, 
+    additional_filter=day_filter, 
+    summaries=c("summary_sum"), 
+    silent=TRUE,
+    na.rm = na_rm,
+    na_type = na_type, 
+    na_max_n = na_n,
+    na_min_n = na_n_non,
+    na_consecutive_n = na_consec,
+    na_max_prop = na_prop)
+  
 }
