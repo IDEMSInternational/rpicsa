@@ -51,7 +51,8 @@ seasonal_rain(
   eos_water_balance_max = 0.5,
   eos_evaporation = c("value", "variable"),
   eos_evaporation_value = 5,
-  eos_evaporation_variable = NULL
+  eos_evaporation_variable = NULL,
+  data_book = NULL
 )
 }
 \arguments{

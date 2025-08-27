@@ -81,7 +81,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                            end_type = c("season", "rains"), eos_start_day = 1, 
                            eos_end_day = 366, eor_interval_length = 1, eor_min_rainfall = 10, 
                            eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
-                           eos_evaporation_value = 5, eos_evaporation_variable = NULL) {
+                           eos_evaporation_value = 5, eos_evaporation_variable = NULL, data_book=NULL) {
   end_type <- match.arg(end_type)
   
   if (is.null(data_book)){
