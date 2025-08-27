@@ -83,7 +83,7 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
     type="calculation", 
     function_exp=paste0(end_date, " - ", start_date), 
     result_name=season_length_save_name, 
-    calculated_from=setNames(list(start_date, end_date), c(summary_data, summary_data)), 
+    calculated_from=setNames(list(start_date, end_date), c(data, data)), 
     save=2)
   
   # if the "status" variables are given (this should be optional):
