@@ -71,43 +71,92 @@ seasonal_length <- function(summary_data = NULL, start_date = NULL, end_date = N
                             eos_evaporation_value = 5, eos_evaporation_variable = NULL, data_book, season_length_save_name="length", 
                             occurrence_save_name="length_status", start_rain_status = NULL, end_rain_status = NULL)
 {
-  end_type <- match.arg(end_type)
-  
-  # creating the a new databook object if it doesn't exist
-  if (is.null(data_book)){
-    data_book = DataBook$new()
-  }
-  
-  # from "start" and "end" variables columns (this should always run):
-  length_of_season <- instatCalculations::instat_calculation$new(
-    type="calculation", 
-    function_exp=paste0(end_date, " - ", start_date), 
-    result_name=season_length_save_name, 
-    calculated_from=setNames(list(start_date, end_date), c(data, data)), 
-    save=2)
-  
-  # if the "status" variables are given (this should be optional):
-  if (!is.null(start_rain_status) | !is.null(end_rain_status)){
-    start_end_status <- instatCalculations::instat_calculation$new(
-      type="calculation", 
-      function_exp=paste0("dplyr::case_when(is.na(", start_rain_status, ") | is.na(", end_rain_status, ") ~ NA_character_, ", start_rain_status, " == ", end_rain_status, " ~ as.character(", start_rain_status, "), ", start_rain_status, " == FALSE & ", end_rain_status, " == TRUE ~ 'NONE', ", start_rain_status, " == TRUE & ", end_rain_status, " == FALSE ~ 'MORE')"), 
-      result_name=occurrence_save_name, 
-      calculated_from=setNames(list(start_rain_status, end_rain_status), c(data, data)), 
-      save=2)
-  }
-  
-  
-  # if "status" variables are given, we need to run a combination as we are giving two calculations:
-  if (!is.null(start_rain_status) | !is.null(end_rain_status)){
-    length_rains_combined <- instatCalculations::instat_calculation$new(
-      type="combination", 
-      sub_calculation=list(length_of_season, start_end_status))
-    data_book$run_instat_calculation(calc=length_rains_combined, display=FALSE)
-  } 
-  # if "status" variables are not given, we only need to run the one calculation of length_of_season:
-  else {
-    data_book$run_instat_calculation(calc=length_of_season, display=FALSE)
-  }
-  
-  data_book$convert_column_to_type(data_name=data, col_names=occurrence_save_name, to_type="factor")
+    end_type <- match.arg(end_type)
+    
+    # creating the a new databook object if it doesn't exist
+    if (is.null(data_book)){
+        data_book = DataBook$new()
+    }
+    
+    # calculate doy, year from date
+    if(is.null(doy)){ 
+        data_book$split_date(data_name = data,
+                             col_name = date_time,
+                             day_in_year_366 =TRUE,
+                             s_start_month = s_start_month)
+        doy <- "doy"
+    }
+    if (is.null(year)) {
+        data_book$split_date(data_name = data, 
+                             col_name = date_time, 
+                             year_val = TRUE, 
+                             s_start_month = s_start_month)
+        year <- "year"
+    }
+    
+    if (is.null(start_date)){
+        start_rains_data <- start_rains(data = data, date_time = date_time, station = station, year = year, rain = rain, threshold = threshold,
+                                        doy = doy, start_day = sor_start_day, end_day = sor_end_day, output = "doy",
+                                        s_start_month = s_start_month, drop = drop,
+                                        total_rainfall_over_days = sor_over_days, total_rainfall_comparison = sor_total_rainfall_comparison,
+                                        amount_rain = sor_amount_rain, prob_rain_day = sor_prob_rain_day,             
+                                        evaporation_variable = sor_evaporation_variable, fraction = sor_fraction,
+                                        number_rain_days = sor_number_rain_days, min_rain_days = sor_min_rain_days, rain_day_interval = sor_rain_day_interval,
+                                        dry_spell = sor_dry_spell, spell_interval = sor_spell_interval, spell_max_dry_days = sor_spell_max_dry_days,
+                                        dry_period = sor_dry_period, period_interval = sor_period_interval, max_rain = sor_max_rain, period_max_dry_days = sor_period_max_dry_days,
+                                        data_book = data_book)
+        start_date <- "start_rains"
+        summary_data <- join_null_data(summary_data, start_rains_data)
+    }
+    if (is.null(end_date)){
+        if (end_type == "season"){
+            end_rains_data <- end_season(data = data, date_time = date_time, station = station, year = year, rain = rain,
+                                         doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
+                                         capacity = eos_capacity, water_balance_max = eos_water_balance_max,
+                                         evaporation = eos_evaporation, evaporation_value = eos_evaporation_value,
+                                         evaporation_variable = eos_evaporation_variable)
+            end_date <- "end_season"
+            summary_data <- join_null_data(summary_data, end_rains_data)
+        } else {
+            end_rains_data <- end_rains(data = data, date_time = date_time, station = station, year = year, rain = rain,
+                                        doy = doy, start_day = eos_start_day, end_day = eos_end_day, output = "doy",
+                                        interval_length = eor_interval_length, min_rainfall = eor_min_rainfall) 
+            end_date <- "end_rains"
+            summary_data <- join_null_data(summary_data, end_rains_data)
+        }
+    }
+    
+    start_end_data <- ifelse(is.null(start_date) | is.null(end_date), summary_data, data)
+    
+    # from "start" and "end" variables columns (this should always run):
+    length_of_season <- instatCalculations::instat_calculation$new(
+        type="calculation", 
+        function_exp=paste0(end_date, " - ", start_date), 
+        result_name=season_length_save_name, 
+        calculated_from=setNames(list(start_date, end_date), c(start_end_data, start_end_data)), 
+        save=2)
+    
+    # if the "status" variables are given (this should be optional):
+    if (!is.null(start_rain_status) | !is.null(end_rain_status)){
+        start_end_status <- instatCalculations::instat_calculation$new(
+            type="calculation", 
+            function_exp=paste0("dplyr::case_when(is.na(", start_rain_status, ") | is.na(", end_rain_status, ") ~ NA_character_, ", start_rain_status, " == ", end_rain_status, " ~ as.character(", start_rain_status, "), ", start_rain_status, " == FALSE & ", end_rain_status, " == TRUE ~ 'NONE', ", start_rain_status, " == TRUE & ", end_rain_status, " == FALSE ~ 'MORE')"), 
+            result_name=occurrence_save_name, 
+            calculated_from=setNames(list(start_rain_status, end_rain_status), c(data, data)), 
+            save=2)
+    }
+    
+    # if "status" variables are given, we need to run a combination as we are giving two calculations:
+    if (!is.null(start_rain_status) | !is.null(end_rain_status)){
+        length_rains_combined <- instatCalculations::instat_calculation$new(
+            type="combination", 
+            sub_calculation=list(length_of_season, start_end_status))
+        data_book$run_instat_calculation(calc=length_rains_combined, display=FALSE)
+    } 
+    # if "status" variables are not given, we only need to run the one calculation of length_of_season:
+    else {
+        data_book$run_instat_calculation(calc=length_of_season, display=FALSE)
+    }
+    
+    data_book$convert_column_to_type(data_name=data, col_names=occurrence_save_name, to_type="factor")
 }
