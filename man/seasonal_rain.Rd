@@ -51,7 +51,8 @@ seasonal_rain(
   eos_water_balance_max = 0.5,
   eos_evaporation = c("value", "variable"),
   eos_evaporation_value = 5,
-  eos_evaporation_variable = NULL
+  eos_evaporation_variable = NULL,
+  data_book = NULL
 )
 }
 \arguments{
@@ -149,6 +150,8 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 \item{eos_evaporation_value}{\code{numerical(1)} If \code{evaporation = "value"}, the numerical value of amount of evaporation per day (default \code{5}).}
 
 \item{eos_evaporation_variable}{\code{character(1)} If \code{evaporation = "variable"}, the variable in \code{data} that corresponds to the evaporation column.}
+
+\item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
 }
 \value{
 A data.frame with rainfall summaries for each year in the specified season (between start of the rains and end of season).
