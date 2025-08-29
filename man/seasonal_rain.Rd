@@ -8,13 +8,13 @@ seasonal_rain(
   summary_data = NULL,
   start_date = NULL,
   end_date = NULL,
-  s_start_month = 1,
   data,
   date_time,
   year = NULL,
   station = NULL,
   doy = NULL,
   rain = NULL,
+  s_start_month = 1,
   total_rain = TRUE,
   n_rain = TRUE,
   rain_day = 0.85,
@@ -27,92 +27,119 @@ seasonal_rain(
 )
 }
 \arguments{
-\item{summary_data}{Summary data frame containing the \code{start_date} and \code{end_date} variables. These variables are calculated from start of rains and end of season functions.}
+\item{summary_data}{\code{character(1)} Name of the summary data frame in \code{data_book}
+that contains the season boundary columns (e.g. \code{start_rain}, \code{end_rains}).}
 
-\item{start_date}{\code{character(1)} The name of the start of rains column in \code{summary_data}.}
+\item{start_date}{\code{character(1)} Column name in \code{summary_data} giving the start of rains
+(typically a day-of-year integer).}
 
-\item{end_date}{\code{character(1)} The name of the end of season column in \code{summary_data}.}
+\item{end_date}{\code{character(1)} Column name in \code{summary_data} giving the end of season
+(typically a day-of-year integer).}
 
-\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “year” when creating \code{year} or \code{doy}. Default \code{NULL} (assumes January).}
+\item{data}{\code{character(1)} Name of the daily data frame in \code{data_book}.}
 
-\item{data}{The daily data frame to calculate rainfall from.}
+\item{date_time}{\code{character(1)} Column name (in \code{data}) of the date variable.}
 
-\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
+\item{year}{\code{character(1)} Column name (in \code{data}) of the year variable.
+If \code{NULL}, it is created from \code{date_time} using \code{lubridate::year()} with
+\code{s_start_month} applied.}
 
-\item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+\item{station}{\code{character(1)} Optional station column in \code{data} (useful when \code{data}
+contains multiple stations). If supplied, summaries are grouped by \code{station} and \code{year}.}
 
-\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
+\item{doy}{\code{character(1)} Column name (in \code{data}) of the day-of-year variable.
+If \code{NULL}, it is created from \code{date_time} (366-day DOY) with \code{s_start_month} applied.}
 
-\item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
+\item{rain}{\code{character(1)} Column name (in \code{data}) of the rainfall variable to summarise.}
 
-\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
+\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
+when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).}
 
-\item{total_rain}{\code{logical(1)} default \code{TRUE}. Display the total rainfall value for each year.}
+\item{total_rain}{\code{logical(1)} Compute and store the seasonal total rainfall. Default \code{TRUE}.}
 
-\item{n_rain}{\code{logical(1)} default \code{TRUE}. Display the number of rainfall days.}
+\item{n_rain}{\code{logical(1)} (Reserved) Compute the number of rainfall days in-season.
+Currently not implemented. Default \code{TRUE} (ignored).}
 
-\item{rain_day}{\code{numerical(1)} If \code{n_rain = TRUE}, the minimum rainfall value in a day for that day to count as a rainfall day.}
+\item{rain_day}{\code{numeric(1)} (Reserved) Threshold (e.g., \code{0.85}) above which a day
+counts as a rainfall day when \code{n_rain = TRUE}. Currently ignored.}
 
-\item{na_rm}{\code{logical(1)}. Should missing values (including \code{NaN}) be removed?}
+\item{na_rm}{\code{logical(1)} Should missing values be removed before summing? Passed through to
+the summary calculation. Default \code{FALSE}.}
 
-\item{na_prop}{\code{integer(1)} Max proportion of missing values allowed}
+\item{na_prop}{\code{numeric(1)} Maximum allowed proportion of missing values in the in-season window.}
 
-\item{na_n}{\code{integer(1)} Max number of missing values allowed}
+\item{na_n}{\code{integer(1)} Maximum allowed number of missing values.}
 
-\item{na_consec}{\code{integer(1)} Max number of consecutive missing values allowed}
+\item{na_consec}{\code{integer(1)} Maximum allowed number of consecutive missing values.}
 
-\item{na_n_non}{\code{integer(1)} Min number of non-missing values required}
+\item{na_n_non}{\code{integer(1)} Minimum required count of non-missing values.}
 
-\item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
+\item{data_book}{The \code{DataBook} (R6) object holding \code{data} and \code{summary_data}.
+If \code{NULL}, a new one is created internally (side effects then apply to that object).}
 }
 \value{
-A data.frame with rainfall summaries for each year in the specified season (between start of the rains and end of season).
+Invisibly returns \code{NULL}. The primary effect is to modify \code{summary_data} inside
+\code{data_book} by adding a seasonal rainfall total column (and, in future, a rainfall-day count).
+Retrieve results with \code{data_book$get_data_frame(summary_data)}.
 }
 \description{
-Total annual rainfall between start of the rains and end of the season.
+Compute the seasonal total rainfall between the start of the rains and the end
+of the season. The function filters daily data to the interval
+\code{start_date}, \code{end_date} (both inclusive) for each grouping (year and, if
+provided, station) and then summarises the \code{rain} column. Results are written
+back into the \code{summary_data} table stored in \code{data_book}.
+}
+\details{
+If \code{doy} and/or \code{year} are not provided, they are created from \code{date_time}
+using \code{data_book$split_date()}, with \code{s_start_month} defining the start of the statistical year.
+The function constructs a row-wise filter selecting days \code{doy >= start_date & doy <= end_date}
+and then calls \code{data_book$calculate_summary()} with \code{summaries = "summary_sum"} on \code{rain},
+grouped by \code{year} (and \code{station}, if supplied).
+
+The newly computed summary column is appended to \code{summary_data} in \code{data_book}. The exact
+name of the column depends on the \code{DataBook} summary-naming scheme (commonly includes “sum”
+and the variable name, e.g. \code{sum_rain}).
+
+If both \code{total_rain} and \code{n_rain} are \code{FALSE}, the function stops with an error.
+Note: as of now, only \code{total_rain} is implemented; \code{n_rain} / \code{rain_day} are reserved.
 }
 \examples{
-# Example: First calculate start and end rains
+# Example workflow: compute start/end, then seasonal totals for Agades (1946–1950 subset)
+library(databook)
 data_book <- DataBook$new()
-daily_data <- rpicsa::daily_niger \%>\%
-  dplyr::filter(year <= 1950) \%>\%
-  dplyr::filter(year > 1945) \%>\%
-  dplyr::mutate(year = as.numeric(year)) \%>\%
-  dplyr::filter(station_name == "Agades")
+daily_data <- rpicsa::daily_niger |>
+  dplyr::filter(station_name == "Agades", year > 1945, year <= 1950) |>
+  dplyr::mutate(year = as.numeric(year))
 data_book$import_data(list(daily_data = daily_data))
 
-start_rains(data = "daily_data",
-            date_time = "date",
-            station = "station_name",
-            year = "year",
-            rain = "rain",
-            start_day = 121,
-            end_day = 300,
-            output = "doy",
-            data_book = data_book)
-
-end_rains(data = "daily_data",
-          date_time = "date",
-          station = "station_name",
-          year = "year",
-          rain = "rain",
-          start_day = 121,
-          end_day = 300,
-          output = "doy",
-          data_book = data_book)
-
-# then run the summaries for seasonal rainfall
-seasonal_rain(summary_data = "daily_data_by_station_name_year",
-              start_date = "start_rain",
-              end_date = "end_rains",
-              data = "daily_data",
-              date_time = "date",
-              year = "year",
-              doy = "doy",
-              station = "station_name",
-              rain = "rain",
-              data_book = data_book
+start_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  output = "doy", data_book = data_book
 )
-daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
-daily_data_by_station_name_year
+
+end_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  output = "doy", data_book = data_book
+)
+
+seasonal_rain(
+  summary_data = "daily_data_by_station_name_year",
+  start_date   = "start_rain",
+  end_date     = "end_rains",
+  data         = "daily_data",
+  date_time    = "date",
+  year         = "year",
+  doy          = "doy",
+  station      = "station_name",
+  rain         = "rain",
+  data_book    = data_book
+)
+
+# Inspect results
+data_book$get_data_frame("daily_data_by_station_name_year")
+}
+\seealso{
+\code{\link{start_rains}}, \code{\link{end_rains}}, \code{\link{seasonal_length}}
 }

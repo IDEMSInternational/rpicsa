@@ -1,5 +1,3 @@
-# tests/testthat/test-seasonal_rain.R
-
 testthat::test_that("seasonal_rain adds correct seasonal totals and basic behaviour works", {
   library(dplyr)
   library(lubridate)
@@ -30,7 +28,7 @@ testthat::test_that("seasonal_rain adds correct seasonal totals and basic behavi
     rain      = "rain",
     start_day = start_day,
     end_day   = end_day,
-    output    = "doy",
+    output    = c("doy", "status"),
     data_book = data_book
   ))
   
@@ -42,7 +40,7 @@ testthat::test_that("seasonal_rain adds correct seasonal totals and basic behavi
     rain      = "rain",
     start_day = start_day,
     end_day   = end_day,
-    output    = "doy",
+    output    = c("doy", "status"),
     data_book = data_book
   ))
   
@@ -113,6 +111,28 @@ testthat::test_that("seasonal_rain adds correct seasonal totals and basic behavi
     dplyr::slice(1)
   
   testthat::expect_equal(nrow(one_key), 1L)
+  
+  #### Now for Seasonal Length
+  # Run seasonal_length (default save names)
+  suppressWarnings(seasonal_length(
+    summary_data        = sum_name,
+    start_date          = "start_rain",
+    end_date            = "end_rains",
+    start_rain_status   = "start_rain_status",
+    end_rain_status     = "end_rains_status",
+    data_book           = data_book
+  ))
+  
+  out <- data_book$get_data_frame(sum_name)
+  testthat::expect_true(all(c("length", "occurrence") %in% names(out)))
+  
+  # length must equal end - start
+  testthat::expect_true(is.numeric(out$length))
+  testthat::expect_equal(as.numeric(out$length)[1], as.numeric(out$end_rains)[1] - as.numeric(out$start_rain)[1], tolerance = 1e-12)
+  
+  # occurrence is a factor; spot-check it matches the logic for rows without NAs
+  testthat::expect_s3_class(out$occurrence, "factor")
+  
 })
 
 testthat::test_that("seasonal_rain errors if no summaries are requested", {
@@ -156,4 +176,64 @@ testthat::test_that("seasonal_rain errors if no summaries are requested", {
     ),
     "No summaries selected"
   )
+})
+
+
+testthat::test_that("seasonal_length: occurrence logic is correct on synthetic cases", {
+  # Build a tiny summary table to hit all branches (TRUE/TRUE, FALSE/FALSE, NONE, MORE, NA)
+  summ <- data.frame(
+    start_rain        = c(10L,  5L,  7L,  9L,  4L,  6L),
+    end_rains         = c(20L, 15L, 17L, 19L, 14L, 16L),
+    start_rain_status = c(TRUE, FALSE, FALSE, TRUE, NA,    TRUE),
+    end_rains_status  = c(TRUE, FALSE, TRUE,  FALSE, TRUE, NA),
+    stringsAsFactors  = FALSE
+  )
+  
+  data_book <- DataBook$new()
+  data_book$import_data(list(season_sum = summ))
+  
+  suppressWarnings(seasonal_length(
+    summary_data        = "season_sum",
+    start_date          = "start_rain",
+    end_date            = "end_rains",
+    start_rain_status   = "start_rain_status",
+    end_rain_status     = "end_rains_status",
+    data_book           = data_book
+  ))
+  
+  out <- data_book$get_data_frame("season_sum")
+  
+  # length equals difference
+  testthat::expect_equal(as.numeric(out$length)[1], as.numeric(out$end_rains)[1] - as.numeric(out$start_rain)[1], tolerance = 1e-12)
+  
+  # occurrence factor values follow the specified case_when logic
+  expected <- c("TRUE", "FALSE", "NONE", "MORE", NA, NA)
+  testthat::expect_s3_class(out$occurrence, "factor")
+  testthat::expect_equal(as.character(out$occurrence), expected)
+})
+
+testthat::test_that("seasonal_length works without status columns and with custom save names", {
+  # No status columns: only 'length' (custom name) should be created
+  summ <- data.frame(
+    start_d = c(3L, 50L),
+    end_d   = c(7L, 70L)
+  )
+  data_book <- DataBook$new()
+  data_book$import_data(list(my_summary = summ))
+  
+  suppressWarnings(seasonal_length(
+    summary_data            = "my_summary",
+    start_date              = "start_d",
+    end_date                = "end_d",
+    start_rain_status       = NULL,
+    end_rain_status         = NULL,
+    season_length_save_name = "L_custom",
+    occurrence_save_name    = "O_custom",  # should be ignored since no statuses
+    data_book               = data_book
+  ))
+  
+  out <- data_book$get_data_frame("my_summary")
+  testthat::expect_true("L_custom" %in% names(out))
+  testthat::expect_false("O_custom" %in% names(out))
+  testthat::expect_equal(as.numeric(out$L_custom)[1], as.numeric(out$end_d)[1] - as.numeric(out$start_d)[1])
 })
