@@ -2,7 +2,7 @@
 % Please edit documentation in R/seasonal_length.R
 \name{seasonal_length}
 \alias{seasonal_length}
-\title{Length of the season}
+\title{Length of the rainfall season}
 \usage{
 seasonal_length(
   summary_data,
@@ -16,66 +16,90 @@ seasonal_length(
 )
 }
 \arguments{
-\item{summary_data}{Summary data frame containing the \code{start_date} and \code{end_date} variables. These variables are calculated from start of rains and end of season functions.}
+\item{summary_data}{\code{character(1)} Name of the summary data frame in \code{data_book}
+that contains the season boundary columns (e.g., \code{start_rain}, \code{end_rains}).}
 
-\item{start_date}{\code{character(1)} The name of the start of rains column in \code{summary_data}. If \code{NULL} it will be created using the \code{start_of_rains} function.}
+\item{start_date}{\code{character(1)} Column name in \code{summary_data} giving the start
+of rains (typically a day-of-year integer).}
 
-\item{end_date}{\code{character(1)} The name of the end of season column in \code{summary_data}. If \code{NULL} it will be created using the \code{end_of_seasons} function.}
+\item{end_date}{\code{character(1)} Column name in \code{summary_data} giving the end
+of season (typically a day-of-year integer).}
 
-\item{start_rain_status}{\code{character(1)} The name of the variable that indicates the start of rain status}
+\item{start_rain_status}{\code{character(1)} Optional column name in \code{summary_data}
+giving a logical flag for whether a valid start of rains was found for that row.}
 
-\item{end_rain_status}{\code{character(1)} The name of the variable that indicates the end of rain status}
+\item{end_rain_status}{\code{character(1)} Optional column name in \code{summary_data}
+giving a logical flag for whether a valid end of season was found for that row.}
 
-\item{season_length_save_name}{\code{character(1)} The name used to save the length of season}
+\item{season_length_save_name}{\code{character(1)} Name of the column to save the computed
+season length into. Default \code{"length"}.}
 
-\item{occurrence_save_name}{\code{character(1)} The name used to save the status results}
+\item{occurrence_save_name}{\code{character(1)} Name of the column to save the derived
+occurrence status into (only used when status columns are supplied). Default \code{"occurrence"}.}
 
-\item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
+\item{data_book}{The \code{DataBook} (R6) object holding \code{summary_data}. If \code{NULL},
+a new one is created internally (side effects then apply to that object).}
 }
 \value{
-A data.frame with length of rainfall season for each year in the specified season (between start of the rains and end of season).
+Invisibly returns \code{NULL}. Retrieve results with
+\code{data_book$get_data_frame(summary_data)}.
 }
 \description{
-Number of days between start of the rains and end of the season
+Compute the number of days between the start of the rains and the end of the
+season for each row in a season summary table. Optionally, also derive an
+\code{occurrence} status from logical start/end status flags. Results are
+written back into \code{summary_data} stored in \code{data_book}.
+}
+\details{
+The function always computes the season length as
+\code{end_date - start_date} and stores it in \code{season_length_save_name}.
+
+If both \code{start_rain_status} and \code{end_rain_status} are provided, an
+additional \code{occurrence} column is created via:
+
+\itemize{
+\item \code{NA} if either status is \code{NA}
+\item \code{"TRUE"} if \code{start_rain_status == end_rain_status == TRUE}
+\item \code{"FALSE"} if \code{start_rain_status == end_rain_status == FALSE}
+\item \code{"NONE"} if \code{start_rain_status == FALSE} and \code{end_rain_status == TRUE}
+\item \code{"MORE"} if \code{start_rain_status == TRUE} and \code{end_rain_status == FALSE}
+}
+
+The \code{occurrence} column is converted to a factor. This function modifies
+\code{summary_data} inside \code{data_book} and returns invisibly.
 }
 \examples{
-# Example: First calculate start and end rains
+# Example: compute start/end (DOY + STATUS) then season length for Agades (1946–1950 subset)
 data_book <- DataBook$new()
-daily_data <- rpicsa::daily_niger \%>\%
-  dplyr::filter(year <= 1950) \%>\%
-  dplyr::filter(year > 1945) \%>\%
-  dplyr::mutate(year = as.numeric(year)) \%>\%
-  dplyr::filter(station_name == "Agades")
+daily_data <- rpicsa::daily_niger |>
+  dplyr::filter(year > 1945, year <= 1950, station_name == "Agades") |>
+  dplyr::mutate(year = as.numeric(year))
 data_book$import_data(list(daily_data = daily_data))
 
-start_rains(data = "daily_data",
-            date_time = "date",
-            station = "station_name",
-            year = "year",
-            rain = "rain",
-            start_day = 121,
-            end_day = 300,
-            output = c("doy", "status"),
-            data_book = data_book)
-
-end_rains(data = "daily_data",
-          date_time = "date",
-          station = "station_name",
-          year = "year",
-          rain = "rain",
-          start_day = 121,
-          end_day = 300,
-          output = c("doy", "status"),
-          data_book = data_book)
-
-# then run the summaries for seasonal rainfall
-seasonal_length(summary_data = "daily_data_by_station_name_year",
-                start_date = "start_rain",
-                end_date = "end_rains",
-                start_rain_status = "start_rain_status",
-                end_rain_status = "end_rains_status",
-                data_book = data_book
+start_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  output = c("doy", "status"), data_book = data_book
 )
-daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
-daily_data_by_station_name_year 
+
+end_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  output = c("doy", "status"), data_book = data_book
+)
+
+seasonal_length(
+  summary_data        = "daily_data_by_station_name_year",
+  start_date          = "start_rain",
+  end_date            = "end_rains",
+  start_rain_status   = "start_rain_status",
+  end_rain_status     = "end_rains_status",
+  data_book           = data_book
+)
+
+# Inspect results
+data_book$get_data_frame("daily_data_by_station_name_year")
+}
+\seealso{
+\code{\link{start_rains}}, \code{\link{end_rains}}, \code{\link{seasonal_rain}}
 }
