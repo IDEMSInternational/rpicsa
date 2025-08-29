@@ -43,7 +43,12 @@ seasonal_length(
   eos_water_balance_max = 0.5,
   eos_evaporation = c("value", "variable"),
   eos_evaporation_value = 5,
-  eos_evaporation_variable = NULL
+  eos_evaporation_variable = NULL,
+  data_book,
+  season_length_save_name = "length",
+  occurrence_save_name = "length_status",
+  start_rain_status = NULL,
+  end_rain_status = NULL
 )
 }
 \arguments{
@@ -125,6 +130,16 @@ If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \c
 \item{eos_evaporation_value}{\code{numerical(1)} If \code{evaporation = "value"}, the numerical value of amount of evaporation per day (default \code{5}).}
 
 \item{eos_evaporation_variable}{\code{character(1)} If \code{evaporation = "variable"}, the variable in \code{data} that corresponds to the evaporation column.}
+
+\item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
+
+\item{season_length_save_name}{\code{character(1)} The name used to save the length of season}
+
+\item{occurrence_save_name}{\code{character(1)} The name used to save the status results}
+
+\item{start_rain_status}{\code{character(1)} The name of the variable that indicates the start of rain status}
+
+\item{end_rain_status}{\code{character(1)} The name of the variable that indicates the end of rain status}
 }
 \value{
 A data.frame with length of rainfall season for each year in the specified season (between start of the rains and end of season).
@@ -133,5 +148,6 @@ A data.frame with length of rainfall season for each year in the specified seaso
 Number of days between start of the rains and end of the season
 }
 \examples{
-# Example of season
+# TODO
+
 }
