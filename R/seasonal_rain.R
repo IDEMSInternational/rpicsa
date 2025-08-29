@@ -62,6 +62,7 @@
 #'
 #' @examples
 #' # Example workflow: compute start/end, then seasonal totals for Agades (1946–1950 subset)
+#' library(databook)
 #' data_book <- DataBook$new()
 #' daily_data <- rpicsa::daily_niger |>
 #'   dplyr::filter(station_name == "Agades", year > 1945, year <= 1950) |>

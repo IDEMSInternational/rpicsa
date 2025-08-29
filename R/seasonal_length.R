@@ -48,6 +48,7 @@
 #'
 #' @examples
 #' # Example: compute start/end (DOY + STATUS) then season length for Agades (1946–1950 subset)
+#' library(databook)
 #' data_book <- DataBook$new()
 #' daily_data <- rpicsa::daily_niger |>
 #'   dplyr::filter(year > 1945, year <= 1950, station_name == "Agades") |>
