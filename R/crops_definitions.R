@@ -29,17 +29,19 @@ crops_definitions <- function (data_name, year, station, rain, day, rain_totals,
     }
   
     # Running checks
-    checkmate::assert_character(data_name)
-    checkmate::assert_character(rain)
-    checkmate::assert_character(year)
-    checkmate::assert_character(station)
-    checkmate::assert_character(day)
-    checkmate::assert_character(rain_totals)
-    checkmate::assert_character(plant_days)
-    checkmate::assert_character(plant_lengths)
-    checkmate::assert_character(season_data_name)
-    checkmate::assert_character(start_day)
-    checkmate::assert_character(end_day)
+    checkmate::assert_string(data_name)
+    checkmate::assert_string(rain)
+    checkmate::assert_string(year)
+    checkmate::assert_string(station)
+    checkmate::assert_string(day)
+    checkmate::assert_numeric(rain_totals)
+    checkmate::assert_numeric(plant_days)
+    checkmate::assert_numeric(plant_lengths)
+  
+    checkmate::assert_string(season_data_name)
+    checkmate::assert_string(start_day)
+    checkmate::assert_string(end_day)
+  
     data_frame <- data_book$get_data_frame(data_name)
     assert_column_names(data_frame, rain)
     assert_column_names(data_frame, year)
@@ -48,13 +50,19 @@ crops_definitions <- function (data_name, year, station, rain, day, rain_totals,
     assert_column_names(data_frame, rain_totals)
     assert_column_names(data_frame, plant_days)
     assert_column_names(data_frame, plant_lengths)
+  
+    data_frame <- data_book$get_data_frame(season_data_name)
+    assert_column_names(data_frame, start_day)
+    assert_column_names(data_frame, end_day)
+
+    checkmate::assert_logical(return_crops_table)
+    checkmate::assert_logical(definition_props)
 
     assert_column_names(data_frame, start_day)
     assert_column_names(data_frame, end_day)
     
     checkmate::assert_logical(return_crops_table)
     checkmate::assert_logical(definition_props)
-  
   
     return(data_book$crops_definitions(data_name = data_name, year = year, station = station, rain = rain, day = day, rain_totals = rain_totals, plant_days = plant_days, plant_lengths = plant_lengths, start_check  = start_check, season_data_name = season_data_name, start_day = start_day, end_day = end_day, return_crops_table  = return_crops_table, definition_props  = definition_props))
          
