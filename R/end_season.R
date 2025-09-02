@@ -63,7 +63,6 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
-
   checkmate::assert_character(data)
   checkmate::assert_character(rain)
   data_frame <- data_book$get_data_frame(data)

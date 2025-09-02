@@ -46,14 +46,14 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
                       doy = NULL,  s_start_doy = NULL, drop = TRUE,
                       start_day = 1, end_day = 366, output = c("doy", "date", "status"),
                       interval_length = 1, min_rainfall = 10, data_book = NULL) {
-  
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
+
   # 1. Checks
   checkmate::assert_character(data)
-  data_frame <- data_book$get_data_frame(data)
   checkmate::assert_character(rain)
+  data_frame <- data_book$get_data_frame(data)
   assert_column_names(data_frame, rain)
   checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
                     checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
@@ -80,13 +80,13 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
     data_book$split_date(data_name = data, col_name=date_time, day_in_year_366 =TRUE, s_start_month=1)
     doy <- "doy"
   }
-  
+
   # 4. We use the Calculation System
   # to avoid dropping levels, set as factor
   year_type <- data_book$get_column_data_types(data_name=data, columns=year)
   data_book$convert_column_to_type(data_name=data, col_names=year, to_type="factor")
   data_book$convert_linked_variable(from_data_frame=data, link_cols=c(year))
-  
+
   # run end of rains r code
   roll_sum_rain <- instatCalculations::instat_calculation$new(
     type="calculation",
