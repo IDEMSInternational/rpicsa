@@ -9,6 +9,7 @@
 #'
 #' @param data_name `character(1)` Name of the daily data frame.
 #' @param year `character(1)` Column name in `data_name` giving the year.
+#' @param date `character(1)`  optional. Column name in `data_name` giving the date .
 #' @param station `character(1)` Optional. Column name giving the station ID.
 #'   If missing, results are computed by year only.
 #' @param rain `character(1)` Column name giving daily rainfall (numeric).
@@ -71,15 +72,18 @@
 crops_definitions <- function (data_name, year, station, rain, doy, rain_totals, 
                                plant_days, plant_lengths, start_check = c("both", "yes","no"), 
                                season_data_name, start_day, end_day, return_crops_table = TRUE, 
-                               definition_props = TRUE, data_book = NULL){
+                               definition_props = TRUE, date=NULL, data_book = NULL){
     if (is.null(data_book)){
       data_book = DataBook$new()
     }
+  
+    
   
     # Running checks
     checkmate::assert_string(data_name)
     checkmate::assert_string(rain)
     checkmate::assert_string(year, null.ok = TRUE)
+    checkmate::assert_string(date, null.ok = TRUE)
     checkmate::assert_string(station)
     checkmate::assert_string(doy, null.ok = TRUE)
     checkmate::assert_numeric(rain_totals)
@@ -91,14 +95,16 @@ crops_definitions <- function (data_name, year, station, rain, doy, rain_totals,
     checkmate::assert_string(end_day)
   
     data_frame <- data_book$get_data_frame(data_name)
+    if (!is.null(date)) assert_column_names(data_frame, date)
+    if (!is.null(year)) assert_column_names(data_frame, year)
+    if (!is.null(doy)) assert_column_names(data_frame, doy)
     assert_column_names(data_frame, rain)
-    assert_column_names(data_frame, year)
     assert_column_names(data_frame, station)
-    assert_column_names(data_frame, day)
     assert_column_names(data_frame, rain_totals)
     assert_column_names(data_frame, plant_days)
     assert_column_names(data_frame, plant_lengths)
-  
+
+    
     data_frame <- data_book$get_data_frame(season_data_name)
     assert_column_names(data_frame, start_day)
     assert_column_names(data_frame, end_day)
@@ -112,6 +118,30 @@ crops_definitions <- function (data_name, year, station, rain, doy, rain_totals,
     checkmate::assert_logical(return_crops_table)
     checkmate::assert_logical(definition_props)
   
-    return(data_book$crops_definitions(data_name = data_name, year = year, station = station, rain = rain, day = doy, rain_totals = rain_totals, plant_days = plant_days, plant_lengths = plant_lengths, start_check  = start_check, season_data_name = season_data_name, start_day = start_day, end_day = end_day, return_crops_table  = return_crops_table, definition_props  = definition_props))
+    # calculate doy, year from date
+    if (is.null(year)) {
+        data_book$split_date(data_name = data_name, col_name = date, year_val = TRUE, s_start_month = 1)
+        year <- "year"
+    }
+    
+    if (is.null(doy)){
+        data_book$split_date(data_name = data_name, col_name = date, day_in_year_366 =TRUE, s_start_month = 1)
+        doy <- "doy"
+    }
+    
+    return(data_book$crops_definitions(
+        data_name = data_name, 
+        year = year, 
+        station = station, 
+        rain = rain, 
+        day = doy, 
+        rain_totals = rain_totals, 
+        plant_days = plant_days, 
+        plant_lengths = plant_lengths, 
+        start_check  = start_check, 
+        season_data_name = season_data_name, 
+        start_day = start_day, end_day = end_day, 
+        return_crops_table  = return_crops_table, 
+        definition_props  = definition_props))
          
 }

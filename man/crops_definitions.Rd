@@ -9,7 +9,7 @@ crops_definitions(
   year,
   station,
   rain,
-  day,
+  doy,
   rain_totals,
   plant_days,
   plant_lengths,
@@ -19,45 +19,102 @@ crops_definitions(
   end_day,
   return_crops_table = TRUE,
   definition_props = TRUE,
+  date = NULL,
   data_book = NULL
 )
 }
 \arguments{
-\item{data_name}{Name of the data frame containing the data.}
+\item{data_name}{\code{character(1)} Name of the daily data frame.}
 
-\item{year}{Name of the column representing the year.}
+\item{year}{\code{character(1)} Column name in \code{data_name} giving the year.}
 
-\item{station}{Name of the column for the station (optional).}
+\item{station}{\code{character(1)} Optional. Column name giving the station ID.
+If missing, results are computed by year only.}
 
-\item{rain}{Name of the column containing rainfall data.}
+\item{rain}{\code{character(1)} Column name giving daily rainfall (numeric).}
 
-\item{day}{Name of the column containing day data.}
+\item{doy}{\code{character(1)} Column name giving the doy.}
 
-\item{rain_totals}{Column name for rain totals.}
+\item{rain_totals}{The amount of water (rainfall) needed for the crop, usually between 250mm and 1000mm
+Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 200, 1200, 50 produces 200, 250, 300, ..., 1200.}
 
-\item{plant_days}{Column name for planting days.}
+\item{plant_days}{The day number for planting. Starting from January, April 1st is day 92. Starting from July, November 1st is day 124.
+Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 93, 183, 15 produces 93, 108, 123, …, 183.}
 
-\item{plant_lengths}{Column name for planting lengths.}
+\item{plant_lengths}{The crop duration in days. Often between 60 (2 months) and 150 (5 months).
+Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 45, 180, 30 produces 45, 75, 105, ..., 180.}
 
-\item{start_check}{Boolean indicating whether to check start day (default is TRUE).}
+\item{start_check}{\code{c("both","yes","no")} Whether to (a) compute both start-checked
+and no-start variants, (b) require the window to start within the season,
+or (c) ignore the seasonal start check (end must still be within season).}
 
-\item{season_data_name}{Name of the season data frame (optional).}
+\item{season_data_name}{\code{character(1)} Name of the table containing
+\code{start_day}/\code{end_day}. Defaults to \code{data_name}.}
 
-\item{start_day}{Column name for the start day.}
+\item{start_day}{\code{character(1)} Column name of the season start day in the
+season data.}
 
-\item{end_day}{Column name for the end day.}
+\item{end_day}{\code{character(1)} Column name of the season end day in the
+season data.}
 
-\item{return_crops_table}{Boolean indicating whether to return the full crops table (default is TRUE).}
+\item{return_crops_table}{\code{logical(1)} If \code{TRUE}, imports the detailed
+row-level window table (\verb{crop_def*}).}
 
-\item{definition_props}{Boolean indicating whether to calculate properties (default is TRUE).}
+\item{definition_props}{\code{logical(1)} If \code{TRUE}, imports the aggregated
+proportions table (\verb{crop_prop*}).}
+
+\item{date}{\code{character(1)}  optional. Column name in \code{data_name} giving the date .}
 
 \item{data_book}{A \code{DataBook} object to use. If \code{NULL}, a new one is created. Default \code{NULL}.}
 }
 \value{
-TODO
+Invisibly returns \code{NULL}. The primary result is the imported tables and
+links created inside the DataBook.
 }
 \description{
-Define crop conditions and create a new crop definition data frame.
+Computes, for many candidate planting windows, whether a rainfall threshold
+was met within the window and within seasonal bounds, then imports two tables
+into the DataBook:
+\itemize{
+\item \strong{\verb{crop_def*}} (row-level windows with conditions and actual rainfall)
+\item \strong{\verb{crop_prop*}} (aggregated proportions of successful windows)
+Names are auto-incremented if they already exist (e.g., \code{crop_def2}).
+}
+}
+\details{
+For every combination of \code{plant_day} (start-of-window), \code{plant_length}
+(window length in days), and \code{rain_total} (required cumulative rainfall),
+the function:
+\enumerate{
+\item Slices the daily series for the given year (and optionally station)
+over \verb{[plant_day, plant_day + plant_length)}.
+\item Sums rainfall in that slice to \code{rain_total_actual}.
+\item Flags whether the window lies within the seasonal bounds:
+\code{start_day} <= \code{plant_day} and \code{plant_day + plant_length} <= \code{end_day}.
+\item Checks if \code{rain_total_actual} >= \code{rain_total}.
+\item Depending on \code{start_check}:
+\itemize{
+\item \code{"yes"}: requires start and end to be within season and threshold met.
+\item \code{"no"}: ignores seasonal start; requires end within season and threshold met.
+\item \code{"both"}: computes both variants and reports two proportions.
+}
+}
+
+NA handling.
+\itemize{
+\item If the window contains any NA and the (non-NA) sum would be \< \code{rain_total},
+the result for that row is set to \code{NA} (i.e., cannot confirm success).
+\item If the window is shorter than \code{plant_length} when counting available days,
+or all values are NA, the row is \code{NA}.
+}
+
+Side effects / links.
+\itemize{
+\item Imports \verb{crop_def*} and/or \verb{crop_prop*}
+\item Creates links between the new tables and (a) the season table (if different)
+and (b) between \verb{crop_def*} and \verb{crop_prop*} on the key grid
+(\code{rain_total}, \code{plant_length}, \code{plant_day}, and optionally \code{station}).
+}
 }
 \examples{
 #TODO
