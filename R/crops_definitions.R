@@ -1,177 +1,147 @@
 #' Crop Definitions
-#' @description Calculate the probabilities of crop success for given planting maturity lengths, seasonal total rainfall requirements, and planting dates. It is not required that the start of the rains occurs on or before the planting date.
+#' @description
+#' Computes, for many candidate planting windows, whether a rainfall threshold
+#' was met within the window and within seasonal bounds, then imports two tables
+#' into the DataBook:
+#' - **`crop_def*`** (row-level windows with conditions and actual rainfall)
+#' - **`crop_prop*`** (aggregated proportions of successful windows)
+#' Names are auto-incremented if they already exist (e.g., `crop_def2`).
 #'
-#' @param data The data.frame containing the rainfall data.
-#' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
-#' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
-#' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
-#' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
-#' @param doy \code{character(1)} The name of the day of year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
-#' @param water_requirements \code{numeric} Vector containing water requirements.
-#' @param planting_dates \code{numeric} Vector containing planting dates requirements.
-#' @param planting_length \code{numeric} Vector containing seasonal crop length requirements.
-#' @param start_check \code{logical} A logical value indicating whether to check the start day condition (default is `TRUE`).
-#' @param season_data The data frame containing the seasonal data.
-#' @param start_day \code{character(1)} The name of the column in the season_data data frame that represents the start day. This can be calculated prior to using this function by the `start_rains` function.
-#' @param end_day \code{character(1)} The name of the column in the season_data data frame that represents the end day. This should be calculated prior to using this function by the `end_rains` function.
-#' @param seasonal_length \code{character(1)} If `data` is `NULL` then you can read in the seasonal length amount from the `season_data` data frame.
-#' @param seasonal_rain \code{character(1)} If `data` is `NULL` then you can read in the seasonal rainfall amount from the `season_data` data frame.
+#' @param data_name `character(1)` Name of the daily data frame.
+#' @param year `character(1)` Column name in `data_name` giving the year.
+#' @param date `character(1)`  optional. Column name in `data_name` giving the date .
+#' @param station `character(1)` Optional. Column name giving the station ID.
+#'   If missing, results are computed by year only.
+#' @param rain `character(1)` Column name giving daily rainfall (numeric).
+#' @param doy `character(1)` Column name giving the doy.
+#' @param rain_totals The amount of water (rainfall) needed for the crop, usually between 250mm and 1000mm
+#' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 200, 1200, 50 produces 200, 250, 300, ..., 1200.
+#' @param plant_days The day number for planting. Starting from January, April 1st is day 92. Starting from July, November 1st is day 124.
+#' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 93, 183, 15 produces 93, 108, 123, …, 183.
+#' @param plant_lengths The crop duration in days. Often between 60 (2 months) and 150 (5 months).
+#' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 45, 180, 30 produces 45, 75, 105, ..., 180.
+#' @param start_check `c("both","yes","no")` Whether to (a) compute both start-checked
+#'   and no-start variants, (b) require the window to start within the season,
+#'   or (c) ignore the seasonal start check (end must still be within season).
+#' @param season_data_name `character(1)` Name of the table containing
+#'   `start_day`/`end_day`. Defaults to `data_name`.
+#' @param start_day `character(1)` Column name of the season start day in the
+#'   season data.
+#' @param end_day `character(1)` Column name of the season end day in the
+#'   season data.
+#' @param return_crops_table `logical(1)` If `TRUE`, imports the detailed
+#'   row-level window table (`crop_def*`).
+#' @param definition_props `logical(1)` If `TRUE`, imports the aggregated
+#'   proportions table (`crop_prop*`).
+#' @param data_book A \code{DataBook} object to use. If \code{NULL}, a new one is created. Default \code{NULL}.
 #'
-#' @return TODO
+#' @details
+#' For every combination of `plant_day` (start-of-window), `plant_length`
+#' (window length in days), and `rain_total` (required cumulative rainfall),
+#' the function:
+#'
+#' 1. Slices the daily series for the given year (and optionally station)
+#'    over `[plant_day, plant_day + plant_length)`.
+#' 2. Sums rainfall in that slice to `rain_total_actual`.
+#' 3. Flags whether the window lies within the seasonal bounds:
+#'    `start_day` <= `plant_day` and `plant_day + plant_length` <= `end_day`.
+#' 4. Checks if `rain_total_actual` >= `rain_total`.
+#' 5. Depending on `start_check`:
+#'    - `"yes"`: requires start and end to be within season and threshold met.
+#'    - `"no"`: ignores seasonal start; requires end within season and threshold met.
+#'    - `"both"`: computes both variants and reports two proportions.
+#'
+#' NA handling.
+#' - If the window contains any NA and the (non-NA) sum would be \< `rain_total`,
+#'   the result for that row is set to `NA` (i.e., cannot confirm success).
+#' - If the window is shorter than `plant_length` when counting available days,
+#'   or all values are NA, the row is `NA`.
+#'
+#' Side effects / links.
+#' - Imports `crop_def*` and/or `crop_prop*`
+#' - Creates links between the new tables and (a) the season table (if different)
+#'   and (b) between `crop_def*` and `crop_prop*` on the key grid
+#'   (`rain_total`, `plant_length`, `plant_day`, and optionally `station`).
+#' @return
+#' Invisibly returns `NULL`. The primary result is the imported tables and
+#' links created inside the DataBook.
+#'
 #' @export
 #'
 #' @examples #TODO
-crops_definitions <- function(data = NULL, date_time = NULL, station = NULL, rain = NULL, year = NULL, 
-              doy = NULL, water_requirements, planting_dates, planting_length, start_check = TRUE, 
-              season_data = NULL, start_day, end_day = NULL, seasonal_length = NULL,
-              seasonal_rain = NULL) {
-  planting_day_name <- "planting_day"
-  planting_length_name <- "planting_length"
-  water_requirements_name <- "water_requirements"
+crops_definitions <- function (data_name, year, station, rain, doy, rain_totals, 
+                               plant_days, plant_lengths, start_check = c("both", "yes","no"), 
+                               season_data_name, start_day, end_day, return_crops_table = TRUE, 
+                               definition_props = TRUE, date=NULL, data_book = NULL){
+    if (is.null(data_book)){
+      data_book = DataBook$new()
+    }
   
-  if (is.null(data)){
-    # if the data is NULL, then we just need three columns from the seson_data - start_day, seasonal_length, seasonal_rain
-    if (is.null(start_day)){ stop("If the data is NULL then start_day must be given")}
-    if (is.null(seasonal_length)){ stop("If the data is NULL then seasonal_length must be given")}
-    if (is.null(seasonal_rain)){ stop("If the data is NULL then seasonal_rain must be given")}
     
-    expand_list <- list()
-    names_list <- c()
-    expand_list[[length(expand_list) + 1]] <- water_requirements
-    names_list[length(names_list) + 1] <- water_requirements_name
-    expand_list[[length(expand_list) + 1]] <- planting_length
-    names_list[length(names_list) + 1] <- planting_length_name
-    expand_list[[length(expand_list) + 1]] <- planting_dates
-    names_list[length(names_list) + 1] <- planting_day_name
-    criteria_df <- stats::setNames(expand.grid(expand_list), names_list)
-    
-    # Function to calculate the success percentage
-    calculate_success_percentage <- function(season_data, criteria_df, start_check) {
-      is_station <- "station" %in% names(season_data)
-      
-      result_df <- data.frame()
-      
-      for (i in 1:nrow(criteria_df)) {
-        water_req <- criteria_df$water_requirements[i]
-        plant_len <- criteria_df$planting_length[i]
-        plant_day <- criteria_df$planting_day[i]
-        
-        station_results <- season_data
-        
-        if (start_check) {
-          station_results <- station_results %>%
-            dplyr::mutate(planting_day_cond = !!rlang::sym(start_day) <= plant_day)
-        }
-        
-        if (!"seasonal_rain" %in% names(station_results)) stop("Cannot calculate without raw data. Missing seasonal rain.")
-        
-        station_results <- station_results %>%
-          dplyr::mutate(length_cond = (plant_len) <= !!rlang::sym(seasonal_length) & !is.na(!!rlang::sym(seasonal_length))) %>%
-          dplyr::mutate(rain_cond = (water_req) <= !!rlang::sym(seasonal_rain) & !is.na(!!rlang::sym(seasonal_rain))) %>%
-          dplyr::mutate(overall_cond = ((if (start_check) planting_day_cond else TRUE) & length_cond & rain_cond))
-        
-        if (is_station) station_results <- station_results %>% dplyr::group_by(station)
-        
-        station_results <- station_results %>%
-          dplyr::summarise(prop_success = sum(overall_cond, na.rm = TRUE) / dplyr::n()) %>%
-          dplyr::mutate(rain_total = water_req, plant_day = plant_day, plant_length = plant_len)
-        
-        result_df <- dplyr::bind_rows(result_df, station_results)
-      }
-      if (is_station){
-        result_df <- result_df %>% dplyr::select(c(station, rain_total, plant_day, plant_length, prop_success = prop_success))
-      } else {
-        result_df <- result_df %>% dplyr::select(c(rain_total = water_requirements, plant_day = planting_day, plant_length = planting_length, prop_success = prop_success))
-      }
-      return(result_df)
-    }
-    
-    # Execute the function
-    result_df <- calculate_success_percentage(season_data, criteria_df, start_check = start_check)
-    # Display the result
-  } else {
-    is_station <- !is.null(station)
-    checkmate::assert_data_frame(data)
-    checkmate::assert_data_frame(season_data)
-    assert_column_names(season_data, start_day)
-    assert_column_names(season_data, end_day)
-    checkmate::assert_character(rain)
-    checkmate::assert_string(station, null.ok = TRUE)
+  
+    # Running checks
+    checkmate::assert_string(data_name)
+    checkmate::assert_string(rain)
     checkmate::assert_string(year, null.ok = TRUE)
+    checkmate::assert_string(date, null.ok = TRUE)
+    checkmate::assert_string(station)
     checkmate::assert_string(doy, null.ok = TRUE)
-    checkmate::assert_logical(start_check, null.ok = TRUE)
-    assert_column_names(data, rain)
-    checkmate::assert(checkmate::check_date(data[[date_time]], 
-                                            null.ok = TRUE), checkmate::check_posixct(data[[date_time]], 
-                                                                                      null.ok = TRUE))
+    checkmate::assert_numeric(rain_totals)
+    checkmate::assert_numeric(plant_days)
+    checkmate::assert_numeric(plant_lengths)
+  
+    checkmate::assert_string(season_data_name)
+    checkmate::assert_string(start_day)
+    checkmate::assert_string(end_day)
+  
+    data_frame <- data_book$get_data_frame(data_name)
+    if (!is.null(date)) assert_column_names(data_frame, date)
+    if (!is.null(year)) assert_column_names(data_frame, year)
+    if (!is.null(doy)) assert_column_names(data_frame, doy)
+    assert_column_names(data_frame, rain)
+    assert_column_names(data_frame, station)
+    assert_column_names(data_frame, rain_totals)
+    assert_column_names(data_frame, plant_days)
+    assert_column_names(data_frame, plant_lengths)
+
+    
+    data_frame <- data_book$get_data_frame(season_data_name)
+    assert_column_names(data_frame, start_day)
+    assert_column_names(data_frame, end_day)
+
+    checkmate::assert_logical(return_crops_table)
+    checkmate::assert_logical(definition_props)
+
+    assert_column_names(data_frame, start_day)
+    assert_column_names(data_frame, end_day)
+    
+    checkmate::assert_logical(return_crops_table)
+    checkmate::assert_logical(definition_props)
+  
+    # calculate doy, year from date
     if (is.null(year)) {
-      year <- "year"
-      data[[year]] <- lubridate::year(data[[date_time]])
+        data_book$split_date(data_name = data_name, col_name = date, year_val = TRUE, s_start_month = 1)
+        year <- "year"
     }
-    if (is.null(doy)) {
-      doy <- "doy"
-      data[[doy]] <- yday_366(data[[date_time]])
+    
+    if (is.null(doy)){
+        data_book$split_date(data_name = data_name, col_name = date, day_in_year_366 =TRUE, s_start_month = 1)
+        doy <- "doy"
     }
-    if (is.null(season_data))
-      season_data <- data
-    expand_list <- list()
-    names_list <- c()
-    if (is_station) {
-      unique_station <- stats::na.omit(unique(data[[station]]))
-      expand_list[[length(expand_list) + 1]] <- unique_station
-      names_list[length(names_list) + 1] <- station
-    }
-    expand_list[[length(expand_list) + 1]] <- water_requirements
-    names_list[length(names_list) + 1] <- water_requirements_name
-    expand_list[[length(expand_list) + 1]] <- planting_length
-    names_list[length(names_list) + 1] <- planting_length_name
-    expand_list[[length(expand_list) + 1]] <- planting_dates
-    names_list[length(names_list) + 1] <- planting_day_name
-    expand_list[[length(expand_list) + 1]] <- unique(data[[year]])
-    names_list[length(names_list) + 1] <- year
-    df <- stats::setNames(expand.grid(expand_list), names_list)
-    if (!is_station) {
-      season_data <- season_data %>% dplyr::select(c(.data[[year]], .data[[station]], start_day, end_day))
-    } else {
-      season_data <- season_data %>% dplyr::select(c(.data[[year]], start_day, end_day))
-    }
-    season_data <- stats::na.omit(season_data)
-    df <- dplyr::full_join(df, season_data)
-    #df <- df %>% dplyr::filter(stats::complete.cases(df))
-    if (lubridate::is.Date(df[[start_day]])) 
-      df[[start_day]] <- yday_366(df[[start_day]])
-    if (lubridate::is.Date(df[[end_day]])) 
-      df[[end_day]] <- yday_366(df[[end_day]])
-    if (start_check) {
-      df$planting_day_cond <- (df[[start_day]] <= df[[planting_day_name]])
-    }
-    df$length_cond <- (df[[planting_day_name]] + df[[planting_length_name]] <= 
-                         df[[end_day]])
-    df[["water_requirements_actual"]] <- sapply(1:nrow(df), function(x) {
-      ind <- data[[year]] == df[[year]][x] & data[[doy]] >= 
-        df[[planting_day_name]][x] & data[[doy]] < (df[[planting_day_name]][x] + 
-                                                      df[[planting_length_name]][x])
-      if (is_station) 
-        ind <- ind & (data[[station]] == df[[station]][x])
-      rain_values <- data[[rain]][ind]
-      sum_rain <- sum(rain_values, na.rm = TRUE)
-      if (length(rain_values) + 1 < df[[planting_length_name]][x] || 
-          (anyNA(rain_values) && sum_rain < df[[water_requirements_name]][x])) 
-        sum_rain <- NA
-      sum_rain
-    })
-    df$rain_cond <- df[[water_requirements_name]] <= df[["water_requirements_actual"]]
-    df$overall_cond <- ((if (start_check) 
-      df$planting_day_cond
-      else TRUE) & df$length_cond & df$rain_cond)
-    if (is_station) 
-      df <- df %>% dplyr::group_by(.data[[station]])
-    df <- df %>% dplyr::group_by(.data[[water_requirements_name]], .data[[planting_day_name]], 
-                                 .data[[planting_length_name]], .add = TRUE)
-    df <- df %>% dplyr::summarise(prop_success = sum(overall_cond, 
-                                                     na.rm = TRUE)/length(stats::na.omit(overall_cond)))
-    df$prop_success <- round(df$prop_success, 2)
-    df <- df %>% dplyr::select(c(station, rain_total = water_requirements, plant_day = planting_day, plant_length = planting_length, prop_success = prop_success))
-    return(df)
-  }
+    
+    return(data_book$crops_definitions(
+        data_name = data_name, 
+        year = year, 
+        station = station, 
+        rain = rain, 
+        day = doy, 
+        rain_totals = rain_totals, 
+        plant_days = plant_days, 
+        plant_lengths = plant_lengths, 
+        start_check  = start_check, 
+        season_data_name = season_data_name, 
+        start_day = start_day, end_day = end_day, 
+        return_crops_table  = return_crops_table, 
+        definition_props  = definition_props))
+         
 }

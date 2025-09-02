@@ -5,59 +5,116 @@
 \title{Crop Definitions}
 \usage{
 crops_definitions(
-  data = NULL,
-  date_time = NULL,
-  station = NULL,
-  rain = NULL,
-  year = NULL,
-  doy = NULL,
-  water_requirements,
-  planting_dates,
-  planting_length,
-  start_check = TRUE,
-  season_data = NULL,
+  data_name,
+  year,
+  station,
+  rain,
+  doy,
+  rain_totals,
+  plant_days,
+  plant_lengths,
+  start_check = c("both", "yes", "no"),
+  season_data_name,
   start_day,
-  end_day = NULL,
-  seasonal_length = NULL,
-  seasonal_rain = NULL
+  end_day,
+  return_crops_table = TRUE,
+  definition_props = TRUE,
+  date = NULL,
+  data_book = NULL
 )
 }
 \arguments{
-\item{data}{The data.frame containing the rainfall data.}
+\item{data_name}{\code{character(1)} Name of the daily data frame.}
 
-\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
+\item{year}{\code{character(1)} Column name in \code{data_name} giving the year.}
 
-\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
+\item{station}{\code{character(1)} Optional. Column name giving the station ID.
+If missing, results are computed by year only.}
 
-\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
+\item{rain}{\code{character(1)} Column name giving daily rainfall (numeric).}
 
-\item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+\item{doy}{\code{character(1)} Column name giving the doy.}
 
-\item{doy}{\code{character(1)} The name of the day of year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+\item{rain_totals}{The amount of water (rainfall) needed for the crop, usually between 250mm and 1000mm
+Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 200, 1200, 50 produces 200, 250, 300, ..., 1200.}
 
-\item{water_requirements}{\code{numeric} Vector containing water requirements.}
+\item{plant_days}{The day number for planting. Starting from January, April 1st is day 92. Starting from July, November 1st is day 124.
+Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 93, 183, 15 produces 93, 108, 123, …, 183.}
 
-\item{planting_dates}{\code{numeric} Vector containing planting dates requirements.}
+\item{plant_lengths}{The crop duration in days. Often between 60 (2 months) and 150 (5 months).
+Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 45, 180, 30 produces 45, 75, 105, ..., 180.}
 
-\item{planting_length}{\code{numeric} Vector containing seasonal crop length requirements.}
+\item{start_check}{\code{c("both","yes","no")} Whether to (a) compute both start-checked
+and no-start variants, (b) require the window to start within the season,
+or (c) ignore the seasonal start check (end must still be within season).}
 
-\item{start_check}{\code{logical} A logical value indicating whether to check the start day condition (default is \code{TRUE}).}
+\item{season_data_name}{\code{character(1)} Name of the table containing
+\code{start_day}/\code{end_day}. Defaults to \code{data_name}.}
 
-\item{season_data}{The data frame containing the seasonal data.}
+\item{start_day}{\code{character(1)} Column name of the season start day in the
+season data.}
 
-\item{start_day}{\code{character(1)} The name of the column in the season_data data frame that represents the start day. This can be calculated prior to using this function by the \code{start_rains} function.}
+\item{end_day}{\code{character(1)} Column name of the season end day in the
+season data.}
 
-\item{end_day}{\code{character(1)} The name of the column in the season_data data frame that represents the end day. This should be calculated prior to using this function by the \code{end_rains} function.}
+\item{return_crops_table}{\code{logical(1)} If \code{TRUE}, imports the detailed
+row-level window table (\verb{crop_def*}).}
 
-\item{seasonal_length}{\code{character(1)} If \code{data} is \code{NULL} then you can read in the seasonal length amount from the \code{season_data} data frame.}
+\item{definition_props}{\code{logical(1)} If \code{TRUE}, imports the aggregated
+proportions table (\verb{crop_prop*}).}
 
-\item{seasonal_rain}{\code{character(1)} If \code{data} is \code{NULL} then you can read in the seasonal rainfall amount from the \code{season_data} data frame.}
+\item{date}{\code{character(1)}  optional. Column name in \code{data_name} giving the date .}
+
+\item{data_book}{A \code{DataBook} object to use. If \code{NULL}, a new one is created. Default \code{NULL}.}
 }
 \value{
-TODO
+Invisibly returns \code{NULL}. The primary result is the imported tables and
+links created inside the DataBook.
 }
 \description{
-Calculate the probabilities of crop success for given planting maturity lengths, seasonal total rainfall requirements, and planting dates. It is not required that the start of the rains occurs on or before the planting date.
+Computes, for many candidate planting windows, whether a rainfall threshold
+was met within the window and within seasonal bounds, then imports two tables
+into the DataBook:
+\itemize{
+\item \strong{\verb{crop_def*}} (row-level windows with conditions and actual rainfall)
+\item \strong{\verb{crop_prop*}} (aggregated proportions of successful windows)
+Names are auto-incremented if they already exist (e.g., \code{crop_def2}).
+}
+}
+\details{
+For every combination of \code{plant_day} (start-of-window), \code{plant_length}
+(window length in days), and \code{rain_total} (required cumulative rainfall),
+the function:
+\enumerate{
+\item Slices the daily series for the given year (and optionally station)
+over \verb{[plant_day, plant_day + plant_length)}.
+\item Sums rainfall in that slice to \code{rain_total_actual}.
+\item Flags whether the window lies within the seasonal bounds:
+\code{start_day} <= \code{plant_day} and \code{plant_day + plant_length} <= \code{end_day}.
+\item Checks if \code{rain_total_actual} >= \code{rain_total}.
+\item Depending on \code{start_check}:
+\itemize{
+\item \code{"yes"}: requires start and end to be within season and threshold met.
+\item \code{"no"}: ignores seasonal start; requires end within season and threshold met.
+\item \code{"both"}: computes both variants and reports two proportions.
+}
+}
+
+NA handling.
+\itemize{
+\item If the window contains any NA and the (non-NA) sum would be \< \code{rain_total},
+the result for that row is set to \code{NA} (i.e., cannot confirm success).
+\item If the window is shorter than \code{plant_length} when counting available days,
+or all values are NA, the row is \code{NA}.
+}
+
+Side effects / links.
+\itemize{
+\item Imports \verb{crop_def*} and/or \verb{crop_prop*}
+\item Creates links between the new tables and (a) the season table (if different)
+and (b) between \verb{crop_def*} and \verb{crop_prop*} on the key grid
+(\code{rain_total}, \code{plant_length}, \code{plant_day}, and optionally \code{station}).
+}
 }
 \examples{
 #TODO
