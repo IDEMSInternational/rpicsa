@@ -5,59 +5,59 @@
 \title{Crop Definitions}
 \usage{
 crops_definitions(
-  data = NULL,
-  date_time = NULL,
-  station = NULL,
-  rain = NULL,
-  year = NULL,
-  doy = NULL,
-  water_requirements,
-  planting_dates,
-  planting_length,
-  start_check = TRUE,
-  season_data = NULL,
+  data_name,
+  year,
+  station,
+  rain,
+  day,
+  rain_totals,
+  plant_days,
+  plant_lengths,
+  start_check = c("both", "yes", "no"),
+  season_data_name,
   start_day,
-  end_day = NULL,
-  seasonal_length = NULL,
-  seasonal_rain = NULL
+  end_day,
+  return_crops_table = TRUE,
+  definition_props = TRUE,
+  data_book = NULL
 )
 }
 \arguments{
-\item{data}{The data.frame containing the rainfall data.}
+\item{data_name}{Name of the data frame containing the data.}
 
-\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
+\item{year}{Name of the column representing the year.}
 
-\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
+\item{station}{Name of the column for the station (optional).}
 
-\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
+\item{rain}{Name of the column containing rainfall data.}
 
-\item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+\item{day}{Name of the column containing day data.}
 
-\item{doy}{\code{character(1)} The name of the day of year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+\item{rain_totals}{Column name for rain totals.}
 
-\item{water_requirements}{\code{numeric} Vector containing water requirements.}
+\item{plant_days}{Column name for planting days.}
 
-\item{planting_dates}{\code{numeric} Vector containing planting dates requirements.}
+\item{plant_lengths}{Column name for planting lengths.}
 
-\item{planting_length}{\code{numeric} Vector containing seasonal crop length requirements.}
+\item{start_check}{Boolean indicating whether to check start day (default is TRUE).}
 
-\item{start_check}{\code{logical} A logical value indicating whether to check the start day condition (default is \code{TRUE}).}
+\item{season_data_name}{Name of the season data frame (optional).}
 
-\item{season_data}{The data frame containing the seasonal data.}
+\item{start_day}{Column name for the start day.}
 
-\item{start_day}{\code{character(1)} The name of the column in the season_data data frame that represents the start day. This can be calculated prior to using this function by the \code{start_rains} function.}
+\item{end_day}{Column name for the end day.}
 
-\item{end_day}{\code{character(1)} The name of the column in the season_data data frame that represents the end day. This should be calculated prior to using this function by the \code{end_rains} function.}
+\item{return_crops_table}{Boolean indicating whether to return the full crops table (default is TRUE).}
 
-\item{seasonal_length}{\code{character(1)} If \code{data} is \code{NULL} then you can read in the seasonal length amount from the \code{season_data} data frame.}
+\item{definition_props}{Boolean indicating whether to calculate properties (default is TRUE).}
 
-\item{seasonal_rain}{\code{character(1)} If \code{data} is \code{NULL} then you can read in the seasonal rainfall amount from the \code{season_data} data frame.}
+\item{data_book}{A \code{DataBook} object to use. If \code{NULL}, a new one is created. Default \code{NULL}.}
 }
 \value{
 TODO
 }
 \description{
-Calculate the probabilities of crop success for given planting maturity lengths, seasonal total rainfall requirements, and planting dates. It is not required that the start of the rains occurs on or before the planting date.
+Define crop conditions and create a new crop definition data frame.
 }
 \examples{
 #TODO
