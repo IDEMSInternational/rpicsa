@@ -5,7 +5,7 @@
 #' @param year Name of the column representing the year.
 #' @param station Name of the column for the station (optional).
 #' @param rain Name of the column containing rainfall data.
-#' @param day Name of the column containing day data.
+#' @param doy Name of the column containing day data.
 #' @param rain_totals Column name for rain totals.
 #' @param plant_days Column name for planting days.
 #' @param plant_lengths Column name for planting lengths.
@@ -20,7 +20,7 @@
 #' @export
 #'
 #' @examples #TODO
-crops_definitions <- function (data_name, year, station, rain, day, rain_totals, 
+crops_definitions <- function (data_name, year, station, rain, doy, rain_totals, 
                                plant_days, plant_lengths, start_check = c("both", "yes","no"), 
                                season_data_name, start_day, end_day, return_crops_table = TRUE, 
                                definition_props = TRUE, data_book = NULL){
@@ -31,9 +31,9 @@ crops_definitions <- function (data_name, year, station, rain, day, rain_totals,
     # Running checks
     checkmate::assert_string(data_name)
     checkmate::assert_string(rain)
-    checkmate::assert_string(year)
+    checkmate::assert_string(year, null.ok = TRUE)
     checkmate::assert_string(station)
-    checkmate::assert_string(day)
+    checkmate::assert_string(doy, null.ok = TRUE)
     checkmate::assert_numeric(rain_totals)
     checkmate::assert_numeric(plant_days)
     checkmate::assert_numeric(plant_lengths)
@@ -64,6 +64,6 @@ crops_definitions <- function (data_name, year, station, rain, day, rain_totals,
     checkmate::assert_logical(return_crops_table)
     checkmate::assert_logical(definition_props)
   
-    return(data_book$crops_definitions(data_name = data_name, year = year, station = station, rain = rain, day = day, rain_totals = rain_totals, plant_days = plant_days, plant_lengths = plant_lengths, start_check  = start_check, season_data_name = season_data_name, start_day = start_day, end_day = end_day, return_crops_table  = return_crops_table, definition_props  = definition_props))
+    return(data_book$crops_definitions(data_name = data_name, year = year, station = station, rain = rain, day = doy, rain_totals = rain_totals, plant_days = plant_days, plant_lengths = plant_lengths, start_check  = start_check, season_data_name = season_data_name, start_day = start_day, end_day = end_day, return_crops_table  = return_crops_table, definition_props  = definition_props))
          
 }
