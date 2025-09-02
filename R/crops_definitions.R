@@ -1,22 +1,70 @@
 #' Crop Definitions
 #' @description
-#' Define crop conditions and create a new crop definition data frame.
-#' @param data_name Name of the data frame containing the data.
-#' @param year Name of the column representing the year.
-#' @param station Name of the column for the station (optional).
-#' @param rain Name of the column containing rainfall data.
-#' @param doy Name of the column containing day data.
-#' @param rain_totals Column name for rain totals.
-#' @param plant_days Column name for planting days.
-#' @param plant_lengths Column name for planting lengths.
-#' @param start_check Boolean indicating whether to check start day (default is TRUE).
-#' @param season_data_name Name of the season data frame (optional).
-#' @param start_day Column name for the start day.
-#' @param end_day Column name for the end day.
-#' @param return_crops_table Boolean indicating whether to return the full crops table (default is TRUE).
-#' @param definition_props Boolean indicating whether to calculate properties (default is TRUE).
+#' Computes, for many candidate planting windows, whether a rainfall threshold
+#' was met within the window and within seasonal bounds, then imports two tables
+#' into the DataBook:
+#' - **`crop_def*`** (row-level windows with conditions and actual rainfall)
+#' - **`crop_prop*`** (aggregated proportions of successful windows)
+#' Names are auto-incremented if they already exist (e.g., `crop_def2`).
+#'
+#' @param data_name `character(1)` Name of the daily data frame.
+#' @param year `character(1)` Column name in `data_name` giving the year.
+#' @param station `character(1)` Optional. Column name giving the station ID.
+#'   If missing, results are computed by year only.
+#' @param rain `character(1)` Column name giving daily rainfall (numeric).
+#' @param doy `character(1)` Column name giving the doy.
+#' @param rain_totals The amount of water (rainfall) needed for the crop, usually between 250mm and 1000mm
+#' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 200, 1200, 50 produces 200, 250, 300, ..., 1200.
+#' @param plant_days The day number for planting. Starting from January, April 1st is day 92. Starting from July, November 1st is day 124.
+#' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 93, 183, 15 produces 93, 108, 123, …, 183.
+#' @param plant_lengths The crop duration in days. Often between 60 (2 months) and 150 (5 months).
+#' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 45, 180, 30 produces 45, 75, 105, ..., 180.
+#' @param start_check `c("both","yes","no")` Whether to (a) compute both start-checked
+#'   and no-start variants, (b) require the window to start within the season,
+#'   or (c) ignore the seasonal start check (end must still be within season).
+#' @param season_data_name `character(1)` Name of the table containing
+#'   `start_day`/`end_day`. Defaults to `data_name`.
+#' @param start_day `character(1)` Column name of the season start day in the
+#'   season data.
+#' @param end_day `character(1)` Column name of the season end day in the
+#'   season data.
+#' @param return_crops_table `logical(1)` If `TRUE`, imports the detailed
+#'   row-level window table (`crop_def*`).
+#' @param definition_props `logical(1)` If `TRUE`, imports the aggregated
+#'   proportions table (`crop_prop*`).
 #' @param data_book A \code{DataBook} object to use. If \code{NULL}, a new one is created. Default \code{NULL}.
-#' @return TODO
+#'
+#' @details
+#' For every combination of `plant_day` (start-of-window), `plant_length`
+#' (window length in days), and `rain_total` (required cumulative rainfall),
+#' the function:
+#'
+#' 1. Slices the daily series for the given year (and optionally station)
+#'    over `[plant_day, plant_day + plant_length)`.
+#' 2. Sums rainfall in that slice to `rain_total_actual`.
+#' 3. Flags whether the window lies within the seasonal bounds:
+#'    `start_day` <= `plant_day` and `plant_day + plant_length` <= `end_day`.
+#' 4. Checks if `rain_total_actual` >= `rain_total`.
+#' 5. Depending on `start_check`:
+#'    - `"yes"`: requires start and end to be within season and threshold met.
+#'    - `"no"`: ignores seasonal start; requires end within season and threshold met.
+#'    - `"both"`: computes both variants and reports two proportions.
+#'
+#' NA handling.
+#' - If the window contains any NA and the (non-NA) sum would be \< `rain_total`,
+#'   the result for that row is set to `NA` (i.e., cannot confirm success).
+#' - If the window is shorter than `plant_length` when counting available days,
+#'   or all values are NA, the row is `NA`.
+#'
+#' Side effects / links.
+#' - Imports `crop_def*` and/or `crop_prop*`
+#' - Creates links between the new tables and (a) the season table (if different)
+#'   and (b) between `crop_def*` and `crop_prop*` on the key grid
+#'   (`rain_total`, `plant_length`, `plant_day`, and optionally `station`).
+#' @return
+#' Invisibly returns `NULL`. The primary result is the imported tables and
+#' links created inside the DataBook.
+#'
 #' @export
 #'
 #' @examples #TODO
