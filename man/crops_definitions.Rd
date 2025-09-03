@@ -6,20 +6,20 @@
 \usage{
 crops_definitions(
   data_name,
-  year,
-  station,
+  year = NULL,
+  station = NULL,
+  date = NULL,
+  doy = NULL,
   rain,
-  doy,
   rain_totals,
   plant_days,
   plant_lengths,
   start_check = c("both", "yes", "no"),
-  season_data_name,
+  season_data_name = NULL,
   start_day,
   end_day,
   return_crops_table = TRUE,
   definition_props = TRUE,
-  date = NULL,
   data_book = NULL
 )
 }
@@ -31,9 +31,11 @@ crops_definitions(
 \item{station}{\code{character(1)} Optional. Column name giving the station ID.
 If missing, results are computed by year only.}
 
-\item{rain}{\code{character(1)} Column name giving daily rainfall (numeric).}
+\item{date}{\code{character(1)}  optional. Column name in \code{data_name} giving the date .}
 
 \item{doy}{\code{character(1)} Column name giving the doy.}
+
+\item{rain}{\code{character(1)} Column name giving daily rainfall (numeric).}
 
 \item{rain_totals}{The amount of water (rainfall) needed for the crop, usually between 250mm and 1000mm
 Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 200, 1200, 50 produces 200, 250, 300, ..., 1200.}
@@ -63,8 +65,6 @@ row-level window table (\verb{crop_def*}).}
 \item{definition_props}{\code{logical(1)} If \code{TRUE}, imports the aggregated
 proportions table (\verb{crop_prop*}).}
 
-\item{date}{\code{character(1)}  optional. Column name in \code{data_name} giving the date .}
-
 \item{data_book}{A \code{DataBook} object to use. If \code{NULL}, a new one is created. Default \code{NULL}.}
 }
 \value{
@@ -76,8 +76,8 @@ Computes, for many candidate planting windows, whether a rainfall threshold
 was met within the window and within seasonal bounds, then imports two tables
 into the DataBook:
 \itemize{
-\item \strong{\verb{crop_def*}} (row-level windows with conditions and actual rainfall)
-\item \strong{\verb{crop_prop*}} (aggregated proportions of successful windows)
+\item \verb{crop_def*} (row-level windows with conditions and actual rainfall)
+\item \verb{crop_prop*} (aggregated proportions of successful windows)
 Names are auto-incremented if they already exist (e.g., \code{crop_def2}).
 }
 }
@@ -117,5 +117,46 @@ and (b) between \verb{crop_def*} and \verb{crop_prop*} on the key grid
 }
 }
 \examples{
-#TODO
+# Example: compute start/end (DOY) then crop probabilities for Agades (1946–1950 subset)
+library(databook)
+data_book <- DataBook$new()
+daily_data <- rpicsa::daily_niger |>
+  dplyr::filter(year > 1945, year <= 1950, station_name == "Agades") |>
+  dplyr::mutate(year = as.numeric(year))
+data_book$import_data(list(daily_data = daily_data))
+
+start_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  total_rainfall_over_days = 3,
+  output = "doy", data_book = data_book
+)
+
+end_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  output = "doy", data_book = data_book
+)
+
+crops_definitions(data_name = "daily_data",
+                  year = "year",
+                  station = "station_name",
+                  doy = "doy",
+                  rain = "rain",
+                  rain_totals = c(0, 50),
+                  plant_days = c(200, 215, 230),
+                  plant_lengths = c(15, 30, 45),
+                  start_check = "both",
+                  season_data_name = "daily_data_by_station_name_year",
+                  start_day = "start_rain",
+                  end_day = "end_rains",
+                  return_crops_table = TRUE, 
+                  definition_props = TRUE,
+                  data_book = data_book)
+
+# View the crop definitions data 
+head(data_book$get_data_frame("crop_def"))
+
+# View the crop probability summaries
+data_book$get_data_frame("crop_prop")
 }

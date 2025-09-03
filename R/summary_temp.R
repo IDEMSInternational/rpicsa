@@ -20,7 +20,6 @@
 #' @return A data.frame with mean summaries for each year or year and month for the minimum daily temperature and/or the maximum daily temperature.
 #' @export
 #'
-
 summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
                                 month = NULL, station = NULL, to = c("annual", "monthly"),
                                 summaries = c("mean", "min", "max"), na_rm = FALSE,

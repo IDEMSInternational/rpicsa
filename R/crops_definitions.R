@@ -3,8 +3,8 @@
 #' Computes, for many candidate planting windows, whether a rainfall threshold
 #' was met within the window and within seasonal bounds, then imports two tables
 #' into the DataBook:
-#' - **`crop_def*`** (row-level windows with conditions and actual rainfall)
-#' - **`crop_prop*`** (aggregated proportions of successful windows)
+#' - `crop_def*` (row-level windows with conditions and actual rainfall)
+#' - `crop_prop*` (aggregated proportions of successful windows)
 #' Names are auto-incremented if they already exist (e.g., `crop_def2`).
 #'
 #' @param data_name `character(1)` Name of the daily data frame.
@@ -68,80 +68,114 @@
 #'
 #' @export
 #'
-#' @examples #TODO
-crops_definitions <- function (data_name, year, station, rain, doy, rain_totals, 
-                               plant_days, plant_lengths, start_check = c("both", "yes","no"), 
-                               season_data_name, start_day, end_day, return_crops_table = TRUE, 
-                               definition_props = TRUE, date=NULL, data_book = NULL){
-    if (is.null(data_book)){
-      data_book = DataBook$new()
-    }
-  
-    
-  
-    # Running checks
-    checkmate::assert_string(data_name)
-    checkmate::assert_string(rain)
-    checkmate::assert_string(year, null.ok = TRUE)
-    checkmate::assert_string(date, null.ok = TRUE)
-    checkmate::assert_string(station)
-    checkmate::assert_string(doy, null.ok = TRUE)
-    checkmate::assert_numeric(rain_totals)
-    checkmate::assert_numeric(plant_days)
-    checkmate::assert_numeric(plant_lengths)
-  
-    checkmate::assert_string(season_data_name)
-    checkmate::assert_string(start_day)
-    checkmate::assert_string(end_day)
-  
-    data_frame <- data_book$get_data_frame(data_name)
-    if (!is.null(date)) assert_column_names(data_frame, date)
-    if (!is.null(year)) assert_column_names(data_frame, year)
-    if (!is.null(doy)) assert_column_names(data_frame, doy)
-    assert_column_names(data_frame, rain)
-    assert_column_names(data_frame, station)
-    assert_column_names(data_frame, rain_totals)
-    assert_column_names(data_frame, plant_days)
-    assert_column_names(data_frame, plant_lengths)
+#' @examples 
+#' # Example: compute start/end (DOY) then crop probabilities for Agades (1946–1950 subset)
+#' library(databook)
+#' data_book <- DataBook$new()
+#' daily_data <- rpicsa::daily_niger |>
+#'   dplyr::filter(year > 1945, year <= 1950, station_name == "Agades") |>
+#'   dplyr::mutate(year = as.numeric(year))
+#' data_book$import_data(list(daily_data = daily_data))
+#' 
+#' start_rains(
+#'   data = "daily_data", date_time = "date", station = "station_name",
+#'   year = "year", rain = "rain", start_day = 121, end_day = 300,
+#'   total_rainfall_over_days = 3,
+#'   output = "doy", data_book = data_book
+#' )
+#' 
+#' end_rains(
+#'   data = "daily_data", date_time = "date", station = "station_name",
+#'   year = "year", rain = "rain", start_day = 121, end_day = 300,
+#'   output = "doy", data_book = data_book
+#' )
+#' 
+#' crops_definitions(data_name = "daily_data",
+#'                   year = "year",
+#'                   station = "station_name",
+#'                   doy = "doy",
+#'                   rain = "rain",
+#'                   rain_totals = c(0, 50),
+#'                   plant_days = c(200, 215, 230),
+#'                   plant_lengths = c(15, 30, 45),
+#'                   start_check = "both",
+#'                   season_data_name = "daily_data_by_station_name_year",
+#'                   start_day = "start_rain",
+#'                   end_day = "end_rains",
+#'                   return_crops_table = TRUE, 
+#'                   definition_props = TRUE,
+#'                   data_book = data_book)
+#'
+#' # View the crop definitions data 
+#' head(data_book$get_data_frame("crop_def"))
+#' 
+#' # View the crop probability summaries
+#' data_book$get_data_frame("crop_prop")
 
-    
+crops_definitions <- function(data_name, year = NULL, station = NULL, date = NULL,
+                              doy = NULL, rain, rain_totals, plant_days, plant_lengths,
+                              start_check = c("both", "yes","no"), 
+                              season_data_name = NULL, start_day, end_day,
+                              return_crops_table = TRUE, 
+                              definition_props = TRUE, data_book = NULL){
+  if (is.null(data_book)){
+    data_book = DataBook$new()
+  }
+  
+  # Running checks for data
+  checkmate::assert_string(data_name)
+  checkmate::assert_string(rain)
+  checkmate::assert_string(year, null.ok = TRUE)
+  checkmate::assert_string(date, null.ok = TRUE)
+  checkmate::assert_string(station, null.ok = TRUE)
+  checkmate::assert_string(doy, null.ok = TRUE)
+  checkmate::assert_numeric(rain_totals)
+  checkmate::assert_numeric(plant_days)
+  checkmate::assert_numeric(plant_lengths)
+  
+  data_frame <- data_book$get_data_frame(data_name)
+  if (!is.null(date)) assert_column_names(data_frame, date)
+  if (!is.null(year)) assert_column_names(data_frame, year)
+  if (!is.null(doy)) assert_column_names(data_frame, doy)
+  if (!is.null(station)) assert_column_names(data_frame, station)
+  assert_column_names(data_frame, rain)
+
+  # Running checks for other data
+  checkmate::assert_string(season_data_name, null.ok = TRUE)
+  checkmate::assert_string(start_day)
+  checkmate::assert_string(end_day)
+  if (!is.null(season_data_name)){
     data_frame <- data_book$get_data_frame(season_data_name)
     assert_column_names(data_frame, start_day)
-    assert_column_names(data_frame, end_day)
-
-    checkmate::assert_logical(return_crops_table)
-    checkmate::assert_logical(definition_props)
-
-    assert_column_names(data_frame, start_day)
-    assert_column_names(data_frame, end_day)
-    
-    checkmate::assert_logical(return_crops_table)
-    checkmate::assert_logical(definition_props)
+    assert_column_names(data_frame, end_day)      
+  }
+  checkmate::assert_logical(return_crops_table)
+  checkmate::assert_logical(definition_props)
   
-    # calculate doy, year from date
-    if (is.null(year)) {
-        data_book$split_date(data_name = data_name, col_name = date, year_val = TRUE, s_start_month = 1)
-        year <- "year"
-    }
-    
-    if (is.null(doy)){
-        data_book$split_date(data_name = data_name, col_name = date, day_in_year_366 =TRUE, s_start_month = 1)
-        doy <- "doy"
-    }
-    
-    return(data_book$crops_definitions(
-        data_name = data_name, 
-        year = year, 
-        station = station, 
-        rain = rain, 
-        day = doy, 
-        rain_totals = rain_totals, 
-        plant_days = plant_days, 
-        plant_lengths = plant_lengths, 
-        start_check  = start_check, 
-        season_data_name = season_data_name, 
-        start_day = start_day, end_day = end_day, 
-        return_crops_table  = return_crops_table, 
-        definition_props  = definition_props))
-         
+  # calculate doy, year from date
+  if (is.null(year)) {
+    data_book$split_date(data_name = data_name, col_name = date, year_val = TRUE, s_start_month = 1)
+    year <- "year"
+  }
+  
+  if (is.null(doy)){
+    data_book$split_date(data_name = data_name, col_name = date, day_in_year_366 =TRUE, s_start_month = 1)
+    doy <- "doy"
+  }
+  
+  return(data_book$crops_definitions(
+    data_name = data_name, 
+    year = year, 
+    station = station, 
+    rain = rain, 
+    day = doy, 
+    rain_totals = rain_totals, 
+    plant_days = plant_days, 
+    plant_lengths = plant_lengths, 
+    start_check  = start_check, 
+    season_data_name = season_data_name, 
+    start_day = start_day, end_day = end_day, 
+    return_crops_table  = return_crops_table, 
+    definition_props  = definition_props)
+  )
 }
