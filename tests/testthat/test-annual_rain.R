@@ -8,11 +8,11 @@ test_that("Returns correct annual totals for one summary", {
   data_book$import_data(list(niger = niger))
   
   x_sum <- niger %>% 
-    dplyr::group_by(year, station_name) %>% 
+    dplyr::group_by(station_name, year) %>% 
     dplyr::summarise(sum_rain = sum(rain))
   
   x_both <- niger %>% 
-    dplyr::group_by(year, station_name) %>% 
+    dplyr::group_by(station_name, year) %>% 
     dplyr::summarise(annual_rain = sum(rain),
                      n_rain = sum(rain > 0.85))
   
@@ -22,7 +22,7 @@ test_that("Returns correct annual totals for one summary", {
                                         station = "station_name",
                                         rain = "rain",
                                         data_book = data_book))
-  y_sum <- data_book$get_data_frame("niger_by_year_station_name")
+  y_sum <- data_book$get_data_frame("niger_by_station_name_year")
   
   y_both <- suppressWarnings(annual_rain(data = "niger",
                                          rain_day = 0.85,
@@ -30,7 +30,7 @@ test_that("Returns correct annual totals for one summary", {
                                          year = "year",
                                          rain = "rain",
                                          data_book = data_book))
-  y_both <- data_book$get_data_frame("niger_by_year_station_name")
+  y_both <- data_book$get_data_frame("niger_by_station_name_year")
   
   expect_length(y_sum, 3)
   expect_equal(as.numeric(x_sum$sum_rain - y_sum$sum_rain), c(rep(0, 8)))

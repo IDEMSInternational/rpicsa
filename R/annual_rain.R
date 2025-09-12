@@ -54,28 +54,19 @@ annual_rain <- function(data, year = NULL, station = NULL, rain,
     data_book$run_instat_calculation(calc = transform_calculation, display = FALSE)
     columns_to_summarise <- c("rainfall_count", columns_to_summarise)
   }
-
-  factors_by <- c(year, station)
-  factors_by <- factors_by[!sapply(factors_by, is.null)]
   
-  na_type <- c(
-    if (!is.null(na_n))        "n",
-    if (!is.null(na_n_non))    "n_non_miss",
-    if (!is.null(na_prop))     "prop",
-    if (!is.null(na_consec))   "con"
-  )
-  
-  data_book$calculate_summary(data_name = data,
-                              columns_to_summarise = columns_to_summarise,
-                              factors = factors_by,
-                              store_results = TRUE,
-                              return_output = FALSE,
-                              summaries = c("summary_sum"),
-                              silent = TRUE,
-                              na.rm = na_rm,
-                              na_type = na_type, 
-                              na_max_n = na_n,
-                              na_min_n = na_n_non,
-                              na_consecutive_n = na_consec,
-                              na_max_prop = na_prop)
+  summary_calculation(data = data,
+                      date_time = date_time,
+                      station = station,
+                      year = year,
+                      month = month,
+                      to = "annual",
+                      columns_to_summarise = columns_to_summarise,
+                      summaries = "sum",
+                      na_rm = na_rm,
+                      na_prop = na_prop,
+                      na_n = na_n,
+                      na_consec = na_consec,
+                      na_n_non = na_n_non,
+                      data_book = data_book)
 }
