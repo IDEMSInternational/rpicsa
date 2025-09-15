@@ -1,161 +1,201 @@
 #' Seasonal total rainfall
-#' @description Total annual rainfall between start of the rains and end of the season.
-#' 
-# @inheritParams annual_rain
-#' 
-#' @param summary_data Summary data frame containing the `start_date` and `end_date` variables. These variables are calculated from start of rains and end of season functions.
-#' If `NULL`, `start_date` and `end_date` are calculated from the `start_of_rains` and `end_of_season` functions respectively.
-#' @param start_date \code{character(1)} The name of the start of rains column in \code{summary_data}. If \code{NULL} it will be created using the \code{start_of_rains} function.
-#' @param end_date \code{character(1)} The name of the end of season column in \code{summary_data}. If \code{NULL} it will be created using the \code{end_of_seasons} function.
-#' @param data The daily data.frame to calculate rainfall from.
-#' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
-#' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
-#' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
-#' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
-#' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
-#' @param threshold \code{numerical(1)} threshold value for amount (mm) of rainfall in order to count it as a rainy day.
-#' @param total_rain \code{logical(1)} default `TRUE`. Display the total rainfall value for each year.
-#' @param n_rain \code{logical(1)} default `TRUE`. Display the number of rainfall days.
-#' @param rain_day \code{numerical(1)} If `n_rain = TRUE`, the minimum rainfall value in a day for that day to count as a rainfall day.
-#' @param na_rm \code{logical(1)}. Should missing values (including \code{NaN}) be removed?
-#' @param na_prop \code{integer(1)} Max proportion of missing values allowed
-#' @param na_n \code{integer(1)} Max number of missing values allowed
-#' @param na_consec \code{integer(1)} Max number of consecutive missing values allowed
-#' @param na_n_non \code{integer(1)} Min number of non-missing values required
-#' @param s_start_doy The starting day of the year (DOY) for the shift.
-#' @param sor_start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
-#' @param sor_end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
-#' @param sor_total_rainfall \code{logical(1)} default `TRUE`. Start of the rains to be defined by the total or proportion of rainfall over a period.
-#' @param sor_over_days \code{numerical(1)} Only works if `total_rainfall = TRUE`. This is the number of days to total the rainfall over.
-#' @param sor_amount_rain \code{numerical(1)} If `total_rainfall = TRUE` and `proportion = FALSE`, the amount of rainfall to expect over the period defined in `over_days`. 
-#' @param sor_proportion \code{logical(1)} default `FALSE`, only valid if `total_rainfall = TRUE`. If `TRUE`, Start of the rains to be defined by proportion of rainfall over a period. This proportion is given in `prob_rain_day`. Otherwise, defined by the amount of rainfall over a period. The amount is given in `amount_rain`.
-#' @param sor_prob_rain_day \code{numerical(1)} Only works if `total_rainfall = TRUE` and `proportion = TRUE` This is the number 
-#' @param sor_number_rain_days \code{logical(1)} default `FALSE`. If `TRUE`, define start of the rains by the number of rainy days (`min_rain_days`) over a period. The period is given in days in the `rain_day_interval` parameter.
-#' @param sor_min_rain_days \code{numerical(1)} Only if `number_rain_days = TRUE`. This is the minimum number of rainy days to define start of rains in a given period. The period is given in days in the `rain_day_interval` parameter.
-#' @param sor_rain_day_interval \code{numerical(1)} Only if `number_rain_days = TRUE`, the interval in days that the `number_rain_days` is defined in.
-#' @param sor_dry_spell \code{logical(1)} default `FALSE`. If `TRUE`, define start of the rains by a maximum number of dry days (`spell_max_dry_days`) over a given period of days (`spell_interval`).
-#' @param sor_spell_max_dry_days \code{numerical(1)} Only if `dry_spell = TRUE`. This is the maximum number of dry days to define start of rains in a given period. The period is given in days in the `spell_interval` parameter.
-#' @param sor_spell_interval \code{numerical(1)} Only if `dry_spell = TRUE`, the interval in days that the `dry_spell` is defined in.
-#' @param sor_dry_period \code{logical(1)} default `FALSE`. If `TRUE`, define start of the rains by the maximum rain and maximum dry days in a given interval. The maximum rainfall amount is given in the `max_rain` parameter, the maximum dry days is given in the `period_max_dry_days` parameter, and the interval length is given in the `period_interval` parameter. 
-#' @param sor_max_rain \code{numerical(1)} Only if `dry_period = TRUE`, the maximum rainfall to occur in a given period.
-#' @param sor_period_max_dry_days \code{numerical(1)} Only if `dry_period = TRUE`. the maximum period of dry days to occur in a given period.
-#' @param sor_period_interval \code{numerical(1)} Only if `dry_period = TRUE`, the interval in days that the `dry_period` is defined in.
-#' @param end_type \code{character(1)} If `is.null(end_date)`, `end_type` is whether the end of seasons or end of rains is used. Options are c(`"season", "rains"`), default `"season"`.
-#' @param eos_start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
-#' @param eos_end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
-#' @param eor_interval_length \code{numerical(1)} Number of days for the minimum rainfall to fall in.
-#' @param eor_min_rainfall \code{numerical(1)} Minimum amount of rainfall to occur on the set of days  defined in `interval_length`.
-#' @param eos_capacity \code{numerical(1)} Water capacity of the soil (default `60`).
-#' @param eos_water_balance_max \code{numerical(1)} Maximum water balance value (default `0.5`).
-#' @param eos_evaporation \code{character(1)} Whether to give evaporation as a value or variable. Default `"value"`.
-#' @param eos_evaporation_value \code{numerical(1)} If `evaporation = "value"`, the numerical value of amount of evaporation per day (default `5`).
-#' @param eos_evaporation_variable \code{character(1)} If `evaporation = "variable"`, the variable in `data` that corresponds to the evaporation column.
-
-#' @return A data.frame with rainfall summaries for each year in the specified season (between start of the rains and end of season).
-#' @export
 #'
-#' @importFrom rlang :=
-#' @importFrom rlang .data
-#' @examples # TODO
-seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NULL, 
+#' Compute the seasonal total rainfall between the start of the rains and the end
+#' of the season. The function filters daily data to the interval
+#' `start_date`, `end_date` (both inclusive) for each grouping (year and, if
+#' provided, station) and then summarises the `rain` column. Results are written
+#' back into the `summary_data` table stored in `data_book`.
+#'
+#' @param summary_data \code{character(1)} Name of the summary data frame in \code{data_book}
+#'   that contains the season boundary columns (e.g. \code{start_rain}, \code{end_rains}).
+#' @param start_date \code{character(1)} Column name in \code{summary_data} giving the start of rains
+#'   (typically a day-of-year integer).
+#' @param end_date \code{character(1)} Column name in \code{summary_data} giving the end of season
+#'   (typically a day-of-year integer).
+#' @param s_start_month \code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
+#'   when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).
+#' @param data \code{character(1)} Name of the daily data frame in \code{data_book}.
+#' @param date_time \code{character(1)} Column name (in \code{data}) of the date variable.
+#' @param year \code{character(1)} Column name (in \code{data}) of the year variable.
+#'   If \code{NULL}, it is created from \code{date_time} using \code{lubridate::year()} with
+#'   \code{s_start_month} applied.
+#' @param station \code{character(1)} Optional station column in \code{data} (useful when \code{data}
+#'   contains multiple stations). If supplied, summaries are grouped by \code{station} and \code{year}.
+#' @param doy \code{character(1)} Column name (in \code{data}) of the day-of-year variable.
+#'   If \code{NULL}, it is created from \code{date_time} (366-day DOY) with \code{s_start_month} applied.
+#' @param rain \code{character(1)} Column name (in \code{data}) of the rainfall variable to summarise.
+#' @param total_rain \code{logical(1)} Compute and store the seasonal total rainfall. Default \code{TRUE}.
+#' @param n_rain \code{logical(1)} (Reserved) Compute the number of rainfall days in-season.
+#'   Currently not implemented. Default \code{TRUE} (ignored).
+#' @param rain_day \code{numeric(1)} (Reserved) Threshold (e.g., \code{0.85}) above which a day
+#'   counts as a rainfall day when \code{n_rain = TRUE}. Currently ignored.
+#' @param na_rm \code{logical(1)} Should missing values be removed before summing? Passed through to
+#'   the summary calculation. Default \code{FALSE}.
+#' @param na_prop \code{numeric(1)} Maximum allowed proportion of missing values in the in-season window.
+#' @param na_n \code{integer(1)} Maximum allowed number of missing values.
+#' @param na_consec \code{integer(1)} Maximum allowed number of consecutive missing values.
+#' @param na_n_non \code{integer(1)} Minimum required count of non-missing values.
+#' @param data_book The \code{DataBook} (R6) object holding \code{data} and \code{summary_data}.
+#'   If \code{NULL}, a new one is created internally (side effects then apply to that object).
+#'
+#' @details
+#' If \code{doy} and/or \code{year} are not provided, they are created from \code{date_time}
+#' using \code{data_book$split_date()}, with \code{s_start_month} defining the start of the statistical year.
+#' The function constructs a row-wise filter selecting days \code{doy >= start_date & doy <= end_date}
+#' and then calls \code{data_book$calculate_summary()} with \code{summaries = "summary_sum"} on \code{rain},
+#' grouped by \code{year} (and \code{station}, if supplied).
+#'
+#' The newly computed summary column is appended to \code{summary_data} in \code{data_book}. The exact
+#' name of the column depends on the \code{DataBook} summary-naming scheme (commonly includes “sum”
+#' and the variable name, e.g. \code{sum_rain}).
+#'
+#' If both \code{total_rain} and \code{n_rain} are \code{FALSE}, the function stops with an error.
+#' Note: as of now, only \code{total_rain} is implemented; \code{n_rain} / \code{rain_day} are reserved.
+#'
+#' @export
+#' @return
+#' Invisibly returns \code{NULL}. The primary effect is to modify \code{summary_data} inside
+#' \code{data_book} by adding a seasonal rainfall total column (and, in future, a rainfall-day count).
+#' Retrieve results with \code{data_book$get_data_frame(summary_data)}.
+#'
+#' @seealso \code{\link{start_rains}}, \code{\link{end_rains}}, \code{\link{seasonal_length}}
+#'
+#' @examples
+#' # Example workflow: compute start/end, then seasonal totals for Agades (1946–1950 subset)
+#' library(databook)
+#' data_book <- DataBook$new()
+#' daily_data <- rpicsa::daily_niger |>
+#'   dplyr::filter(station_name == "Agades", year > 1945, year <= 1950) |>
+#'   dplyr::mutate(year = as.numeric(year))
+#' data_book$import_data(list(daily_data = daily_data))
+#'
+#' start_rains(
+#'   data = "daily_data", date_time = "date", station = "station_name",
+#'   year = "year", rain = "rain", start_day = 121, end_day = 300,
+#'   output = "doy", data_book = data_book
+#' )
+#'
+#' end_rains(
+#'   data = "daily_data", date_time = "date", station = "station_name",
+#'   year = "year", rain = "rain", start_day = 121, end_day = 300,
+#'   output = "doy", data_book = data_book
+#' )
+#'
+#' seasonal_rain(
+#'   summary_data = "daily_data_by_station_name_year",
+#'   start_date   = "start_rain",
+#'   end_date     = "end_rains",
+#'   data         = "daily_data",
+#'   date_time    = "date",
+#'   year         = "year",
+#'   doy          = "doy",
+#'   station      = "station_name",
+#'   rain         = "rain",
+#'   data_book    = data_book
+#' )
+#'
+#' # Inspect results
+#' data_book$get_data_frame("daily_data_by_station_name_year")
+seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NULL,
                            data, date_time, year = NULL, station = NULL, doy = NULL, 
-                           rain = NULL, total_rain = TRUE, n_rain = TRUE, rain_day = 0.85, 
-                           na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL, 
-                           na_n_non = NULL, threshold = 0.85, sor_start_day = 1, sor_end_day = 366,
-                           s_start_doy = NULL,
-                           sor_total_rainfall = TRUE, sor_over_days = 1, sor_amount_rain = 20, 
-                           sor_proportion = FALSE, sor_prob_rain_day = 0.8, sor_number_rain_days = FALSE, 
-                           sor_min_rain_days = 1, sor_rain_day_interval = 2, sor_dry_spell = FALSE, 
-                           sor_spell_interval = 21, sor_spell_max_dry_days = 9, sor_dry_period = FALSE, 
-                           sor_period_interval = 45, sor_max_rain = 40, sor_period_max_dry_days = 30, 
-                           end_type = c("season", "rains"), eos_start_day = 1, 
-                           eos_end_day = 366, eor_interval_length = 1, eor_min_rainfall = 10, 
-                           eos_capacity = 60, eos_water_balance_max = 0.5, eos_evaporation = c("value", "variable"),
-                           eos_evaporation_value = 5, eos_evaporation_variable = NULL) {
-  end_type <- match.arg(end_type)
-  if (is.null(doy)) {
-    doy <- "doy"
-    data <- data %>% dplyr::mutate(doy != yday_366(.data[[date_time]]))
+                           rain = NULL,  s_start_month = 1, total_rain = TRUE, 
+                           n_rain = TRUE, rain_day = 0.85, na_rm = FALSE,
+                           na_prop = NULL, na_n = NULL, na_consec = NULL, 
+                           na_n_non = NULL,  data_book = NULL) {
+  if (is.null(data_book)){
+    data_book = DataBook$new()
   }
-  if (is.null(year)) {
-    data[["year"]] <- lubridate::year(data[[year]])
+
+  # Running checks
+  # checks with the summary data frame
+  checkmate::assert_string(summary_data, null.ok = TRUE)
+  checkmate::assert_string(start_date, null.ok = TRUE)
+  checkmate::assert_string(end_date, null.ok = TRUE)
+  if (!is.null(summary_data)){
+      data_frame <- data_book$get_data_frame(summary_data)
+      assert_column_names(data_frame, start_date)
+      assert_column_names(data_frame, end_date) 
   }
-  if (is.null(start_date)) {
-    start_rains_data <- start_rains(data = data, date_time = date_time, 
-                                    station = station, year = year, rain = rain, threshold = threshold, 
-                                    doy = doy, start_day = sor_start_day, end_day = sor_end_day, 
-                                    output = "doy", total_rainfall = sor_total_rainfall, 
-                                    over_days = sor_over_days, amount_rain = sor_amount_rain, 
-                                    proportion = sor_proportion, prob_rain_day = sor_prob_rain_day, 
-                                    number_rain_days = sor_number_rain_days, min_rain_days = sor_min_rain_days, 
-                                    rain_day_interval = sor_rain_day_interval, dry_spell = sor_dry_spell, 
-                                    spell_interval = sor_spell_interval, spell_max_dry_days = sor_spell_max_dry_days, 
-                                    dry_period = sor_dry_period, period_interval = sor_period_interval, 
-                                    max_rain = sor_max_rain, period_max_dry_days = sor_period_max_dry_days)
-    start_date <- "start_rains"
-    summary_data <- join_null_data(summary_data, start_rains_data)
-  }
-  if (is.null(end_date)) {
-    if (end_type == "rains") {
-      end_rains_data <- end_rains(data = data, date_time = date_time, 
-                                  station = station, year = year, rain = rain, 
-                                  doy = doy, start_day = eos_start_day, end_day = eos_end_day, 
-                                  output = "doy", interval_length = eor_interval_length, 
-                                  min_rainfall = eor_min_rainfall)
-      end_date <- "end_rains"
-    }
-    else {
-      end_rains_data <- end_season(data = data, date_time = date_time, 
-                                   station = station, year = year, rain = rain, 
-                                   doy = doy, start_day = eos_start_day, end_day = eos_end_day, 
-                                   output = "doy", capacity = eos_capacity, 
-                                   water_balance_max = eos_water_balance_max, evaporation = eos_evaporation, 
-                                   evaporation_value = eos_evaporation_value, evaporation_variable = eos_evaporation_variable)
-      end_date <- "end_season"
-    }
-    #end_rains_data <- end_rains_data %>% dplyr::rename(end_date = end_season)
-    summary_data <- join_null_data(summary_data, end_rains_data)
-  }
+  
+  # checks with the data frame
+  checkmate::assert_string(data)
+  checkmate::assert_string(date_time)
+  checkmate::assert_string(rain)
+  checkmate::assert_string(station, null.ok = TRUE)
+  checkmate::assert_string(year, null.ok = TRUE)
+  checkmate::assert_string(doy, null.ok = TRUE)
+  data_frame <- data_book$get_data_frame(data)
+  assert_column_names(data_frame, rain)
+  assert_column_names(data_frame, date_time)
+  checkmate::assert(checkmate::check_date(data_frame[[date_time]],), 
+                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
+  if (!is.null(station)) assert_column_names(data_frame, station)
+  if (!is.null(date_time)) assert_column_names(data_frame, date_time)
+  if (!is.null(year)) assert_column_names(data_frame, year)  
+  if (!is.null(doy)) assert_column_names(data_frame, doy)  
+  
+  # checks for summaries
+  checkmate::assert_int(s_start_month, lower = 1, upper = 12)
+  checkmate::assert_numeric(rain_day)
+  checkmate::assert_logical(total_rain, null.ok = TRUE)
+  checkmate::assert_logical(n_rain, null.ok = TRUE)
+  checkmate::assert_logical(na_rm, null.ok = TRUE)
+  checkmate::assert_int(na_prop, null.ok = TRUE)
+  checkmate::assert_int(na_n, null.ok = TRUE)
+  checkmate::assert_int(na_consec, null.ok = TRUE)
+  checkmate::assert_int(na_n_non, null.ok = TRUE)
+  
+  # check at least one summary is given  
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of\n         'total_rain' or 'n_rain' must be TRUE.")
   }
-
-  if(!is.null(s_start_doy)){ # any(grepl("-", summary_data[[year]]))){
-    # The shifting has already happened in R-Instat
-    #data <- shift_dates(data = data, date = date_time, s_start_doy = s_start_doy - 1)
-    year <- "s_year"
-    doy <- "s_doy"
-    data[[doy]] <- data[["s_doy"]]
-    data[[year]] <- data[["s_year"]]
+  
+  # calculate doy, year from date
+  if(is.null(doy)){ 
+    data_book$split_date(data_name = data,
+                         col_name = date_time,
+                         day_in_year_366 =TRUE,
+                         s_start_month = s_start_month)
+    doy <- "doy"
   }
-  data[[year]] <- factor(data[[year]])
-  summary_data <- dplyr::full_join(data %>% dplyr::select(c({{ station }}, {{ year }}, {{ date_time }}, 
-                                                            {{ doy }}, {{ rain }})),
-                                   summary_data)
-  summary_data <- summary_data %>% dplyr::group_by(.data[[station]], .data[[year]])
-  if (lubridate::is.Date(summary_data[[start_date]])) {
-    summary_data <- summary_data %>% dplyr::filter(.data[[date_time]] >= .data[[start_date]])
+  if (is.null(year)) {
+    data_book$split_date(data_name = data, 
+                         col_name = date_time, 
+                         year_val = TRUE, 
+                         s_start_month = s_start_month)
+    year <- "year"
   }
-  else {
-    summary_data <- summary_data %>% dplyr::filter(.data[[doy]] >= .data[[start_date]])
-  }
-  if (lubridate::is.Date(summary_data[[end_date]])) {
-    summary_data <- summary_data %>% dplyr::filter(.data[[date_time]] <= .data[[end_date]])
-  }
-  else {
-    summary_data <- summary_data %>% dplyr::filter(.data[[doy]] <= .data[[end_date]])
-  }
-  summaries <- c()
-  if (total_rain) 
-    summaries <- c(total_rain = "sum")
-  if (n_rain) 
-    summaries <- c(summaries, n_rain = paste0("~sum(.x > ", rain_day, ")"))
-  climatic_output <- climatic_summary(data = summary_data, 
-                                                     date_time = date_time, station = station, elements = rain, 
-                                                     year = year, to = "annual", summaries = summaries, 
-                                                     na_rm = na_rm, na_prop = na_prop, na_n = na_n, na_n_non = na_n_non, 
-                                                     names = "{.fn}")
-  if (total_rain) climatic_output <- climatic_output %>% dplyr::rename(seasonal_rain = total_rain)
-  if (n_rain) climatic_output <- climatic_output %>% dplyr::rename(n_seasonal_rain = n_rain)
-  return(climatic_output)
+  
+  # day filter which gets the days from the start of rains to the end of rains
+  day_filter <- instatCalculations::instat_calculation$new(
+    type="filter", 
+    function_exp=paste0(doy, " >= ", start_date, " & ", doy, " <= ", end_date), 
+    calculated_from=databook::calc_from_convert(x=setNames(
+      list(doy, c(start_date, end_date)),
+      c(data, summary_data))))
+  
+  factors_by <- c(year, station)
+  factors_by <- factors_by[!sapply(factors_by, is.null)]
+  
+  na_type <- c(
+    if (!is.null(na_n))        "n",
+    if (!is.null(na_n_non))    "n_non_miss",
+    if (!is.null(na_prop))     "prop",
+    if (!is.null(na_consec))   "con"
+  )
+  
+  # then we just calculate the summaries for those days
+  data_book$calculate_summary(
+    columns_to_summarise = rain, 
+    data_name = data, 
+    factors = factors_by, 
+    additional_filter =day_filter, 
+    summaries=c("summary_sum"), 
+    silent=TRUE,
+    na.rm = na_rm,
+    na_type = na_type, 
+    na_max_n = na_n,
+    na_min_n = na_n_non,
+    na_consecutive_n = na_consec,
+    na_max_prop = na_prop)
 }

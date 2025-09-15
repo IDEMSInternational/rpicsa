@@ -1,9 +1,9 @@
 Package: rpicsa
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+Title: Uses the R-Instat databook to create PICSA related summaries
+Version: 0.0.2
+Authors@R: c(
+    person("Lily", "Clements", , "lily@idems.international", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-8864-0552")),
+    person("Emmanuel", "Afrifa", , "", role = c("aut"), comment = c(ORCID = "0009-0002-1978-8611")))
 Description: What the package does (one paragraph).
 License: LGPL (>= 3) + file LICENSE
 Encoding: UTF-8
@@ -17,6 +17,7 @@ Imports:
     dplyr,
     instatExtras,
     instatCalculations,
+    instatClimatic,
     lubridate,
     magrittr,
     naflex,
@@ -30,5 +31,8 @@ Imports:
 Remotes:
     IDEMSInternational/databook,
     IDEMSInternational/instatCalculations,
+    IDEMSInternational/instatClimatic,
     IDEMSInternational/instatExtras
+Suggests:
+    tibble
 LazyData: true

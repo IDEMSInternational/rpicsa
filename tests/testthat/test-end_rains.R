@@ -16,7 +16,6 @@ test_that("Correct summaries are calculated", {
   suppressWarnings(end_rains(data = "daily_data",
                              date_time = "date",
                              station = "station_name",
-                             year = "year",
                              rain = "rain",
                              start_day = 121,
                              end_day = 300,

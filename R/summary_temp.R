@@ -20,66 +20,46 @@
 #' @return A data.frame with mean summaries for each year or year and month for the minimum daily temperature and/or the maximum daily temperature.
 #' @export
 #'
-
 summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
                                 month = NULL, station = NULL, to = c("annual", "monthly"),
                                 summaries = c("mean", "min", "max"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
                                 data_book = NULL) {
+  
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
   
+  # Running checks
+  checkmate::assert_string(data)
+  checkmate::assert_string(date_time)
+  checkmate::assert_string(tmin, null.ok = TRUE)
+  checkmate::assert_string(tmax, null.ok = TRUE)
+  checkmate::assert_string(year, null.ok = TRUE)
+  checkmate::assert_string(month, null.ok = TRUE)
+  checkmate::assert_string(station, null.ok = TRUE)
+  data_frame <- data_book$get_data_frame(data)
+  assert_column_names(data_frame, date_time)
+  if (!is.null(tmin)) assert_column_names(data_frame, tmin)
+  if (!is.null(tmax)) assert_column_names(data_frame, tmax)
+  if (!is.null(year)) assert_column_names(data_frame, year)
+  if (!is.null(month)) assert_column_names(data_frame, month)
+  if (!is.null(station)) assert_column_names(data_frame, station)
+  checkmate::assert_logical(na_rm, null.ok = TRUE)
+  checkmate::assert_int(na_prop, null.ok = TRUE)
+  checkmate::assert_int(na_n, null.ok = TRUE)
+  checkmate::assert_int(na_consec, null.ok = TRUE)
+  checkmate::assert_int(na_n_non, null.ok = TRUE)
+  
   to <- match.arg(to)
   if (is.null(tmin) && is.null(tmax)) { stop("At least one of 'tmin' or 'tmax' must be provided.") }
-  
-  # creating the year and month columns if they do not exist
-  if (is.null(year)) {
-    data_book$split_date(data_name=data, col_name=date_time, year_val=TRUE, s_start_month=1)
-    year <- "year"
-  }
-  
-  if (to == "monthly" && is.null(month)) {
-    data_book$split_date(data_name=data, col_name=date_time, month_val=TRUE, s_start_month=1)
-    month <- "month"
-  }
-  
-  # creating the grouping list
-  grouping_vars <- c()
-  if (!is.null(station)) { grouping_vars <- c(grouping_vars, station) }
-  if (to == "annual") { grouping_vars <- c(grouping_vars, year) }
-  if (to == "monthly") { grouping_vars <- c(grouping_vars, month) }
-  
+   
   # specifying the columns to summarize
-  columns_to_summarize <- c(tmin, tmax)
-  columns_to_summarize <- columns_to_summarize[!sapply(columns_to_summarize, is.null)]
+  columns_to_summarise <- c(tmin, tmax)
+  columns_to_summarise <- columns_to_summarise[!sapply(columns_to_summarise, is.null)]
   
-  # creating the summaries list
-  summaries_all <- c()
-  if ("mean" %in% summaries){ summaries_all <- c(summaries_all, mean = "mean")}
-  if ("min" %in% summaries){ summaries_all <- c(summaries_all, min = "min")}
-  if ("max" %in% summaries){ summaries_all <- c(summaries_all, max = "max")}
-  summaries_all <- paste0("summary_", summaries_all)
-  
-  na_type <- c(
-    if (!is.null(na_n))        "n",
-    if (!is.null(na_n_non))    "n_non_miss",
-    if (!is.null(na_prop))     "prop",
-    if (!is.null(na_consec))   "con"
-  )
-  
-  data_book$calculate_summary(data_name = data,
-                              columns_to_summarise = columns_to_summarize,
-                              factors = grouping_vars,
-                              store_results = TRUE,
-                              return_output = FALSE,
-                              summaries = summaries_all,
-                              silent = TRUE,
-                              na.rm = na_rm,
-                              na_type = na_type, 
-                              na_max_n = na_n,
-                              na_min_n = na_n_non,
-                              na_consecutive_n = na_consec,
-                              na_max_prop = na_prop)
-  
+  summary_calculation(data = data, date_time = date_time, year = year, month = month,
+                      station = station, to = to, columns_to_summarise = columns_to_summarise,
+                      summaries = summaries, na_rm = na_rm, na_prop = na_prop, na_n = na_n,
+                      na_consec = na_consec, na_n_non = na_n_non, data_book = data_book)
 }

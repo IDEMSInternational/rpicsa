@@ -2,130 +2,105 @@
 % Please edit documentation in R/seasonal_length.R
 \name{seasonal_length}
 \alias{seasonal_length}
-\title{Length of the season}
+\title{Length of the rainfall season}
 \usage{
 seasonal_length(
-  summary_data = NULL,
-  start_date = NULL,
-  end_date = NULL,
-  data = NULL,
-  date_time = NULL,
-  rain = NULL,
-  year = NULL,
-  station = NULL,
-  doy = NULL,
-  threshold = 0.85,
-  sor_start_day = 1,
-  sor_end_day = 366,
-  sor_total_rainfall = TRUE,
-  sor_over_days = 1,
-  sor_amount_rain = 20,
-  sor_proportion = FALSE,
-  sor_prob_rain_day = 0.8,
-  sor_number_rain_days = FALSE,
-  sor_min_rain_days = 1,
-  sor_rain_day_interval = 2,
-  sor_dry_spell = FALSE,
-  sor_spell_interval = 21,
-  sor_spell_max_dry_days = 9,
-  sor_dry_period = FALSE,
-  sor_period_interval = 45,
-  sor_max_rain = 40,
-  sor_period_max_dry_days = 30,
-  end_type = c("season", "rains"),
-  eos_start_day = 1,
-  eos_end_day = 366,
-  eor_interval_length = 1,
-  eor_min_rainfall = 10,
-  eos_capacity = 60,
-  eos_water_balance_max = 0.5,
-  eos_evaporation = c("value", "variable"),
-  eos_evaporation_value = 5,
-  eos_evaporation_variable = NULL
+  summary_data,
+  start_date,
+  end_date,
+  start_rain_status = NULL,
+  end_rain_status = NULL,
+  season_length_save_name = "length",
+  occurrence_save_name = "occurrence",
+  data_book = NULL
 )
 }
 \arguments{
-\item{summary_data}{Summary data frame containing the \code{start_date} and \code{end_date} variables. These variables are calculated from start of rains and end of season functions.
-If \code{NULL}, \code{start_date} and \code{end_date} are calculated from the \code{start_of_rains} and \code{end_of_season} functions respectively.}
+\item{summary_data}{\code{character(1)} Name of the summary data frame in \code{data_book}
+that contains the season boundary columns (e.g., \code{start_rain}, \code{end_rains}).}
 
-\item{start_date}{\code{character(1)} The name of the start of rains column in \code{summary_data}. If \code{NULL} it will be created using the \code{start_of_rains} function.}
+\item{start_date}{\code{character(1)} Column name in \code{summary_data} giving the start
+of rains (typically a day-of-year integer).}
 
-\item{end_date}{\code{character(1)} The name of the end of season column in \code{summary_data}. If \code{NULL} it will be created using the \code{end_of_seasons} function.}
+\item{end_date}{\code{character(1)} Column name in \code{summary_data} giving the end
+of season (typically a day-of-year integer).}
 
-\item{data}{The daily data.frame to calculate rainfall from.}
+\item{start_rain_status}{\code{character(1)} Optional column name in \code{summary_data}
+giving a logical flag for whether a valid start of rains was found for that row.}
 
-\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
+\item{end_rain_status}{\code{character(1)} Optional column name in \code{summary_data}
+giving a logical flag for whether a valid end of season was found for that row.}
 
-\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
+\item{season_length_save_name}{\code{character(1)} Name of the column to save the computed
+season length into. Default \code{"length"}.}
 
-\item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+\item{occurrence_save_name}{\code{character(1)} Name of the column to save the derived
+occurrence status into (only used when status columns are supplied). Default \code{"occurrence"}.}
 
-\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
-
-\item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
-
-\item{threshold}{\code{numerical(1)} threshold value for amount (mm) of rainfall in order to count it as a rainy day.}
-
-\item{sor_start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
-
-\item{sor_end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
-
-\item{sor_total_rainfall}{\code{logical(1)} default \code{TRUE}. Start of the rains to be defined by the total or proportion of rainfall over a period.}
-
-\item{sor_over_days}{\code{numerical(1)} Only works if \code{total_rainfall = TRUE}. This is the number of days to total the rainfall over.}
-
-\item{sor_amount_rain}{\code{numerical(1)} If \code{total_rainfall = TRUE} and \code{proportion = FALSE}, the amount of rainfall to expect over the period defined in \code{over_days}.}
-
-\item{sor_proportion}{\code{logical(1)} default \code{FALSE}, only valid if \code{total_rainfall = TRUE}. If \code{TRUE}, Start of the rains to be defined by proportion of rainfall over a period. This proportion is given in \code{prob_rain_day}. Otherwise, defined by the amount of rainfall over a period. The amount is given in \code{amount_rain}.}
-
-\item{sor_prob_rain_day}{\code{numerical(1)} Only works if \code{total_rainfall = TRUE} and \code{proportion = TRUE} This is the number}
-
-\item{sor_number_rain_days}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by the number of rainy days (\code{min_rain_days}) over a period. The period is given in days in the \code{rain_day_interval} parameter.}
-
-\item{sor_min_rain_days}{\code{numerical(1)} Only if \code{number_rain_days = TRUE}. This is the minimum number of rainy days to define start of rains in a given period. The period is given in days in the \code{rain_day_interval} parameter.}
-
-\item{sor_rain_day_interval}{\code{numerical(1)} Only if \code{number_rain_days = TRUE}, the interval in days that the \code{number_rain_days} is defined in.}
-
-\item{sor_dry_spell}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by a maximum number of dry days (\code{spell_max_dry_days}) over a given period of days (\code{spell_interval}).}
-
-\item{sor_spell_interval}{\code{numerical(1)} Only if \code{dry_spell = TRUE}, the interval in days that the \code{dry_spell} is defined in.}
-
-\item{sor_spell_max_dry_days}{\code{numerical(1)} Only if \code{dry_spell = TRUE}. This is the maximum number of dry days to define start of rains in a given period. The period is given in days in the \code{spell_interval} parameter.}
-
-\item{sor_dry_period}{\code{logical(1)} default \code{FALSE}. If \code{TRUE}, define start of the rains by the maximum rain and maximum dry days in a given interval. The maximum rainfall amount is given in the \code{max_rain} parameter, the maximum dry days is given in the \code{period_max_dry_days} parameter, and the interval length is given in the \code{period_interval} parameter.}
-
-\item{sor_period_interval}{\code{numerical(1)} Only if \code{dry_period = TRUE}, the interval in days that the \code{dry_period} is defined in.}
-
-\item{sor_max_rain}{\code{numerical(1)} Only if \code{dry_period = TRUE}, the maximum rainfall to occur in a given period.}
-
-\item{sor_period_max_dry_days}{\code{numerical(1)} Only if \code{dry_period = TRUE}. the maximum period of dry days to occur in a given period.}
-
-\item{end_type}{\code{character(1)} If \code{is.null(end_date)}, \code{end_type} is whether the end of seasons or end of rains is used. Options are c(\verb{"season", "rains"}), default \code{"season"}.}
-
-\item{eos_start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
-
-\item{eos_end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
-
-\item{eor_interval_length}{\code{numerical(1)} Number of days for the minimum rainfall to fall in.}
-
-\item{eor_min_rainfall}{\code{numerical(1)} Minimum amount of rainfall to occur on the set of days  defined in \code{interval_length}.}
-
-\item{eos_capacity}{\code{numerical(1)} Water capacity of the soil (default \code{60}).}
-
-\item{eos_water_balance_max}{\code{numerical(1)} Maximum water balance value (default \code{0.5}).}
-
-\item{eos_evaporation}{\code{character(1)} Whether to give evaporation as a value or variable. Default \code{"value"}.}
-
-\item{eos_evaporation_value}{\code{numerical(1)} If \code{evaporation = "value"}, the numerical value of amount of evaporation per day (default \code{5}).}
-
-\item{eos_evaporation_variable}{\code{character(1)} If \code{evaporation = "variable"}, the variable in \code{data} that corresponds to the evaporation column.}
+\item{data_book}{The \code{DataBook} (R6) object holding \code{summary_data}. If \code{NULL},
+a new one is created internally (side effects then apply to that object).}
 }
 \value{
-A data.frame with length of rainfall season for each year in the specified season (between start of the rains and end of season).
+Invisibly returns \code{NULL}. Retrieve results with
+\code{data_book$get_data_frame(summary_data)}.
 }
 \description{
-Number of days between start of the rains and end of the season
+Compute the number of days between the start of the rains and the end of the
+season for each row in a season summary table. Optionally, also derive an
+\code{occurrence} status from logical start/end status flags. Results are
+written back into \code{summary_data} stored in \code{data_book}.
+}
+\details{
+The function always computes the season length as
+\code{end_date - start_date} and stores it in \code{season_length_save_name}.
+
+If both \code{start_rain_status} and \code{end_rain_status} are provided, an
+additional \code{occurrence} column is created via:
+
+\itemize{
+\item \code{NA} if either status is \code{NA}
+\item \code{"TRUE"} if \code{start_rain_status == end_rain_status == TRUE}
+\item \code{"FALSE"} if \code{start_rain_status == end_rain_status == FALSE}
+\item \code{"NONE"} if \code{start_rain_status == FALSE} and \code{end_rain_status == TRUE}
+\item \code{"MORE"} if \code{start_rain_status == TRUE} and \code{end_rain_status == FALSE}
+}
+
+The \code{occurrence} column is converted to a factor. This function modifies
+\code{summary_data} inside \code{data_book} and returns invisibly.
 }
 \examples{
-# Example of season
+# Example: compute start/end (DOY + STATUS) then season length for Agades (1946–1950 subset)
+library(databook)
+data_book <- DataBook$new()
+daily_data <- rpicsa::daily_niger |>
+  dplyr::filter(year > 1945, year <= 1950, station_name == "Agades") |>
+  dplyr::mutate(year = as.numeric(year))
+data_book$import_data(list(daily_data = daily_data))
+
+start_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  output = c("doy", "status"), data_book = data_book
+)
+
+end_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  output = c("doy", "status"), data_book = data_book
+)
+
+seasonal_length(
+  summary_data        = "daily_data_by_station_name_year",
+  start_date          = "start_rain",
+  end_date            = "end_rains",
+  start_rain_status   = "start_rain_status",
+  end_rain_status     = "end_rains_status",
+  data_book           = data_book
+)
+
+# Inspect results
+data_book$get_data_frame("daily_data_by_station_name_year")
+}
+\seealso{
+\code{\link{start_rains}}, \code{\link{end_rains}}, \code{\link{seasonal_rain}}
 }

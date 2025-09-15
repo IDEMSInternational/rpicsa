@@ -2,7 +2,7 @@
 % Please edit documentation in R/end_season.R
 \name{end_season}
 \alias{end_season}
-\title{End of the rains}
+\title{End of the Season}
 \usage{
 end_season(
   data,
@@ -11,61 +11,92 @@ end_season(
   year = NULL,
   rain = NULL,
   doy = NULL,
-  s_start_doy = NULL,
+  s_start_month = 1,
   drop = TRUE,
   start_day = 1,
   end_day = 366,
-  output = c("doy", "date", "both"),
+  output = c("doy", "date", "status"),
   capacity = 60,
   water_balance_max = 0.5,
   evaporation = c("value", "variable"),
   evaporation_value = 5,
-  evaporation_variable = NULL
+  evaporation_variable = NULL,
+  reducing = FALSE,
+  reducing_value = 0.5,
+  data_book = NULL
 )
 }
 \arguments{
-\item{data}{The data.frame to calculate from.}
+\item{data}{\code{character(1)} Name of the data frame in the \code{data_book} to work on.}
 
-\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
+\item{date_time}{\code{character(1)} Name of the date or POSIXct column in \code{data}.}
 
-\item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
+\item{station}{\code{character(1)} Name of the station column, if data contain multiple stations. Defaults to \code{NULL} (no station grouping).}
 
-\item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+\item{year}{\code{character(1)} Name of the year column. If \code{NULL}, it is auto‑created from \code{date_time} via \code{split_date()}.}
 
-\item{rain}{\code{character(1)} The name of the rainfall column in \code{data} to apply the function to.}
+\item{rain}{\code{character(1)} Name of the rainfall column to use in the water balance.}
 
-\item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
+\item{doy}{\code{character(1)} Name of the day‑of‑year column. If \code{NULL}, it is auto‑created from \code{date_time}.}
 
-\item{s_start_doy}{\code{numerical(1)} Default \code{NULL} (if \code{NULL}, \code{s_start_doy = 1}. The day of year to state is the first day of year.}
+\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the water‑balance “year.” Defaults to \code{1} (January).}
 
-\item{drop}{\code{logical(1)} default \code{TRUE}. Whether to drop years where there are \code{NA} data for the rainfall.}
+\item{drop}{\code{logical(1)} If \code{TRUE} (default), drop years with only \code{NA} rainfall in the specified interval.}
 
-\item{start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
+\item{start_day}{\code{integer(1)} First day‑of‑year to include in the season calculation (1–365). Default \code{1}.}
 
-\item{end_day}{\code{numerical(1)} The last day to calculate to in the year (1-366).}
+\item{end_day}{\code{integer(1)} Last day‑of‑year to include (2–366). Default \code{366}.}
 
-\item{output}{\code{character(1)} Whether to give the start of rains by day of year (doy), date, or both. Default \code{"doy"}.}
+\item{output}{\code{character} Which outputs to produce. One or more of \code{"doy"}, \code{"date"}, \code{"status"}. Default all three.}
 
-\item{capacity}{\code{numerical(1)} Water capacity of the soil (default \code{60}).}
+\item{capacity}{\code{numeric(1)} Soil water‐holding capacity (mm). Default \code{60}.}
 
-\item{water_balance_max}{\code{numerical(1)} Maximum water balance value (default \code{0.5}).}
+\item{water_balance_max}{\code{numeric(1)} Threshold of water balance to end the season. Default \code{0.5}.}
 
-\item{evaporation}{\code{character(1)} Whether to give evaporation as a value or variable. Default \code{"value"}.}
+\item{evaporation}{\code{character(1)} Whether to use a fixed evaporation \code{"value"} or a data‐column \code{"variable"}. Default \code{"value"}.}
 
-\item{evaporation_value}{\code{numerical(1)} If \code{evaporation = "value"}, the numerical value of amount of evaporation per day (default \code{5}).}
+\item{evaporation_value}{\code{numeric(1)} Daily evaporation (mm) if \code{evaporation = "value"}. Default \code{5}.}
 
-\item{evaporation_variable}{\code{character(1)} If \code{evaporation = "variable"}, the variable in \code{data} that corresponds to the evaporation column.}
+\item{evaporation_variable}{\code{character(1)} Column name for daily evaporation if \code{evaporation = "variable"}.}
+
+\item{reducing}{\code{logical(1)} If \code{TRUE}, apply a reducing‐bucket evaporation function. Default \code{FALSE}.}
+
+\item{reducing_value}{\code{numeric(1)} Parameter controlling bucket reduction when \code{reducing = TRUE}. Default \code{0.5}.}
+
+\item{data_book}{An existing \code{DataBook} object. If \code{NULL}, a new \code{DataBook} is created. Default \code{NULL}.}
 }
 \value{
-A data.frame with the day of year and/or date for the end of the season for each year (and station).
+Invisibly returns the used \code{data_book}; side effect is that the linked data frame
+(e.g. \code{<data>_by_<station>_<year>}) is created with columns
+\code{end_season}, \code{end_season_date}, and/or \code{end_season_status},
+according to \code{output}.
 }
 \description{
-Last occurrence from day q with at least z mm rainfall on a set of days.
+Calculate the last day (or date, or status) of the rainy season based on a simple bucket water‑balance model.
 }
 \examples{
-#TODO # is same as R-Instat
-# end_season(niger_daily_1, date_time = "date", year = "year",
-#rain = "rain", doy = "doy", output = "doy",
-#capacity = 60, water_balance_max = 0.5,
-#evaporation_value = 5)
+
+# Call in databook package and set up the environment
+library(databook)
+data_book <- DataBook$new()
+
+# Filter our data so we are only considering a small portion of it
+daily_data <- rpicsa::daily_niger \%>\%
+  dplyr::filter(year <= 1950) \%>\%
+  dplyr::filter(year > 1945) \%>\%
+  dplyr::mutate(year = as.numeric(year)) \%>\%
+  dplyr::filter(station_name == "Agades")
+data_book$import_data(list(daily_data = daily_data))
+data_book$add_key("daily_data", "date", "key")
+
+ # Run End-Rains:
+end_season(data = "daily_data", date_time = "date", station = "station_name",
+          year = "year", rain = "rain",
+          start_day = 121, end_day = 300,
+          output = "doy", data_book = data_book)
+          
+ # View output
+daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
+head(daily_data_by_station_name_year)
+
 }
