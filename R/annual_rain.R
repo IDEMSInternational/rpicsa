@@ -22,7 +22,7 @@
 #' @examples #daily_niger_1 <- daily_niger %>% dplyr::filter(year > 1960)
 #' #annual_rain(data = daily_niger, date_time  = "date", station = "station_name",
 #' #            rain = "rain", na_prop = 0.9)
-annual_rain <- function(data, year = NULL, date_time=NULL, station = NULL, rain,
+annual_rain <- function(data, year = NULL, date_time, station = NULL, rain,
                         total_rain = TRUE, n_rain = TRUE, rain_day = 0.85,
                         na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL,
                         na_n_non = NULL, data_book = NULL) {
@@ -33,6 +33,7 @@ annual_rain <- function(data, year = NULL, date_time=NULL, station = NULL, rain,
   # running checks
   checkmate::assert_string(data)
   checkmate::assert_string(rain)
+  checkmate::assert_string(date_time)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_numeric(rain_day)
