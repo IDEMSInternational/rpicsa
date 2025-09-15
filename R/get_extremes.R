@@ -7,9 +7,8 @@
 #' @param year The name of the `year` column in 'data'.
 #' @param element The name of the column in 'data' for which extremes are to be found.
 #' @param station The name of the `station` column in 'data'. Default `NULL`.
-#' @param type A character string specifying the mode of operation. It can be either `"percentile"` or `"threshold"`. Here, `"percentile"` identifies values above a certain percentile (e.g., 95th percentile); `"threshold"` identifies values above a specific threshold value.
-#' @param value A numeric value specifying the percentile or threshold, depending on the 'type' parameter. If `type == "percentile"`, `value` is the percentile (e.g., 95 for 95th percentile). If `type == "threshold"`, `value` is the threshold value (e.g., 50 mm for rainfall).
-#' @param direction A character string specifying the direction for the operation. It can be either `"greater"` or `"less"`.
+#' @param value A numeric value specifying the threshold value (e.g., 50 mm for rainfall).
+#' @param direction A character string specifying the direction for the operation. It can be either `"greater"`, `"less"`, `"between"`, or `"outer"`.
 #' @param lb_value A numeric value for the lower bound if `direction == "between"` or `direction == "outer"`
 #' @param na_rm \code{logical(1)} Should missing values be removed before summing? Passed through to
 #'   the summary calculation. Default \code{FALSE}.
@@ -20,9 +19,9 @@
 #' @param data_book The \code{DataBook} (R6) object holding \code{data} and \code{summary_data}.
 #' 
 #' @export
-#' @return A filtered data frame where the `element` values are considered extreme based on the specified `type` and `value`.
+#' @return A filtered data frame where the `element` values are considered extreme based on the specified `value` and `direction`.
 
-get_extremes <- function(data, element, date_time=NULL, year=NULL, station = NULL, type = c("percentile", "threshold"), 
+get_extremes <- function(data, element, date_time=NULL, year=NULL, station = NULL, 
                          value = 95, direction = c("greater", "less", "between", "outer"), lb_value = 0, 
                          na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,  
                          data_book = NULL) {
@@ -51,7 +50,6 @@ get_extremes <- function(data, element, date_time=NULL, year=NULL, station = NUL
     checkmate::assert_int(na_consec, null.ok = TRUE)
     checkmate::assert_int(na_n_non, null.ok = TRUE)
   
-    type <- match.arg(type)
     direction <- match.arg(direction)
     
     if (is.null(year)) {
@@ -101,7 +99,7 @@ get_extremes <- function(data, element, date_time=NULL, year=NULL, station = NUL
                         station = station,
                         year = year,
                         to = "annual",
-                        columns_to_summarise = count, # count is the name of our created column in the code above
+                        columns_to_summarise = count,
                         summaries = "sum",
                         na_rm = na_rm,
                         na_prop = na_prop,
