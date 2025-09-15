@@ -8,6 +8,7 @@
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param month \code{character(1)} The name of the month column in \code{data}. If \code{NULL} it will be created using \code{lubridate::month(data[[date_time]])}.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
+#' @param additional_filter Any additional filters to account for (e.g., see \code{seasonal_rain}).
 #' @param to \code{character(1)} Default `annual`. The period of time to calculate the mean temperature columns over (options are `annual` or `monthly`).
 #' @param summaries \code{character} The summaries to display. Options are `"mean"`, `"max"`, `"min"`, `"sum"`
 #' @param na_rm \code{logical(1)}. Should missing values (including \code{NaN}) be removed?
@@ -18,9 +19,8 @@
 #' @param data_book The data book object where the data object is stored, default `NULL`.
 #'
 #' @return A data.frame with summaries for the columns_to_summarise specified by year and/or month (and optionally station)
-#' @export
-summary_calculation <- function(data, date_time, year = NULL, month = NULL,
-                                station = NULL, columns_to_summarise, to = c("annual", "monthly"),
+summary_calculation <- function(data, date_time, year = NULL, month = NULL, station = NULL,
+                                columns_to_summarise, to = c("annual", "monthly"), additional_filter = NULL,
                                 summaries = c("mean", "min", "max", "sum"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
                                 data_book = data_book){
@@ -89,6 +89,7 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL,
   data_book$calculate_summary(data_name = data,
                               columns_to_summarise = columns_to_summarise,
                               factors = grouping_vars,
+                              additional_filter = additional_filter,
                               store_results = TRUE,
                               return_output = FALSE,
                               summaries = summaries_all,

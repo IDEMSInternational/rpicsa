@@ -23,6 +23,4 @@ testthat::test_that("seasonal_rain adds correct seasonal totals and basic behavi
   expect_equal(ncol(returned_data), 3)
   expect_equal(as.numeric(returned_data$sum_extreme_rain), 
                c(0, 0, 0, 0, 2, 0, 0, 0, 1, 0))
-  
-  
 })

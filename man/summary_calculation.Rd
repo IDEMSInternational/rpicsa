@@ -12,6 +12,7 @@ summary_calculation(
   station = NULL,
   columns_to_summarise,
   to = c("annual", "monthly"),
+  additional_filter = NULL,
   summaries = c("mean", "min", "max", "sum"),
   na_rm = FALSE,
   na_prop = NULL,
@@ -35,6 +36,8 @@ summary_calculation(
 \item{columns_to_summarise}{\code{character(1)} The name of the columns to summarise in \code{data}.}
 
 \item{to}{\code{character(1)} Default \code{annual}. The period of time to calculate the mean temperature columns over (options are \code{annual} or \code{monthly}).}
+
+\item{additional_filter}{Any additional filters to account for (e.g., see \code{seasonal_rain}).}
 
 \item{summaries}{\code{character} The summaries to display. Options are \code{"mean"}, \code{"max"}, \code{"min"}, \code{"sum"}}
 

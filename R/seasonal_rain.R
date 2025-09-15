@@ -176,26 +176,21 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   factors_by <- c(year, station)
   factors_by <- factors_by[!sapply(factors_by, is.null)]
   
-  # Defining NA types
-  na_type <- c(
-    if (!is.null(na_n))        "'n'",
-    if (!is.null(na_n_non))    "'n_non_miss'",
-    if (!is.null(na_prop))     "'prop'",
-    if (!is.null(na_consec))   "'con'"
-  )
-  
+
   # then we just calculate the summaries for those days
-  data_book$calculate_summary(
-    columns_to_summarise = rain, 
-    data_name = data, 
-    factors = factors_by, 
-    additional_filter =day_filter, 
-    summaries=c("summary_sum"), 
-    silent=TRUE,
-    na.rm = na_rm,
-    na_type = na_type, 
-    na_max_n = na_n,
-    na_min_n = na_n_non,
-    na_consecutive_n = na_consec,
-    na_max_prop = na_prop)
+  summary_calculation(data = data,
+                      date_time = date_time,
+                      station = station,
+                      year = year,
+                      to = "annual",
+                      columns_to_summarise = rain, 
+                      additional_filter = day_filter,
+                      summaries = "sum",
+                      na_rm = na_rm,
+                      na_prop = na_prop,
+                      na_n = na_n,
+                      na_consec = na_consec,
+                      na_n_non = na_n_non,
+                      data_book = data_book)
+  
 }
