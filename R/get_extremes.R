@@ -20,7 +20,7 @@
 #' 
 #' @export
 #' @return A filtered data frame where the `element` values are considered extreme based on the specified `value` and `direction`.
-
+ 
 get_extremes <- function(data, element, date_time=NULL, year=NULL, station = NULL, 
                          value = 95, direction = c("greater", "less", "between", "outer"), lb_value = 0, 
                          na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,  
