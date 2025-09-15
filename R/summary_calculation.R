@@ -23,7 +23,7 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL,
                                 station = NULL, columns_to_summarise, to = c("annual", "monthly"),
                                 summaries = c("mean", "min", "max", "sum"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
-                                data_book = NULL){
+                                data_book = data_book){
   
   if (is.null(data_book)) {
     data_book <- DataBook$new()
@@ -48,10 +48,10 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL,
   checkmate::assert_string(to)
   checkmate::assert_character(summaries)
   checkmate::assert_logical(na_rm)
-  checkmate::assert_int(na_prop, lower = 0, null.ok = TRUE)
-  checkmate::assert_int(na_n, lower = 0, null.ok = TRUE)
-  checkmate::assert_int(na_consec, lower = 0, null.ok = TRUE)
-  checkmate::assert_int(na_n_non, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_prop, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_consec, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n_non, lower = 0, null.ok = TRUE)
   
   # creating the year and month columns if they do not exist
   if (is.null(year)) {
@@ -80,10 +80,10 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL,
   
   # Defining NA types
   na_type <- c(
-    if (!is.null(na_n))        "n",
-    if (!is.null(na_n_non))    "n_non_miss",
-    if (!is.null(na_prop))     "prop",
-    if (!is.null(na_consec))   "con"
+    if (!is.null(na_n))        "'n'",
+    if (!is.null(na_n_non))    "'n_non_miss'",
+    if (!is.null(na_prop))     "'prop'",
+    if (!is.null(na_consec))   "'con'"
   )
   
   data_book$calculate_summary(data_name = data,
@@ -99,5 +99,4 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL,
                               na_min_n = na_n_non,
                               na_consecutive_n = na_consec,
                               na_max_prop = na_prop)
-  
 }

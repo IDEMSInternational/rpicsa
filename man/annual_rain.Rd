@@ -18,7 +18,7 @@ annual_rain(
   na_n = NULL,
   na_consec = NULL,
   na_n_non = NULL,
-  data_book = NULL
+  data_book = data_book
 )
 }
 \arguments{

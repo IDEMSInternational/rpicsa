@@ -74,7 +74,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain, thre
                         number_rain_days = FALSE, min_rain_days = 1, rain_day_interval = 2,
                         dry_spell = FALSE, spell_interval = 21, spell_max_dry_days = 9,
                         dry_period = FALSE, period_interval = 45, max_rain = 40, period_max_dry_days = 30,
-                        data_book = NULL) {
+                        data_book = data_book) {
   
   total_rainfall_comparison <- match.arg(total_rainfall_comparison)
   

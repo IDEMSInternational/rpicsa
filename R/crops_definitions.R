@@ -8,12 +8,17 @@
 #' Names are auto-incremented if they already exist (e.g., `crop_def2`).
 #'
 #' @param data_name `character(1)` Name of the daily data frame.
-#' @param year `character(1)` Column name in `data_name` giving the year.
-#' @param date `character(1)`  optional. Column name in `data_name` giving the date .
+#' @param date_time `character(1)`  optional. Column name in `data_name` giving the date .
+#' @param year \code{character(1)} Column name (in \code{data}) of the year variable.
+#'   If \code{NULL}, it is created from \code{date_time} using \code{lubridate::year()} with
+#'   \code{s_start_month} applied.
 #' @param station `character(1)` Optional. Column name giving the station ID.
 #'   If missing, results are computed by year only.
 #' @param rain `character(1)` Column name giving daily rainfall (numeric).
-#' @param doy `character(1)` Column name giving the doy.
+#' @param doy \code{character(1)} Column name (in \code{data}) of the day-of-year variable.
+#'   If \code{NULL}, it is created from \code{date_time} (366-day DOY) with \code{s_start_month} applied.
+#' @param s_start_month \code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
+#'   when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).
 #' @param rain_totals The amount of water (rainfall) needed for the crop, usually between 250mm and 1000mm
 #' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 200, 1200, 50 produces 200, 250, 300, ..., 1200.
 #' @param plant_days The day number for planting. Starting from January, April 1st is day 92. Starting from July, November 1st is day 124.
@@ -112,12 +117,12 @@
 #' # View the crop probability summaries
 #' data_book$get_data_frame("crop_prop")
 
-crops_definitions <- function(data_name, year = NULL, station = NULL, date = NULL,
-                              doy = NULL, rain, rain_totals, plant_days, plant_lengths,
+crops_definitions <- function(data_name, date_time = NULL, year = NULL, station = NULL,
+                              doy = NULL, rain, s_start_month = 1, rain_totals, plant_days, plant_lengths,
                               start_check = c("both", "yes","no"), 
                               season_data_name = NULL, start_day, end_day,
                               return_crops_table = TRUE, 
-                              definition_props = TRUE, data_book = NULL){
+                              definition_props = TRUE, data_book = data_book){
   if (is.null(data_book)){
     data_book = DataBook$new()
   }
@@ -126,7 +131,7 @@ crops_definitions <- function(data_name, year = NULL, station = NULL, date = NUL
   checkmate::assert_string(data_name)
   checkmate::assert_string(rain)
   checkmate::assert_string(year, null.ok = TRUE)
-  checkmate::assert_string(date, null.ok = TRUE)
+  checkmate::assert_string(date_time, null.ok = TRUE)
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
   checkmate::assert_numeric(rain_totals)
@@ -134,13 +139,14 @@ crops_definitions <- function(data_name, year = NULL, station = NULL, date = NUL
   checkmate::assert_numeric(plant_lengths)
   
   data_frame <- data_book$get_data_frame(data_name)
-  if (!is.null(date)) assert_column_names(data_frame, date)
+  if (!is.null(date_time)) assert_column_names(data_frame, date_time)
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(doy)) assert_column_names(data_frame, doy)
   if (!is.null(station)) assert_column_names(data_frame, station)
   assert_column_names(data_frame, rain)
 
   # Running checks for other data
+  checkmate::assert_int(s_start_month, lower = 1, upper = 12)
   checkmate::assert_string(season_data_name, null.ok = TRUE)
   checkmate::assert_string(start_day)
   checkmate::assert_string(end_day)
@@ -152,14 +158,14 @@ crops_definitions <- function(data_name, year = NULL, station = NULL, date = NUL
   checkmate::assert_logical(return_crops_table)
   checkmate::assert_logical(definition_props)
   
-  # calculate doy, year from date
+  # calculate doy, year from date_time
   if (is.null(year)) {
-    data_book$split_date(data_name = data_name, col_name = date, year_val = TRUE, s_start_month = 1)
+    data_book$split_date(data_name = data_name, col_name = date_time, year_val = TRUE, s_start_month = s_start_month)
     year <- "year"
   }
   
   if (is.null(doy)){
-    data_book$split_date(data_name = data_name, col_name = date, day_in_year_366 =TRUE, s_start_month = 1)
+    data_book$split_date(data_name = data_name, col_name = date_time, day_in_year_366 =TRUE, s_start_month = s_start_month)
     doy <- "doy"
   }
   

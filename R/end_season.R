@@ -58,7 +58,7 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain,
                        start_day = 1, end_day = 366, output = c("doy", "date", "status"),
                        capacity = 60, water_balance_max = 0.5, evaporation = c("value", "variable"),
                        evaporation_value = 5, evaporation_variable = NULL, reducing = FALSE, reducing_value = 0.5,
-                       data_book = NULL){
+                       data_book = data_book){
   
   if (is.null(data_book)) {
     data_book <- DataBook$new()
@@ -89,7 +89,7 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain,
   checkmate::assert_numeric(water_balance_max, lower = 0)
   checkmate::assert_numeric(evaporation_value, lower = 0)
   checkmate::assert_numeric(s_start_month, lower = 1, upper = 12, null.ok = TRUE)
-  checkmate::assert_string(output)
+  checkmate::assert_character(output)
   checkmate::assert_string(evaporation)
   checkmate::assert_logical(reducing)
   checkmate::assert_numeric(reducing_value, lower = 0)

@@ -82,7 +82,7 @@ seasonal_length <- function(summary_data, start_date, end_date,
                             start_rain_status = NULL, end_rain_status = NULL,
                             season_length_save_name = "length", 
                             occurrence_save_name = "occurrence",
-                            data_book = NULL)
+                            data_book = data_book)
 {
   
   # creating the a new databook object if it doesn't exist

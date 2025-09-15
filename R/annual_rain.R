@@ -25,7 +25,7 @@
 annual_rain <- function(data, date_time = NULL, year = NULL, station = NULL, rain,
                         total_rain = TRUE, n_rain = TRUE, rain_day = 0.85,
                         na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL,
-                        na_n_non = NULL, data_book = NULL) {
+                        na_n_non = NULL, data_book = data_book) {
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
@@ -49,11 +49,10 @@ annual_rain <- function(data, date_time = NULL, year = NULL, station = NULL, rai
   checkmate::assert_logical(total_rain)
   checkmate::assert_logical(n_rain)
   checkmate::assert_logical(na_rm, null.ok = TRUE)
-  checkmate::assert_int(na_prop, null.ok = TRUE)
-  checkmate::assert_int(na_n, null.ok = TRUE)
-  checkmate::assert_int(na_consec, null.ok = TRUE)
-  checkmate::assert_int(na_n_non, null.ok = TRUE)
-  
+  checkmate::assert_numeric(na_prop, null.ok = TRUE)
+  checkmate::assert_numeric(na_n, null.ok = TRUE)
+  checkmate::assert_numeric(na_consec, null.ok = TRUE)
+  checkmate::assert_numeric(na_n_non, null.ok = TRUE)
   
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of

@@ -10,15 +10,16 @@ get_extremes(
   date_time = NULL,
   year = NULL,
   station = NULL,
-  value = 95,
-  lb_value = 0,
   direction = c("greater", "less", "between", "outer"),
+  s_start_month = 1,
+  value = 0.85,
+  lb_value = 0,
   na_rm = FALSE,
   na_prop = NULL,
   na_n = NULL,
   na_consec = NULL,
   na_n_non = NULL,
-  data_book = NULL
+  data_book = data_book
 )
 }
 \arguments{
@@ -28,15 +29,20 @@ get_extremes(
 
 \item{date_time}{\code{character(1)} Column name (in \code{data}) of the date variable.}
 
-\item{year}{The name of the \code{year} column in 'data'.}
+\item{year}{\code{character(1)} Column name (in \code{data}) of the year variable.
+If \code{NULL}, it is created from \code{date_time} using \code{lubridate::year()} with
+\code{s_start_month} applied.}
 
 \item{station}{The name of the \code{station} column in 'data'. Default \code{NULL}.}
+
+\item{direction}{A character string specifying the direction for the operation. It can be either \code{"greater"}, \code{"less"}, \code{"between"}, or \code{"outer"}.}
+
+\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
+when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).}
 
 \item{value}{A numeric value specifying the threshold value (e.g., 50 mm for rainfall). This is then the upper bound value if \code{direction == "between"} or \code{direction == "outer"}.}
 
 \item{lb_value}{A numeric value for the lower bound if \code{direction == "between"} or \code{direction == "outer"}.}
-
-\item{direction}{A character string specifying the direction for the operation. It can be either \code{"greater"}, \code{"less"}, \code{"between"}, or \code{"outer"}.}
 
 \item{na_rm}{\code{logical(1)} Should missing values be removed before summing? Passed through to
 the summary calculation. Default \code{FALSE}.}
@@ -56,4 +62,24 @@ A filtered data frame where the \code{element} values are considered extreme bas
 }
 \description{
 This function identifies extreme values in a specified element (column) of a data frame. It can operate in two modes: percentile-based and threshold-based.
+}
+\examples{
+library(databook)
+data_book <- DataBook$new()
+daily_data <- rpicsa::daily_niger |>
+  dplyr::filter(year > 1945, year <= 1955, station_name == "Agades") |>
+  dplyr::mutate(year = as.numeric(year))
+data_book$import_data(list(daily_data = daily_data))
+
+# Looking at the number of instances in a year that rainfall exceeds 40mm in a day
+get_extremes(data = "daily_data",
+             date_time  = "date",
+             station = "station_name",
+             element = "rain",
+             direction = "greater",
+             value = 40,
+             data_book = data_book)
+             
+# The extreme days are under "sum_extreme_rain" here:
+data_book$get_data_frame("daily_data_by_station_name_year")
 }

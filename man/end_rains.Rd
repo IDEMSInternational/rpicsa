@@ -18,7 +18,7 @@ end_rains(
   output = c("doy", "date", "status"),
   interval_length = 1,
   min_rainfall = 10,
-  data_book = NULL
+  data_book = data_book
 )
 }
 \arguments{
