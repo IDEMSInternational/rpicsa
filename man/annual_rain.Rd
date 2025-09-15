@@ -7,6 +7,7 @@
 annual_rain(
   data,
   year = NULL,
+  date_time = NULL,
   station = NULL,
   rain,
   total_rain = TRUE,
@@ -24,6 +25,8 @@ annual_rain(
 \item{data}{The data.frame to calculate from.}
 
 \item{year}{\code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.}
+
+\item{date_time}{\code{\link[base]{Date}} The name of the date column in \code{data}.}
 
 \item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
 

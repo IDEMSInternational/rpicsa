@@ -3,6 +3,7 @@
 #' 
 #' @param data The data.frame to calculate from.
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
+#' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param total_rain \code{logical(1)} default `TRUE`. Display the total rainfall value for each year.
@@ -21,7 +22,7 @@
 #' @examples #daily_niger_1 <- daily_niger %>% dplyr::filter(year > 1960)
 #' #annual_rain(data = daily_niger, date_time  = "date", station = "station_name",
 #' #            rain = "rain", na_prop = 0.9)
-annual_rain <- function(data, year = NULL, station = NULL, rain,
+annual_rain <- function(data, year = NULL, date_time=NULL, station = NULL, rain,
                         total_rain = TRUE, n_rain = TRUE, rain_day = 0.85,
                         na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL,
                         na_n_non = NULL, data_book = NULL) {
@@ -38,6 +39,7 @@ annual_rain <- function(data, year = NULL, station = NULL, rain,
   
   data_frame <- data_book$get_data_frame(data)
   if (!is.null(year)) assert_column_names(data_frame, year)
+  if (!is.null(date_time)) assert_column_names(data_frame, date_time)
   if (!is.null(station)) assert_column_names(data_frame, station)
   if (!is.null(rain)) assert_column_names(data_frame, rain)
   
