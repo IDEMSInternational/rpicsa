@@ -7,7 +7,7 @@
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
-#' @param s_start_doy \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_doy = 1`. The day of year to state is the first day of year.
+#' @param s_start_month \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_month = 1`. The value to state is the month to start on.
 #' @param drop \code{logical(1)} default `TRUE`. Whether to drop years where there are `NA` data for the rainfall.
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
@@ -65,7 +65,7 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain,
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(doy)) assert_column_names(data_frame, doy)
 
-  checkmate::assert_numeric(s_start_doy, lower = 1, upper = 366, null.ok = TRUE)
+  checkmate::assert_numeric(s_start_month, lower = 1, upper = 12, null.ok = TRUE)
   checkmate::assert_logical(drop)
   checkmate::assert_int(start_day, lower = 1, upper = 365)
   checkmate::assert_int(end_day, lower = 2, upper = 366)
@@ -74,12 +74,12 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain,
 
   # 3. Add in R code to create DOY and Year if they are NULL (like in summary_temp)
   if (is.null(year)) {
-    data_book$split_date(data_name=data, col_name=date_time, year_val=TRUE, s_start_month=1)
+    data_book$split_date(data_name=data, col_name=date_time, year_val=TRUE, s_start_month = s_start_month)
     year <- "year"
   }
   
   if (is.null(doy)){
-    data_book$split_date(data_name = data, col_name=date_time, day_in_year_366 =TRUE, s_start_month=1)
+    data_book$split_date(data_name = data, col_name=date_time, day_in_year_366 =TRUE, s_start_month = s_start_month)
     doy <- "doy"
   }
 
