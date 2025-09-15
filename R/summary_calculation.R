@@ -43,7 +43,6 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL,
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(month)) assert_column_names(data_frame, month)
   if (!is.null(station)) assert_column_names(data_frame, station)
-  if (!is.null(rain)) assert_column_names(data_frame, rain)
   checkmate::assert_logical(na_rm, null.ok = TRUE)
   checkmate::assert_int(na_prop, null.ok = TRUE)
   checkmate::assert_int(na_n, null.ok = TRUE)

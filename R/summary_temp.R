@@ -53,7 +53,7 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
   
   to <- match.arg(to)
   if (is.null(tmin) && is.null(tmax)) { stop("At least one of 'tmin' or 'tmax' must be provided.") }
-  
+   
   # specifying the columns to summarize
   columns_to_summarise <- c(tmin, tmax)
   columns_to_summarise <- columns_to_summarise[!sapply(columns_to_summarise, is.null)]
