@@ -60,6 +60,3 @@ A filtered data frame where the \code{element} values are considered extreme bas
 \description{
 This function identifies extreme values in a specified element (column) of a data frame. It can operate in two modes: percentile-based and threshold-based.
 }
-\examples{
-Todo
-}
