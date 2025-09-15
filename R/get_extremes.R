@@ -23,7 +23,7 @@
 #' @return A filtered data frame where the `element` values are considered extreme based on the specified `type` and `value`.
 #' 
 #' @examples
-#' Todo
+#' #Todo
 
 get_extremes <- function(data, element, date_time=NULL, year=NULL, station = NULL, type = c("percentile", "threshold"), 
                          value = 95, direction = c("greater", "less", "between", "outer"), lb_value = 0, 
