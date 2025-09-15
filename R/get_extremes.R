@@ -41,6 +41,8 @@ get_extremes <- function(data, element, date_time=NULL, year=NULL, station = NUL
     
     data_frame <- data_book$get_data_frame(data)
     if (!is.null(date_time)) assert_column_names(data_frame, date_time)
+    checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
+                      checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
     if (!is.null(year)) assert_column_names(data_frame, year)
     if (!is.null(station)) assert_column_names(data_frame, station)
 

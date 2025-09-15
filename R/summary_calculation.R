@@ -25,11 +25,31 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL,
                                 summaries = c("mean", "min", "max", "sum"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
                                 data_book = NULL){
-  to <- match.arg(to)
   
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
+  
+  # Running checks
+  checkmate::assert_string(data)
+  checkmate::assert_string(date_time)
+  checkmate::assert_string(year, null.ok = TRUE)
+  checkmate::assert_string(month, null.ok = TRUE)
+  checkmate::assert_string(station, null.ok = TRUE)
+  data_frame <- data_book$get_data_frame(data)
+  assert_column_names(data_frame, date_time)
+  checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
+                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
+  if (!is.null(year)) assert_column_names(data_frame, year)
+  if (!is.null(month)) assert_column_names(data_frame, month)
+  if (!is.null(station)) assert_column_names(data_frame, station)
+  if (!is.null(rain)) assert_column_names(data_frame, rain)
+  checkmate::assert_logical(na_rm, null.ok = TRUE)
+  checkmate::assert_int(na_prop, null.ok = TRUE)
+  checkmate::assert_int(na_n, null.ok = TRUE)
+  checkmate::assert_int(na_consec, null.ok = TRUE)
+  checkmate::assert_int(na_n_non, null.ok = TRUE)
+  to <- match.arg(to)
   
   # creating the year and month columns if they do not exist
   if (is.null(year)) {

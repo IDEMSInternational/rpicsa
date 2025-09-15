@@ -135,6 +135,8 @@ crops_definitions <- function(data_name, year = NULL, station = NULL, date = NUL
   
   data_frame <- data_book$get_data_frame(data_name)
   if (!is.null(date)) assert_column_names(data_frame, date)
+  checkmate::assert(checkmate::check_date(data_frame[[date]], null.ok = TRUE), 
+                    checkmate::check_posixct(data_frame[[date]],  null.ok = TRUE))
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(doy)) assert_column_names(data_frame, doy)
   if (!is.null(station)) assert_column_names(data_frame, station)

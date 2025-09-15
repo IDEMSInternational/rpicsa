@@ -85,15 +85,20 @@ seasonal_length <- function(summary_data, start_date, end_date,
                             data_book = NULL)
 {
   
+  # creating the a new databook object if it doesn't exist
+  if (is.null(data_book)){
+    data_book = DataBook$new()
+  }
+  
   # Running checks
   # checks with the summary data frame
-  checkmate::assert_character(summary_data)
-  checkmate::assert_character(start_date)
-  checkmate::assert_character(end_date)
-  checkmate::assert_character(start_rain_status, null.ok = TRUE)
-  checkmate::assert_character(end_date, null.ok = TRUE)
-  checkmate::assert_character(season_length_save_name, null.ok = TRUE)
-  checkmate::assert_character(occurrence_save_name, null.ok = TRUE)
+  checkmate::assert_string(summary_data)
+  checkmate::assert_string(start_date)
+  checkmate::assert_string(end_date)
+  checkmate::assert_string(start_rain_status, null.ok = TRUE)
+  checkmate::assert_string(end_rain_status, null.ok = TRUE)
+  checkmate::assert_string(season_length_save_name, null.ok = TRUE)
+  checkmate::assert_string(occurrence_save_name, null.ok = TRUE)
   
   data_frame <- data_book$get_data_frame(summary_data)
   assert_column_names(data_frame, start_date)
@@ -101,10 +106,6 @@ seasonal_length <- function(summary_data, start_date, end_date,
   if (!is.null(start_rain_status)) assert_column_names(data_frame, start_rain_status)
   if (!is.null(end_rain_status)) assert_column_names(data_frame, end_rain_status)
 
-  # creating the a new databook object if it doesn't exist
-  if (is.null(data_book)){
-    data_book = DataBook$new()
-  }
   
   # from "start" and "end" variables columns (this should always run):
   length_of_season <- instatCalculations::instat_calculation$new(

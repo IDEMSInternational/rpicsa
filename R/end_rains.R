@@ -51,8 +51,8 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   }
 
   # 1. Checks
-  checkmate::assert_character(data)
-  checkmate::assert_character(rain)
+  checkmate::assert_string(data)
+  checkmate::assert_string(rain)
   data_frame <- data_book$get_data_frame(data)
   assert_column_names(data_frame, rain)
   checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
@@ -61,10 +61,9 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
   checkmate::assert_numeric(s_start_doy, lower = 1, upper = 366, null.ok = TRUE)
-  # if (!is.null(station)) assert_column_names(data_frame, station)
-  # if (!is.null(date_time)) assert_column_names(data_frame, date_time)
-  # if (!is.null(year)) assert_column_names(data_frame, year)
-  # if (!is.null(doy)) assert_column_names(data_frame, doy)
+  if (!is.null(station)) assert_column_names(data_frame, station)
+  if (!is.null(year)) assert_column_names(data_frame, year)
+  if (!is.null(doy)) assert_column_names(data_frame, doy)
   checkmate::assert_int(start_day, lower = 1, upper = 365)
   checkmate::assert_int(end_day, lower = 2, upper = 366)
   checkmate::assert_int(interval_length, lower = 1)

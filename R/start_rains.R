@@ -82,16 +82,16 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   }
   
   # Running checks
-  checkmate::assert_character(data)
-  checkmate::assert_character(rain)
-  data_frame <- data_book$get_data_frame(data)
-  assert_column_names(data_frame, rain)
-  checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
-                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
+  checkmate::assert_string(data)
+  checkmate::assert_string(rain)
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
+  data_frame <- data_book$get_data_frame(data)
+  assert_column_names(data_frame, rain)
+  assert_column_names(data_frame, date_time)
+  checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
+                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   if (!is.null(station)) assert_column_names(data_frame, station)
-  if (!is.null(date_time)) assert_column_names(data_frame, date_time)
   if (!is.null(year)) assert_column_names(data_frame, year)
   checkmate::assert_numeric(s_start_month, lower = 1, upper = 366, null.ok = TRUE)
   checkmate::assert_logical(number_rain_days, null.ok = TRUE)

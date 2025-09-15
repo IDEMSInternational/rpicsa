@@ -29,6 +29,27 @@ annual_rain <- function(data, year = NULL, station = NULL, rain,
     data_book <- DataBook$new()
   }
   
+  # running checks
+  checkmate::assert_string(data)
+  checkmate::assert_string(rain)
+  checkmate::assert_string(year, null.ok = TRUE)
+  checkmate::assert_string(station, null.ok = TRUE)
+  checkmate::assert_numeric(rain_day)
+  
+  data_frame <- data_book$get_data_frame(data)
+  if (!is.null(year)) assert_column_names(data_frame, year)
+  if (!is.null(station)) assert_column_names(data_frame, station)
+  if (!is.null(rain)) assert_column_names(data_frame, rain)
+  
+  checkmate::assert_logical(total_rain)
+  checkmate::assert_logical(n_rain)
+  checkmate::assert_logical(na_rm, null.ok = TRUE)
+  checkmate::assert_int(na_prop, null.ok = TRUE)
+  checkmate::assert_int(na_n, null.ok = TRUE)
+  checkmate::assert_int(na_consec, null.ok = TRUE)
+  checkmate::assert_int(na_n_non, null.ok = TRUE)
+  
+  
   if (!total_rain && !n_rain) {
     stop("No summaries selected. At least one of
          'total_rain' or 'n_rain' must be TRUE.")

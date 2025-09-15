@@ -108,22 +108,25 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
 
   # Running checks
   # checks with the summary data frame
-  checkmate::assert_character(summary_data)
-  checkmate::assert_character(start_date)
-  checkmate::assert_character(end_date)
-  data_frame <- data_book$get_data_frame(summary_data)
-  assert_column_names(data_frame, start_date)
-  assert_column_names(data_frame, end_date)
+  checkmate::assert_string(summary_data, null.ok = TRUE)
+  checkmate::assert_string(start_date, null.ok = TRUE)
+  checkmate::assert_string(end_date, null.ok = TRUE)
+  if (!is.null(summary_data)){
+      data_frame <- data_book$get_data_frame(summary_data)
+      assert_column_names(data_frame, start_date)
+      assert_column_names(data_frame, end_date) 
+  }
   
   # checks with the data frame
-  checkmate::assert_character(data)
-  checkmate::assert_character(date_time, null.ok = TRUE)
-  checkmate::assert_character(rain)
+  checkmate::assert_string(data)
+  checkmate::assert_string(date_time)
+  checkmate::assert_string(rain)
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
   data_frame <- data_book$get_data_frame(data)
   assert_column_names(data_frame, rain)
+  assert_column_names(data_frame, date_time)
   checkmate::assert(checkmate::check_date(data_frame[[date_time]],), 
                     checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   if (!is.null(station)) assert_column_names(data_frame, station)

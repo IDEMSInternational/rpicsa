@@ -63,15 +63,21 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain = NULL
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
-  checkmate::assert_character(data)
-  checkmate::assert_character(rain)
+  
+  # Running checks
+  checkmate::assert_string(data)
+  checkmate::assert_string(rain)
   data_frame <- data_book$get_data_frame(data)
   assert_column_names(data_frame, rain)
+  assert_column_names(data_frame, date_time)
   checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
                     checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
+  if (!is.null(station)) assert_column_names(data_frame, station)
+  if (!is.null(year)) assert_column_names(data_frame, year)
+  if (!is.null(doy)) assert_column_names(data_frame, doy)
   checkmate::assert_int(start_day, lower = 1, upper = 365)
   checkmate::assert_int(end_day, lower = 2, upper = 366)
   checkmate::assert_numeric(capacity, lower = 0)
