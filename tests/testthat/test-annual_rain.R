@@ -17,6 +17,7 @@ test_that("Returns correct annual totals for one summary", {
                      n_rain = sum(rain > 0.85))
   
   y_sum <- suppressWarnings(annual_rain(data = "niger",
+                                        date_time = "date",
                                         year = "year",
                                         n_rain = FALSE,
                                         station = "station_name",
@@ -25,6 +26,7 @@ test_that("Returns correct annual totals for one summary", {
   y_sum <- data_book$get_data_frame("niger_by_station_name_year")
   
   y_both <- suppressWarnings(annual_rain(data = "niger",
+                                         date_time = "date",
                                          rain_day = 0.85,
                                          station = "station_name",
                                          year = "year",
@@ -41,6 +43,7 @@ test_that("Returns correct annual totals for one summary", {
   
   expect_error(annual_rain(data = "niger",
                            rain_day = 0.85,
+                           date_time = "date",
                            station = "station_name",
                            year = "year",
                            rain = "rain",

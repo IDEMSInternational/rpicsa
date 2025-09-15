@@ -9,7 +9,7 @@ end_rains(
   date_time,
   station = NULL,
   year = NULL,
-  rain = NULL,
+  rain,
   doy = NULL,
   s_start_doy = NULL,
   drop = TRUE,

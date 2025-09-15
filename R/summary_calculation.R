@@ -20,8 +20,7 @@
 #' @return A data.frame with summaries for the columns_to_summarise specified by year and/or month (and optionally station)
 #' @export
 summary_calculation <- function(data, date_time, year = NULL, month = NULL,
-                                station = NULL, to = c("annual", "monthly"),
-                                columns_to_summarise,
+                                station = NULL, columns_to_summarise, to = c("annual", "monthly"),
                                 summaries = c("mean", "min", "max", "sum"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
                                 data_book = NULL){
@@ -29,6 +28,8 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL,
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
+  
+  to <- match.arg(to)
   
   # Running checks
   checkmate::assert_string(data)
@@ -43,12 +44,14 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL,
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(month)) assert_column_names(data_frame, month)
   if (!is.null(station)) assert_column_names(data_frame, station)
-  checkmate::assert_logical(na_rm, null.ok = TRUE)
-  checkmate::assert_int(na_prop, null.ok = TRUE)
-  checkmate::assert_int(na_n, null.ok = TRUE)
-  checkmate::assert_int(na_consec, null.ok = TRUE)
-  checkmate::assert_int(na_n_non, null.ok = TRUE)
-  to <- match.arg(to)
+  
+  checkmate::assert_string(to)
+  checkmate::assert_character(summaries)
+  checkmate::assert_logical(na_rm)
+  checkmate::assert_int(na_prop, lower = 0, null.ok = TRUE)
+  checkmate::assert_int(na_n, lower = 0, null.ok = TRUE)
+  checkmate::assert_int(na_consec, lower = 0, null.ok = TRUE)
+  checkmate::assert_int(na_n_non, lower = 0, null.ok = TRUE)
   
   # creating the year and month columns if they do not exist
   if (is.null(year)) {

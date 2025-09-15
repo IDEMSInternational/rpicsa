@@ -106,7 +106,6 @@ seasonal_length <- function(summary_data, start_date, end_date,
   if (!is.null(start_rain_status)) assert_column_names(data_frame, start_rain_status)
   if (!is.null(end_rain_status)) assert_column_names(data_frame, end_rain_status)
 
-  
   # from "start" and "end" variables columns (this should always run):
   length_of_season <- instatCalculations::instat_calculation$new(
     type="calculation", 

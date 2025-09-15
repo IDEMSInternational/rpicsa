@@ -63,7 +63,7 @@
 #'                              data_book = data_book))
 #' daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
 
-start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL, threshold = 0.85,
+start_rains <- function(data, date_time, station = NULL, year = NULL, rain, threshold = 0.85,
                         doy = NULL, start_day = 1, end_day = 366, s_start_month = 1,
                         drop = TRUE,
                         output = c("doy", "date", "status"),
@@ -76,6 +76,8 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
                         dry_period = FALSE, period_interval = 45, max_rain = 40, period_max_dry_days = 30,
                         data_book = NULL) {
   
+  total_rainfall_comparison <- match.arg(total_rainfall_comparison)
+  
   # creating the a new databook object if it doesn't exist
   if (is.null(data_book)){
     data_book = DataBook$new()
@@ -83,9 +85,12 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
   
   # Running checks
   checkmate::assert_string(data)
+  checkmate::assert_string(date_time)
   checkmate::assert_string(rain)
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
+  checkmate::assert_string(doy, null.ok = TRUE)
+  checkmate::assert_string(evaporation_variable, null.ok = TRUE)
   data_frame <- data_book$get_data_frame(data)
   assert_column_names(data_frame, rain)
   assert_column_names(data_frame, date_time)
@@ -93,24 +98,31 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain = NUL
                     checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   if (!is.null(station)) assert_column_names(data_frame, station)
   if (!is.null(year)) assert_column_names(data_frame, year)
-  checkmate::assert_numeric(s_start_month, lower = 1, upper = 366, null.ok = TRUE)
-  checkmate::assert_logical(number_rain_days, null.ok = TRUE)
-  checkmate::assert_logical(dry_spell, null.ok = TRUE)
-  checkmate::assert_logical(dry_period, null.ok = TRUE)
-  checkmate::assert_number(prob_rain_day, lower = 0, upper = 1, null.ok = TRUE)
-  checkmate::assert_int(start_day, lower = 1, upper = 365, null.ok = TRUE)
-  checkmate::assert_int(end_day, lower = 2, upper = 366, null.ok = TRUE)
-  checkmate::assert_int(total_rainfall_over_days, lower = 1, null.ok = TRUE)
-  checkmate::assert_int(amount_rain, lower = 0, null.ok = TRUE)
-  checkmate::assert_int(min_rain_days, lower = 0, null.ok = TRUE)
-  checkmate::assert_int(rain_day_interval, lower = 1, null.ok = TRUE)
-  checkmate::assert_int(spell_interval, lower = 1, null.ok = TRUE)
-  checkmate::assert_int(spell_max_dry_days, lower = 0, null.ok = TRUE)
-  checkmate::assert_int(period_interval, lower = 1, null.ok = TRUE)
-  checkmate::assert_int(max_rain, lower = 0, null.ok = TRUE)
-  checkmate::assert_int(period_max_dry_days, lower = 0, null.ok = TRUE)
-  total_rainfall_comparison <- match.arg(total_rainfall_comparison)
+  if (!is.null(doy)) assert_column_names(data_frame, doy)
+  if (!is.null(evaporation_variable)) assert_column_names(data_frame, evaporation_variable)
   
+  checkmate::assert_numeric(threshold, lower = 0)
+  checkmate::assert_int(start_day, lower = 1, upper = 365)
+  checkmate::assert_int(end_day, lower = 2, upper = 366)
+  checkmate::assert_numeric(s_start_month, lower = 1, upper = 12)
+  checkmate::assert_logical(drop)
+  checkmate::assert_character(output)
+  checkmate::assert_int(total_rainfall_over_days, lower = 1)
+  checkmate::assert_string(total_rainfall_comparison)
+  checkmate::assert_int(amount_rain, lower = 0)
+  checkmate::assert_number(prob_rain_day, lower = 0, upper = 1)
+  checkmate::assert_number(fraction, lower = 0, upper = 1)
+  checkmate::assert_logical(number_rain_days)
+  checkmate::assert_logical(dry_spell)
+  checkmate::assert_logical(dry_period)
+  checkmate::assert_int(min_rain_days, lower = 0)
+  checkmate::assert_int(rain_day_interval, lower = 1)
+  checkmate::assert_int(spell_interval, lower = 1)
+  checkmate::assert_int(spell_max_dry_days, lower = 0)
+  checkmate::assert_int(period_interval, lower = 1)
+  checkmate::assert_int(max_rain, lower = 0)
+  checkmate::assert_int(period_max_dry_days, lower = 0)
+
   if (number_rain_days){
     if (rain_day_interval < min_rain_days)
       stop("Value given in `rain_day_interval` must be equal to or greater than the value given in `min_rain_days`")

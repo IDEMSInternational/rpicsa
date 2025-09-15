@@ -130,20 +130,19 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   checkmate::assert(checkmate::check_date(data_frame[[date_time]],), 
                     checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   if (!is.null(station)) assert_column_names(data_frame, station)
-  if (!is.null(date_time)) assert_column_names(data_frame, date_time)
   if (!is.null(year)) assert_column_names(data_frame, year)  
   if (!is.null(doy)) assert_column_names(data_frame, doy)  
   
   # checks for summaries
   checkmate::assert_int(s_start_month, lower = 1, upper = 12)
-  checkmate::assert_numeric(rain_day)
-  checkmate::assert_logical(total_rain, null.ok = TRUE)
-  checkmate::assert_logical(n_rain, null.ok = TRUE)
-  checkmate::assert_logical(na_rm, null.ok = TRUE)
-  checkmate::assert_int(na_prop, null.ok = TRUE)
-  checkmate::assert_int(na_n, null.ok = TRUE)
-  checkmate::assert_int(na_consec, null.ok = TRUE)
-  checkmate::assert_int(na_n_non, null.ok = TRUE)
+  checkmate::assert_numeric(rain_day, lower = 0)
+  checkmate::assert_logical(total_rain)
+  checkmate::assert_logical(n_rain)
+  checkmate::assert_logical(na_rm)
+  checkmate::assert_numeric(na_prop, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_consec, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n_non, lower = 0, null.ok = TRUE)
   
   # check at least one summary is given  
   if (!total_rain && !n_rain) {

@@ -2,6 +2,7 @@
 #' @description Returns a summary data frame giving the total rainfall each year from 1 Jan to 31 Dec.
 #' 
 #' @param data The data.frame to calculate from.
+#' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
@@ -21,7 +22,7 @@
 #' @examples #daily_niger_1 <- daily_niger %>% dplyr::filter(year > 1960)
 #' #annual_rain(data = daily_niger, date_time  = "date", station = "station_name",
 #' #            rain = "rain", na_prop = 0.9)
-annual_rain <- function(data, year = NULL, station = NULL, rain,
+annual_rain <- function(data, date_time = NULL, year = NULL, station = NULL, rain,
                         total_rain = TRUE, n_rain = TRUE, rain_day = 0.85,
                         na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL,
                         na_n_non = NULL, data_book = NULL) {
@@ -32,11 +33,15 @@ annual_rain <- function(data, year = NULL, station = NULL, rain,
   # running checks
   checkmate::assert_string(data)
   checkmate::assert_string(rain)
+  checkmate::assert_string(date_time)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_numeric(rain_day)
   
   data_frame <- data_book$get_data_frame(data)
+  assert_column_names(data_frame, date_time)
+  checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
+                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(station)) assert_column_names(data_frame, station)
   if (!is.null(rain)) assert_column_names(data_frame, rain)
@@ -80,7 +85,6 @@ annual_rain <- function(data, year = NULL, station = NULL, rain,
                       date_time = date_time,
                       station = station,
                       year = year,
-                      month = month,
                       to = "annual",
                       columns_to_summarise = columns_to_summarise,
                       summaries = "sum",

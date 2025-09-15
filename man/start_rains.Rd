@@ -9,7 +9,7 @@ start_rains(
   date_time,
   station = NULL,
   year = NULL,
-  rain = NULL,
+  rain,
   threshold = 0.85,
   doy = NULL,
   start_day = 1,

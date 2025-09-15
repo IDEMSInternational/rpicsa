@@ -7,9 +7,9 @@
 #' @param year The name of the `year` column in 'data'.
 #' @param element The name of the column in 'data' for which extremes are to be found.
 #' @param station The name of the `station` column in 'data'. Default `NULL`.
-#' @param value A numeric value specifying the threshold value (e.g., 50 mm for rainfall).
+#' @param value A numeric value specifying the threshold value (e.g., 50 mm for rainfall). This is then the upper bound value if `direction == "between"` or `direction == "outer"`.
 #' @param direction A character string specifying the direction for the operation. It can be either `"greater"`, `"less"`, `"between"`, or `"outer"`.
-#' @param lb_value A numeric value for the lower bound if `direction == "between"` or `direction == "outer"`
+#' @param lb_value A numeric value for the lower bound if `direction == "between"` or `direction == "outer"`.
 #' @param na_rm \code{logical(1)} Should missing values be removed before summing? Passed through to
 #'   the summary calculation. Default \code{FALSE}.
 #' @param na_prop \code{numeric(1)} Maximum allowed proportion of missing values in the in-season window.
@@ -20,94 +20,92 @@
 #' 
 #' @export
 #' @return A filtered data frame where the `element` values are considered extreme based on the specified `value` and `direction`.
- 
-get_extremes <- function(data, element, date_time=NULL, year=NULL, station = NULL, 
-                         value = 95, direction = c("greater", "less", "between", "outer"), lb_value = 0, 
+
+get_extremes <- function(data, element, date_time = NULL, year = NULL, station = NULL, 
+                         value = 95, lb_value = 0, direction = c("greater", "less", "between", "outer"), 
                          na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,  
                          data_book = NULL) {
-    
-    if (is.null(data_book)){
-      data_book = DataBook$new()
-    }
   
-    # Running checks for data
-    checkmate::assert_string(data)
-    checkmate::assert_string(element)
-    checkmate::assert_string(date_time, null.ok=TRUE)
-    checkmate::assert_string(year, null.ok = TRUE)
-    checkmate::assert_string(station, null.ok = TRUE)
-    checkmate::assert_numeric(value)
-    checkmate::assert_numeric(lb_value)
-    
-    data_frame <- data_book$get_data_frame(data)
-    if (!is.null(date_time)) assert_column_names(data_frame, date_time)
-    checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
-                      checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
-    if (!is.null(year)) assert_column_names(data_frame, year)
-    if (!is.null(station)) assert_column_names(data_frame, station)
-
-    checkmate::assert_logical(na_rm, null.ok = TRUE)
-    checkmate::assert_int(na_prop, null.ok = TRUE)
-    checkmate::assert_int(na_n, null.ok = TRUE)
-    checkmate::assert_int(na_consec, null.ok = TRUE)
-    checkmate::assert_int(na_n_non, null.ok = TRUE)
+  if (is.null(data_book)){
+    data_book = DataBook$new()
+  }
   
-    direction <- match.arg(direction)
-    
-    if (is.null(year)) {
-        data_book$split_date(data_name = data_name, col_name = date, year_val = TRUE, s_start_month = 1)
-        year <- "year"
-    }
-    
-    if (direction == "greater"){
-        fn_exps = paste0("(", element, " >= ", value, ")")
-    }
-    else if (direction == "less"){
-        fn_exps = paste0("(", element, " <= ", value, ")")
-    }
-    else if (direction == "between"){
-        fn_exps = paste0("(", element, " >= ", lb_value, ") & (", element, " <= ", value, ")")
-    } 
-    else if (direction == "outer"){
-        fn_exps = paste0("(", element, " <= ", lb_value, ") & (", element, " >= ", value, ")")
-    }
-    
-    rain_day <- instatCalculations::instat_calculation$new(
-        type="calculation", 
-        function_exp=fn_exps, 
-        result_name="rain_day", 
-        calculated_from=setNames(list(element), data))
-    
-    # Then we give a 0/1 depending if it is in that bracket or not
-    transform_calculation <- instatCalculations::instat_calculation$new(
-        type="calculation", 
-        function_exp="zoo::rollapply(data=rain_day, width=1, FUN=sum, align='right', fill=NA)", 
-        result_name="count", 
-        sub_calculations=list(rain_day), 
-        save=2, 
-        before=FALSE, 
-        adjacent_column=element)
-    data_book$run_instat_calculation(calc=transform_calculation, display=FALSE)
-    
-    na_type <- c(
-        if (!is.null(na_n))        "n",
-        if (!is.null(na_n_non))    "n_non_miss",
-        if (!is.null(na_prop))     "prop",
-        if (!is.null(na_consec))   "con"
-    )
-    
-    summary_calculation(data = data,
-                        date_time = date_time,
-                        station = station,
-                        year = year,
-                        to = "annual",
-                        columns_to_summarise = count,
-                        summaries = "sum",
-                        na_rm = na_rm,
-                        na_prop = na_prop,
-                        na_n = na_n,
-                        na_consec = na_consec,
-                        na_n_non = na_n_non,
-                        data_book = data_book)
+  direction <- match.arg(direction)
+  
+  # Running checks for data
+  checkmate::assert_string(data)
+  checkmate::assert_string(element)
+  checkmate::assert_string(date_time, null.ok=TRUE)
+  checkmate::assert_string(year, null.ok = TRUE)
+  checkmate::assert_string(station, null.ok = TRUE)
+  data_frame <- data_book$get_data_frame(data)
+  assert_column_names(data_frame, element)
+  checkmate::assert(checkmate::check_date(data_frame[[date_time]]), 
+                    checkmate::check_posixct(data_frame[[date_time]]))
+  if (!is.null(date_time)) assert_column_names(data_frame, date_time)
+  if (!is.null(year)) assert_column_names(data_frame, year)
+  if (!is.null(station)) assert_column_names(data_frame, station)
+  
+  checkmate::assert_numeric(value, lower = 0)
+  checkmate::assert_numeric(lb_value, lower = 0)
+  checkmate::assert_string(direction)
+  checkmate::assert_logical(na_rm, null.ok = TRUE)
+  checkmate::assert_int(na_prop, lower = 0, null.ok = TRUE)
+  checkmate::assert_int(na_n, lower = 0, null.ok = TRUE)
+  checkmate::assert_int(na_consec, lower = 0, null.ok = TRUE)
+  checkmate::assert_int(na_n_non, lower = 0, null.ok = TRUE)
+  
+  if (is.null(year)) {
+    data_book$split_date(data_name = data_name, col_name = date, year_val = TRUE, s_start_month = 1)
+    year <- "year"
+  }
+  
+  if (direction == "greater"){
+    fn_exps = paste0("(", element, " >= ", value, ")")
+  } else if (direction == "less"){
+    fn_exps = paste0("(", element, " <= ", value, ")")
+  } else if (direction == "between"){
+    fn_exps = paste0("(", element, " >= ", lb_value, ") & (", element, " <= ", value, ")")
+  } else if (direction == "outer"){
+    fn_exps = paste0("(", element, " <= ", lb_value, ") & (", element, " >= ", value, ")")
+  }
+  
+  rain_day <- instatCalculations::instat_calculation$new(
+    type = "calculation", 
+    function_exp = fn_exps, 
+    result_name = "rain_day", 
+    calculated_from = setNames(list(element), data))
+  
+  # Then we give a 0/1 depending if it is in that bracket or not
+  transform_calculation <- instatCalculations::instat_calculation$new(
+    type = "calculation", 
+    function_exp = "zoo::rollapply(data = rain_day, width = 1, FUN = sum, align = 'right', fill = NA)", 
+    result_name = "count", 
+    sub_calculations = list(rain_day), 
+    save = 2, 
+    before = FALSE, 
+    adjacent_column = element)
+  data_book$run_instat_calculation(calc = transform_calculation, display = FALSE)
+  
+  na_type <- c(
+    if (!is.null(na_n))        "n",
+    if (!is.null(na_n_non))    "n_non_miss",
+    if (!is.null(na_prop))     "prop",
+    if (!is.null(na_consec))   "con"
+  )
+  
+  summary_calculation(data = data,
+                      date_time = date_time,
+                      station = station,
+                      year = year,
+                      to = "annual",
+                      columns_to_summarise = count,
+                      summaries = "sum",
+                      na_rm = na_rm,
+                      na_prop = na_prop,
+                      na_n = na_n,
+                      na_consec = na_consec,
+                      na_n_non = na_n_non,
+                      data_book = data_book)
   
 }

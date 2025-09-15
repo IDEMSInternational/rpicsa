@@ -9,7 +9,7 @@ end_season(
   date_time,
   station = NULL,
   year = NULL,
-  rain = NULL,
+  rain,
   doy = NULL,
   s_start_month = 1,
   drop = TRUE,

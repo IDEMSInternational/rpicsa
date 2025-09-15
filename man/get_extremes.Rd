@@ -11,8 +11,8 @@ get_extremes(
   year = NULL,
   station = NULL,
   value = 95,
-  direction = c("greater", "less", "between", "outer"),
   lb_value = 0,
+  direction = c("greater", "less", "between", "outer"),
   na_rm = FALSE,
   na_prop = NULL,
   na_n = NULL,
@@ -32,11 +32,11 @@ get_extremes(
 
 \item{station}{The name of the \code{station} column in 'data'. Default \code{NULL}.}
 
-\item{value}{A numeric value specifying the threshold value (e.g., 50 mm for rainfall).}
+\item{value}{A numeric value specifying the threshold value (e.g., 50 mm for rainfall). This is then the upper bound value if \code{direction == "between"} or \code{direction == "outer"}.}
+
+\item{lb_value}{A numeric value for the lower bound if \code{direction == "between"} or \code{direction == "outer"}.}
 
 \item{direction}{A character string specifying the direction for the operation. It can be either \code{"greater"}, \code{"less"}, \code{"between"}, or \code{"outer"}.}
-
-\item{lb_value}{A numeric value for the lower bound if \code{direction == "between"} or \code{direction == "outer"}}
 
 \item{na_rm}{\code{logical(1)} Should missing values be removed before summing? Passed through to
 the summary calculation. Default \code{FALSE}.}

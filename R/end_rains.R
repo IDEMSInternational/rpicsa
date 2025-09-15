@@ -42,7 +42,7 @@
 #'  # View output
 #' daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
 #' head(daily_data_by_station_name_year)
-end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
+end_rains <- function(data, date_time, station = NULL, year = NULL, rain,
                       doy = NULL,  s_start_doy = NULL, drop = TRUE,
                       start_day = 1, end_day = 366, output = c("doy", "date", "status"),
                       interval_length = 1, min_rainfall = 10, data_book = NULL) {
@@ -53,17 +53,20 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   # 1. Checks
   checkmate::assert_string(data)
   checkmate::assert_string(rain)
-  data_frame <- data_book$get_data_frame(data)
-  assert_column_names(data_frame, rain)
-  checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
-                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
-  checkmate::assert_numeric(s_start_doy, lower = 1, upper = 366, null.ok = TRUE)
+  
+  data_frame <- data_book$get_data_frame(data)
+  checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
+                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
+  assert_column_names(data_frame, rain)
   if (!is.null(station)) assert_column_names(data_frame, station)
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(doy)) assert_column_names(data_frame, doy)
+
+  checkmate::assert_numeric(s_start_doy, lower = 1, upper = 366, null.ok = TRUE)
+  checkmate::assert_logical(drop)
   checkmate::assert_int(start_day, lower = 1, upper = 365)
   checkmate::assert_int(end_day, lower = 2, upper = 366)
   checkmate::assert_int(interval_length, lower = 1)
