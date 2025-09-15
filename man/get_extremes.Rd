@@ -6,28 +6,53 @@
 \usage{
 get_extremes(
   data,
-  station = NULL,
-  year,
   element,
+  date_time = NULL,
+  year = NULL,
+  station = NULL,
   type = c("percentile", "threshold"),
   value = 95,
-  direction = c("greater", "less")
+  direction = c("greater", "less", "between", "outer"),
+  lb_value = 0,
+  na_rm = FALSE,
+  na_prop = NULL,
+  na_n = NULL,
+  na_consec = NULL,
+  na_n_non = NULL,
+  data_book = NULL
 )
 }
 \arguments{
 \item{data}{A data frame containing the data to be analysed.}
 
-\item{station}{The name of the \code{station} column in 'data'. Default \code{NULL}.}
+\item{element}{The name of the column in 'data' for which extremes are to be found.}
+
+\item{date_time}{\code{character(1)} Column name (in \code{data}) of the date variable.}
 
 \item{year}{The name of the \code{year} column in 'data'.}
 
-\item{element}{The name of the column in 'data' for which extremes are to be found.}
+\item{station}{The name of the \code{station} column in 'data'. Default \code{NULL}.}
 
 \item{type}{A character string specifying the mode of operation. It can be either \code{"percentile"} or \code{"threshold"}. Here, \code{"percentile"} identifies values above a certain percentile (e.g., 95th percentile); \code{"threshold"} identifies values above a specific threshold value.}
 
 \item{value}{A numeric value specifying the percentile or threshold, depending on the 'type' parameter. If \code{type == "percentile"}, \code{value} is the percentile (e.g., 95 for 95th percentile). If \code{type == "threshold"}, \code{value} is the threshold value (e.g., 50 mm for rainfall).}
 
 \item{direction}{A character string specifying the direction for the operation. It can be either \code{"greater"} or \code{"less"}.}
+
+\item{lb_value}{A numeric value for the lower bound if \code{direction == "between"} or \code{direction == "outer"}}
+
+\item{na_rm}{\code{logical(1)} Should missing values be removed before summing? Passed through to
+the summary calculation. Default \code{FALSE}.}
+
+\item{na_prop}{\code{numeric(1)} Maximum allowed proportion of missing values in the in-season window.}
+
+\item{na_n}{\code{integer(1)} Maximum allowed number of missing values.}
+
+\item{na_consec}{\code{integer(1)} Maximum allowed number of consecutive missing values.}
+
+\item{na_n_non}{\code{integer(1)} Minimum required count of non-missing values.}
+
+\item{data_book}{The \code{DataBook} (R6) object holding \code{data} and \code{summary_data}.}
 }
 \value{
 A filtered data frame where the \code{element} values are considered extreme based on the specified \code{type} and \code{value}.
@@ -36,6 +61,5 @@ A filtered data frame where the \code{element} values are considered extreme bas
 This function identifies extreme values in a specified element (column) of a data frame. It can operate in two modes: percentile-based and threshold-based.
 }
 \examples{
-# data(daily_niger)
-# filtered_data <- get_extremes(data = daily_niger, station = NULL, year = "year", element = "rain", type = "threshold", value = 50)
+Todo
 }

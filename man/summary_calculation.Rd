@@ -36,7 +36,7 @@ summary_calculation(
 
 \item{columns_to_summarise}{\code{character(1)} The name of the columns to summarise in \code{data}.}
 
-\item{summaries}{\code{character} The summaries to display. Options are \code{"mean"}, \code{"max"}, \code{"min"}.}
+\item{summaries}{\code{character} The summaries to display. Options are \code{"mean"}, \code{"max"}, \code{"min"}, \code{"sum"}}
 
 \item{na_rm}{\code{logical(1)}. Should missing values (including \code{NaN}) be removed?}
 
