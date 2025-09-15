@@ -9,7 +9,7 @@ end_season(
   date_time,
   station = NULL,
   year = NULL,
-  rain = NULL,
+  rain,
   doy = NULL,
   s_start_month = 1,
   drop = TRUE,
@@ -23,7 +23,7 @@ end_season(
   evaporation_variable = NULL,
   reducing = FALSE,
   reducing_value = 0.5,
-  data_book = NULL
+  data_book = data_book
 )
 }
 \arguments{

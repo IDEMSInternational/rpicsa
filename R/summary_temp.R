@@ -24,10 +24,39 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
                                 month = NULL, station = NULL, to = c("annual", "monthly"),
                                 summaries = c("mean", "min", "max"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
-                                data_book = NULL) {
-  to <- match.arg(to)
-  if (is.null(tmin) && is.null(tmax)) { stop("At least one of 'tmin' or 'tmax' must be provided.") }
+                                data_book = data_book) {
   
+  if (is.null(data_book)) {
+    data_book <- DataBook$new()
+  }
+  to <- match.arg(to)
+  
+  # Running checks
+  checkmate::assert_string(data)
+  checkmate::assert_string(date_time)
+  checkmate::assert_string(tmin, null.ok = TRUE)
+  checkmate::assert_string(tmax, null.ok = TRUE)
+  checkmate::assert_string(year, null.ok = TRUE)
+  checkmate::assert_string(month, null.ok = TRUE)
+  checkmate::assert_string(station, null.ok = TRUE)
+  data_frame <- data_book$get_data_frame(data)
+  assert_column_names(data_frame, date_time)
+  if (!is.null(tmin)) assert_column_names(data_frame, tmin)
+  if (!is.null(tmax)) assert_column_names(data_frame, tmax)
+  if (!is.null(year)) assert_column_names(data_frame, year)
+  if (!is.null(month)) assert_column_names(data_frame, month)
+  if (!is.null(station)) assert_column_names(data_frame, station)
+  
+  checkmate::assert_string(to)
+  checkmate::assert_character(summaries)
+  checkmate::assert_logical(na_rm)
+  checkmate::assert_numeric(na_prop, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_consec, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n_non, lower = 0, null.ok = TRUE)
+  
+  if (is.null(tmin) && is.null(tmax)) { stop("At least one of 'tmin' or 'tmax' must be provided.") }
+   
   # specifying the columns to summarize
   columns_to_summarise <- c(tmin, tmax)
   columns_to_summarise <- columns_to_summarise[!sapply(columns_to_summarise, is.null)]

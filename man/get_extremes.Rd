@@ -6,36 +6,80 @@
 \usage{
 get_extremes(
   data,
-  station = NULL,
-  year,
   element,
-  type = c("percentile", "threshold"),
-  value = 95,
-  direction = c("greater", "less")
+  date_time = NULL,
+  year = NULL,
+  station = NULL,
+  direction = c("greater", "less", "between", "outer"),
+  s_start_month = 1,
+  value = 0.85,
+  lb_value = 0,
+  na_rm = FALSE,
+  na_prop = NULL,
+  na_n = NULL,
+  na_consec = NULL,
+  na_n_non = NULL,
+  data_book = data_book
 )
 }
 \arguments{
 \item{data}{A data frame containing the data to be analysed.}
 
-\item{station}{The name of the \code{station} column in 'data'. Default \code{NULL}.}
-
-\item{year}{The name of the \code{year} column in 'data'.}
-
 \item{element}{The name of the column in 'data' for which extremes are to be found.}
 
-\item{type}{A character string specifying the mode of operation. It can be either \code{"percentile"} or \code{"threshold"}. Here, \code{"percentile"} identifies values above a certain percentile (e.g., 95th percentile); \code{"threshold"} identifies values above a specific threshold value.}
+\item{date_time}{\code{character(1)} Column name (in \code{data}) of the date variable.}
 
-\item{value}{A numeric value specifying the percentile or threshold, depending on the 'type' parameter. If \code{type == "percentile"}, \code{value} is the percentile (e.g., 95 for 95th percentile). If \code{type == "threshold"}, \code{value} is the threshold value (e.g., 50 mm for rainfall).}
+\item{year}{\code{character(1)} Column name (in \code{data}) of the year variable.
+If \code{NULL}, it is created from \code{date_time} using \code{lubridate::year()} with
+\code{s_start_month} applied.}
 
-\item{direction}{A character string specifying the direction for the operation. It can be either \code{"greater"} or \code{"less"}.}
+\item{station}{The name of the \code{station} column in 'data'. Default \code{NULL}.}
+
+\item{direction}{A character string specifying the direction for the operation. It can be either \code{"greater"}, \code{"less"}, \code{"between"}, or \code{"outer"}.}
+
+\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
+when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).}
+
+\item{value}{A numeric value specifying the threshold value (e.g., 50 mm for rainfall). This is then the upper bound value if \code{direction == "between"} or \code{direction == "outer"}.}
+
+\item{lb_value}{A numeric value for the lower bound if \code{direction == "between"} or \code{direction == "outer"}.}
+
+\item{na_rm}{\code{logical(1)} Should missing values be removed before summing? Passed through to
+the summary calculation. Default \code{FALSE}.}
+
+\item{na_prop}{\code{numeric(1)} Maximum allowed proportion of missing values in the in-season window.}
+
+\item{na_n}{\code{integer(1)} Maximum allowed number of missing values.}
+
+\item{na_consec}{\code{integer(1)} Maximum allowed number of consecutive missing values.}
+
+\item{na_n_non}{\code{integer(1)} Minimum required count of non-missing values.}
+
+\item{data_book}{The \code{DataBook} (R6) object holding \code{data} and \code{summary_data}.}
 }
 \value{
-A filtered data frame where the \code{element} values are considered extreme based on the specified \code{type} and \code{value}.
+A filtered data frame where the \code{element} values are considered extreme based on the specified \code{value} and \code{direction}.
 }
 \description{
 This function identifies extreme values in a specified element (column) of a data frame. It can operate in two modes: percentile-based and threshold-based.
 }
 \examples{
-# data(daily_niger)
-# filtered_data <- get_extremes(data = daily_niger, station = NULL, year = "year", element = "rain", type = "threshold", value = 50)
+library(databook)
+data_book <- DataBook$new()
+daily_data <- rpicsa::daily_niger |>
+  dplyr::filter(year > 1945, year <= 1955, station_name == "Agades") |>
+  dplyr::mutate(year = as.numeric(year))
+data_book$import_data(list(daily_data = daily_data))
+
+# Looking at the number of instances in a year that rainfall exceeds 40mm in a day
+get_extremes(data = "daily_data",
+             date_time  = "date",
+             station = "station_name",
+             element = "rain",
+             direction = "greater",
+             value = 40,
+             data_book = data_book)
+             
+# The extreme days are under "sum_extreme_rain" here:
+data_book$get_data_frame("daily_data_by_station_name_year")
 }
