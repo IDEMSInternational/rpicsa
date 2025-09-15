@@ -89,7 +89,7 @@ get_extremes <- function(data, element, date_time=NULL, year=NULL, station = NUL
         sub_calculations=list(rain_day), 
         save=2, 
         before=FALSE, 
-        adjacent_column="rainfall")
+        adjacent_column=element)
     data_book$run_instat_calculation(calc=transform_calculation, display=FALSE)
     
     na_type <- c(
