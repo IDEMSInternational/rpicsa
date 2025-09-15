@@ -40,8 +40,6 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
   checkmate::assert_string(station, null.ok = TRUE)
   data_frame <- data_book$get_data_frame(data)
   assert_column_names(data_frame, date_time)
-  checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
-                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   if (!is.null(tmin)) assert_column_names(data_frame, tmin)
   if (!is.null(tmax)) assert_column_names(data_frame, tmax)
   if (!is.null(year)) assert_column_names(data_frame, year)
