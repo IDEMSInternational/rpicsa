@@ -43,7 +43,7 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
   if (!is.null(tmin)) assert_column_names(data_frame, tmin)
   if (!is.null(tmax)) assert_column_names(data_frame, tmax)
   if (!is.null(year)) assert_column_names(data_frame, year)
-  if (!is.null(rain)) assert_column_names(data_frame, month)
+  if (!is.null(month)) assert_column_names(data_frame, month)
   if (!is.null(station)) assert_column_names(data_frame, station)
   checkmate::assert_logical(na_rm, null.ok = TRUE)
   checkmate::assert_int(na_prop, null.ok = TRUE)
