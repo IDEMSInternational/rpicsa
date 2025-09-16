@@ -34,6 +34,7 @@ annual_rain <- function(data, date_time, year = NULL, station = NULL, rain,
   # running checks
   checkmate::assert_string(data)
   checkmate::assert_string(rain)
+  checkmate::assert_string(date_time)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_numeric(rain_day)
@@ -43,7 +44,6 @@ annual_rain <- function(data, date_time, year = NULL, station = NULL, rain,
   checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
                     checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   if (!is.null(year)) assert_column_names(data_frame, year)
-  if (!is.null(date_time)) assert_column_names(data_frame, date_time)
   if (!is.null(station)) assert_column_names(data_frame, station)
   if (!is.null(rain)) assert_column_names(data_frame, rain)
   
