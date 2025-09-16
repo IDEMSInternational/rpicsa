@@ -4,7 +4,6 @@
 #' @param data The data.frame to calculate from.
 #' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
-#' @param date_time \code{\link[base]{Date}} The name of the date column in \code{data}.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param total_rain \code{logical(1)} default `TRUE`. Display the total rainfall value for each year.
