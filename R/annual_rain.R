@@ -23,7 +23,7 @@
 #' @examples #daily_niger_1 <- daily_niger %>% dplyr::filter(year > 1960)
 #' #annual_rain(data = daily_niger, date_time  = "date", station = "station_name",
 #' #            rain = "rain", na_prop = 0.9)
-annual_rain <- function(data, date_time = NULL, year = NULL, station = NULL, rain,
+annual_rain <- function(data, date_time, year = NULL, station = NULL, rain,
                         total_rain = TRUE, n_rain = TRUE, rain_day = 0.85,
                         na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL,
                         na_n_non = NULL, data_book = data_book) {
