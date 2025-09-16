@@ -11,7 +11,7 @@ end_rains(
   year = NULL,
   rain,
   doy = NULL,
-  s_start_doy = NULL,
+  s_start_month = 1,
   drop = TRUE,
   start_day = 1,
   end_day = 366,
@@ -34,6 +34,8 @@ end_rains(
 
 \item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
 
+\item{s_start_month}{\code{numerical(1)} Default \code{NULL} (if \code{NULL}, \code{s_start_month = 1}. The value to state is the month to start on.}
+
 \item{drop}{\code{logical(1)} default \code{TRUE}. Whether to drop years where there are \code{NA} data for the rainfall.}
 
 \item{start_day}{\code{numerical(1)} The first day to calculate from in the year (1-366).}
@@ -47,8 +49,6 @@ end_rains(
 \item{min_rainfall}{\code{numerical(1)} Minimum amount of rainfall to occur on the set of days defined in \code{interval_length}.}
 
 \item{data_book}{The data book object where the data object is stored, default \code{NULL}.}
-
-\item{s_start_month}{\code{numerical(1)} Default \code{NULL} (if \code{NULL}, \code{s_start_month = 1}. The value to state is the month to start on.}
 }
 \value{
 A data.frame with the day of year and/or date for the end of the rains for each year (and station).
