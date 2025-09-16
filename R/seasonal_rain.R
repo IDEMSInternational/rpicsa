@@ -191,6 +191,5 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                       na_n = na_n,
                       na_consec = na_consec,
                       na_n_non = na_n_non,
-                      data_book = data_book)
-  
+                      data_book = data_book) 
 }
