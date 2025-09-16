@@ -134,7 +134,6 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   if (!is.null(doy)) assert_column_names(data_frame, doy)  
   
   # checks for summaries
-  checkmate::assert_int(s_start_month, lower = 1, upper = 12)
   checkmate::assert_numeric(rain_day, lower = 0)
   checkmate::assert_logical(total_rain)
   checkmate::assert_logical(n_rain)
