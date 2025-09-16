@@ -7,7 +7,7 @@
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param rain \code{character(1)} The name of the rainfall column in \code{data} to apply the function to.
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
-#' @param s_start_doy \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_doy = 1`. The day of year to state is the first day of year.
+#' @param s_start_month \code{numerical(1)} Default `NULL` (if `NULL`, `s_start_month = 1`. The value to state is the month to start on.
 #' @param drop \code{logical(1)} default `TRUE`. Whether to drop years where there are `NA` data for the rainfall.
 #' @param start_day \code{numerical(1)} The first day to calculate from in the year (1-366).
 #' @param end_day \code{numerical(1)} The last day to calculate to in the year (1-366).
@@ -42,10 +42,10 @@
 #'  # View output
 #' daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
 #' head(daily_data_by_station_name_year)
-end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
+end_rains <- function(data, date_time, station = NULL, year = NULL, rain,
                       doy = NULL,  s_start_doy = NULL, drop = TRUE,
                       start_day = 1, end_day = 366, output = c("doy", "date", "status"),
-                      interval_length = 1, min_rainfall = 10, data_book = NULL) {
+                      interval_length = 1, min_rainfall = 10, data_book = data_book) {
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
@@ -53,17 +53,20 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
   # 1. Checks
   checkmate::assert_string(data)
   checkmate::assert_string(rain)
-  data_frame <- data_book$get_data_frame(data)
-  assert_column_names(data_frame, rain)
-  checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
-                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
-  checkmate::assert_numeric(s_start_doy, lower = 1, upper = 366, null.ok = TRUE)
+  
+  data_frame <- data_book$get_data_frame(data)
+  checkmate::assert(checkmate::check_date(data_frame[[date_time]], null.ok = TRUE), 
+                    checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
+  assert_column_names(data_frame, rain)
   if (!is.null(station)) assert_column_names(data_frame, station)
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(doy)) assert_column_names(data_frame, doy)
+
+  checkmate::assert_numeric(s_start_month, lower = 1, upper = 12, null.ok = TRUE)
+  checkmate::assert_logical(drop)
   checkmate::assert_int(start_day, lower = 1, upper = 365)
   checkmate::assert_int(end_day, lower = 2, upper = 366)
   checkmate::assert_int(interval_length, lower = 1)
@@ -71,12 +74,12 @@ end_rains <- function(data, date_time, station = NULL, year = NULL, rain = NULL,
 
   # 3. Add in R code to create DOY and Year if they are NULL (like in summary_temp)
   if (is.null(year)) {
-    data_book$split_date(data_name=data, col_name=date_time, year_val=TRUE, s_start_month=1)
+    data_book$split_date(data_name=data, col_name=date_time, year_val=TRUE, s_start_month = s_start_month)
     year <- "year"
   }
   
   if (is.null(doy)){
-    data_book$split_date(data_name = data, col_name=date_time, day_in_year_366 =TRUE, s_start_month=1)
+    data_book$split_date(data_name = data, col_name=date_time, day_in_year_366 =TRUE, s_start_month = s_start_month)
     doy <- "doy"
   }
 

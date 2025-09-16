@@ -24,11 +24,12 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
                                 month = NULL, station = NULL, to = c("annual", "monthly"),
                                 summaries = c("mean", "min", "max"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
-                                data_book = NULL) {
+                                data_book = data_book) {
   
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
+  to <- match.arg(to)
   
   # Running checks
   checkmate::assert_string(data)
@@ -45,13 +46,15 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(month)) assert_column_names(data_frame, month)
   if (!is.null(station)) assert_column_names(data_frame, station)
-  checkmate::assert_logical(na_rm, null.ok = TRUE)
-  checkmate::assert_int(na_prop, null.ok = TRUE)
-  checkmate::assert_int(na_n, null.ok = TRUE)
-  checkmate::assert_int(na_consec, null.ok = TRUE)
-  checkmate::assert_int(na_n_non, null.ok = TRUE)
   
-  to <- match.arg(to)
+  checkmate::assert_string(to)
+  checkmate::assert_character(summaries)
+  checkmate::assert_logical(na_rm)
+  checkmate::assert_numeric(na_prop, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_consec, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n_non, lower = 0, null.ok = TRUE)
+  
   if (is.null(tmin) && is.null(tmax)) { stop("At least one of 'tmin' or 'tmax' must be provided.") }
    
   # specifying the columns to summarize

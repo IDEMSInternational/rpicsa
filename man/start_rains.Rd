@@ -9,7 +9,7 @@ start_rains(
   date_time,
   station = NULL,
   year = NULL,
-  rain = NULL,
+  rain,
   threshold = 0.85,
   doy = NULL,
   start_day = 1,
@@ -33,7 +33,7 @@ start_rains(
   period_interval = 45,
   max_rain = 40,
   period_max_dry_days = 30,
-  data_book = NULL
+  data_book = data_book
 )
 }
 \arguments{

@@ -12,7 +12,7 @@ seasonal_length(
   end_rain_status = NULL,
   season_length_save_name = "length",
   occurrence_save_name = "occurrence",
-  data_book = NULL
+  data_book = data_book
 )
 }
 \arguments{

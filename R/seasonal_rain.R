@@ -101,7 +101,7 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                            rain = NULL,  s_start_month = 1, total_rain = TRUE, 
                            n_rain = TRUE, rain_day = 0.85, na_rm = FALSE,
                            na_prop = NULL, na_n = NULL, na_consec = NULL, 
-                           na_n_non = NULL,  data_book = NULL) {
+                           na_n_non = NULL,  data_book = data_book) {
   if (is.null(data_book)){
     data_book = DataBook$new()
   }
@@ -130,20 +130,19 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   checkmate::assert(checkmate::check_date(data_frame[[date_time]],), 
                     checkmate::check_posixct(data_frame[[date_time]],  null.ok = TRUE))
   if (!is.null(station)) assert_column_names(data_frame, station)
-  if (!is.null(date_time)) assert_column_names(data_frame, date_time)
   if (!is.null(year)) assert_column_names(data_frame, year)  
   if (!is.null(doy)) assert_column_names(data_frame, doy)  
   
   # checks for summaries
   checkmate::assert_int(s_start_month, lower = 1, upper = 12)
-  checkmate::assert_numeric(rain_day)
-  checkmate::assert_logical(total_rain, null.ok = TRUE)
-  checkmate::assert_logical(n_rain, null.ok = TRUE)
-  checkmate::assert_logical(na_rm, null.ok = TRUE)
-  checkmate::assert_int(na_prop, null.ok = TRUE)
-  checkmate::assert_int(na_n, null.ok = TRUE)
-  checkmate::assert_int(na_consec, null.ok = TRUE)
-  checkmate::assert_int(na_n_non, null.ok = TRUE)
+  checkmate::assert_numeric(rain_day, lower = 0)
+  checkmate::assert_logical(total_rain)
+  checkmate::assert_logical(n_rain)
+  checkmate::assert_logical(na_rm)
+  checkmate::assert_numeric(na_prop, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_consec, lower = 0, null.ok = TRUE)
+  checkmate::assert_numeric(na_n_non, lower = 0, null.ok = TRUE)
   
   # check at least one summary is given  
   if (!total_rain && !n_rain) {
@@ -177,25 +176,21 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   factors_by <- c(year, station)
   factors_by <- factors_by[!sapply(factors_by, is.null)]
   
-  na_type <- c(
-    if (!is.null(na_n))        "n",
-    if (!is.null(na_n_non))    "n_non_miss",
-    if (!is.null(na_prop))     "prop",
-    if (!is.null(na_consec))   "con"
-  )
-  
+
   # then we just calculate the summaries for those days
-  data_book$calculate_summary(
-    columns_to_summarise = rain, 
-    data_name = data, 
-    factors = factors_by, 
-    additional_filter =day_filter, 
-    summaries=c("summary_sum"), 
-    silent=TRUE,
-    na.rm = na_rm,
-    na_type = na_type, 
-    na_max_n = na_n,
-    na_min_n = na_n_non,
-    na_consecutive_n = na_consec,
-    na_max_prop = na_prop)
+  summary_calculation(data = data,
+                      date_time = date_time,
+                      station = station,
+                      year = year,
+                      to = "annual",
+                      columns_to_summarise = rain, 
+                      additional_filter = day_filter,
+                      summaries = "sum",
+                      na_rm = na_rm,
+                      na_prop = na_prop,
+                      na_n = na_n,
+                      na_consec = na_consec,
+                      na_n_non = na_n_non,
+                      data_book = data_book)
+  
 }

@@ -6,11 +6,12 @@
 \usage{
 crops_definitions(
   data_name,
+  date_time = NULL,
   year = NULL,
   station = NULL,
-  date = NULL,
   doy = NULL,
   rain,
+  s_start_month = 1,
   rain_totals,
   plant_days,
   plant_lengths,
@@ -20,22 +21,28 @@ crops_definitions(
   end_day,
   return_crops_table = TRUE,
   definition_props = TRUE,
-  data_book = NULL
+  data_book = data_book
 )
 }
 \arguments{
 \item{data_name}{\code{character(1)} Name of the daily data frame.}
 
-\item{year}{\code{character(1)} Column name in \code{data_name} giving the year.}
+\item{date_time}{\code{character(1)}  optional. Column name in \code{data_name} giving the date .}
+
+\item{year}{\code{character(1)} Column name (in \code{data}) of the year variable.
+If \code{NULL}, it is created from \code{date_time} using \code{lubridate::year()} with
+\code{s_start_month} applied.}
 
 \item{station}{\code{character(1)} Optional. Column name giving the station ID.
 If missing, results are computed by year only.}
 
-\item{date}{\code{character(1)}  optional. Column name in \code{data_name} giving the date .}
-
-\item{doy}{\code{character(1)} Column name giving the doy.}
+\item{doy}{\code{character(1)} Column name (in \code{data}) of the day-of-year variable.
+If \code{NULL}, it is created from \code{date_time} (366-day DOY) with \code{s_start_month} applied.}
 
 \item{rain}{\code{character(1)} Column name giving daily rainfall (numeric).}
+
+\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
+when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).}
 
 \item{rain_totals}{The amount of water (rainfall) needed for the crop, usually between 250mm and 1000mm
 Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 200, 1200, 50 produces 200, 250, 300, ..., 1200.}
