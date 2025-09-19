@@ -43,7 +43,7 @@ that contains the season boundary columns (e.g. \code{start_rain}, \code{end_rai
 
 \item{day_from}{Either the column name in \code{summary_data} giving the start of rains, or an integer of the initial start day.}
 
-\item{day_to}{A numeric value for the end day in the year (numeric, 1–366) to use if \code{day_to} is \code{NULL}.}
+\item{day_to}{Either the column name in \code{summary_data} giving the end of rains, or an integer of the final end day.}
 
 \item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
 when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).}

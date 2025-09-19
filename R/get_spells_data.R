@@ -16,7 +16,6 @@
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
 #' @param day_from Either the column name in \code{summary_data} giving the start of rains, or an integer of the initial start day.
 #' @param day_to Either the column name in \code{summary_data} giving the end of rains, or an integer of the final end day.
-#' @param day_to A numeric value for the end day in the year (numeric, 1–366) to use if `day_to` is `NULL`. 
 #' @param direction A character string specifying the direction for the operation. It can be either `"greater"`, `"less"`, `"between"`, or `"outer"`.
 #' @param value A numeric value specifying the threshold value (e.g., 50 mm for rainfall). This is then the upper bound value if `direction == "between"` or `direction == "outer"`.
 #' @param lb_value A numeric value for the lower bound if `direction == "between"` or `direction == "outer"`.
