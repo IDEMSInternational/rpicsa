@@ -116,7 +116,7 @@ get_spells_data <- function(data, element, summary_data = NULL, date_time = NULL
     day_from_and_to <- instatCalculations::instat_calculation$new(
         type="filter", 
         function_exp=fn_day_exps, 
-        calculated_from=databook::calc_from_convert(x=setNames(list("doy", c(start_date, end_date)), c(data, data))))
+        calculated_from=databook::calc_from_convert(x=setNames(list("doy", c(start_date, end_date)), c(data, summary_data))))
     
     spells <- instatCalculations::instat_calculation$new(
         type="summary", 
