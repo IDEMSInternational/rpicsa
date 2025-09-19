@@ -6,30 +6,25 @@
 \usage{
 get_spells_data(
   data,
-  element,
-  summary_data = NULL,
   date_time = NULL,
   year = NULL,
   station = NULL,
-  s_start_month = 1,
+  element,
   doy = NULL,
-  start_date = NULL,
-  end_date = NULL,
+  summary_data = NULL,
   day_from = 1,
   day_to = 366,
+  s_start_month = 1,
   direction = c("greater", "less", "between", "outer"),
   value = 0.85,
   lb_value = 0,
+  return_max_spell = TRUE,
+  return_all_spells = FALSE,
   data_book = data_book
 )
 }
 \arguments{
 \item{data}{A data frame containing the data to be analysed.}
-
-\item{element}{The name of the column in 'data' for which extremes are to be found.}
-
-\item{summary_data}{\code{character(1)} Name of the summary data frame in \code{data_book}
-that contains the season boundary columns (e.g. \code{start_rain}, \code{end_rains}).}
 
 \item{date_time}{\code{character(1)} Column name (in \code{data}) of the date variable.}
 
@@ -39,24 +34,29 @@ If \code{NULL}, it is created from \code{date_time} using \code{lubridate::year(
 
 \item{station}{The name of the \code{station} column in 'data'. Default \code{NULL}.}
 
-\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
-when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).}
+\item{element}{The name of the column in 'data' for which extremes are to be found.}
 
 \item{doy}{\code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.}
 
-\item{start_date}{\code{character(1)} Column name in \code{summary_data} giving the start of rains.}
+\item{summary_data}{\code{character(1)} Name of the summary data frame in \code{data_book}
+that contains the season boundary columns (e.g. \code{start_rain}, \code{end_rains}).}
 
-\item{end_date}{\code{character(1)} Column name in \code{summary_data} giving the end of season.}
+\item{day_from}{A numeric value for the start day in the year (numeric, 1–366) to use if \code{day_from} is \code{NULL}.}
 
-\item{day_from}{A numeric value for the start day in the year (numeric, 1–366) to use if \code{start_date} is \code{NULL}.}
+\item{day_to}{A numeric value for the end day in the year (numeric, 1–366) to use if \code{day_to} is \code{NULL}.}
 
-\item{day_to}{A numeric value for the end day in the year (numeric, 1–366) to use if \code{end_date} is \code{NULL}.}
+\item{s_start_month}{\code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
+when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).}
 
 \item{direction}{A character string specifying the direction for the operation. It can be either \code{"greater"}, \code{"less"}, \code{"between"}, or \code{"outer"}.}
 
 \item{value}{A numeric value specifying the threshold value (e.g., 50 mm for rainfall). This is then the upper bound value if \code{direction == "between"} or \code{direction == "outer"}.}
 
 \item{lb_value}{A numeric value for the lower bound if \code{direction == "between"} or \code{direction == "outer"}.}
+
+\item{return_max_spell}{A boolean (default \code{TRUE}) to return the duration of the longest spell by year (and station)}
+
+\item{return_all_spells}{A boolean (default \code{FALSE}) to return a data frame containing all end dates of the defined spell across years (and stations).}
 
 \item{data_book}{The \code{DataBook} (R6) object holding \code{data} and \code{summary_data}.}
 }
@@ -65,4 +65,68 @@ The calculated spells
 }
 \description{
 This function calculates rainfall or climatic spells
+}
+\examples{
+# Example: Get the length of the longest spell between day 1 and 366 in the data
+library(databook)
+data_book <- DataBook$new()
+daily_data <- rpicsa::daily_niger |>
+  dplyr::filter(year > 1945, year <= 1950, station_name == "Agades") |>
+  dplyr::mutate(year = as.numeric(year))
+data_book$import_data(list(daily_data = daily_data))
+
+get_spells_data(data = "daily_data",
+                date_time = "date",
+                year = "year",
+                station = "station_name",
+                element = "rain",
+                doy = "doy", 
+                day_from = 365,
+                day_to = 366,
+                direction = "less",
+                value = 0.85,
+                return_all_spells = TRUE,
+                return_max_spell = TRUE,
+                data_book = data_book)
+data_book$get_data_frame("daily_data_by_station_name_year")
+data_book$get_data_frame("spells_filter")
+
+# Example 2: Compute start/end for daily_niger, then we can use that to get the spells
+library(databook)
+data_book <- DataBook$new()
+daily_data <- rpicsa::daily_niger |>
+  dplyr::filter(year > 1945, year <= 1950, station_name == "Agades") |>
+  dplyr::mutate(year = as.numeric(year))
+data_book$import_data(list(daily_data = daily_data))
+
+start_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  output = c("doy", "status"), data_book = data_book
+)
+
+end_rains(
+  data = "daily_data", date_time = "date", station = "station_name",
+  year = "year", rain = "rain", start_day = 121, end_day = 300,
+  output = c("doy", "status"), data_book = data_book
+)
+
+# Get the spells from the start to end of rains
+get_spells_data(data = "daily_data",
+                date_time = "date",
+                year = "year",
+                station = "station_name",
+                element = "rain",
+                doy = "doy", 
+                summary_data = "daily_data_by_station_name_year",
+                day_from = "start_rain",
+                day_to = "end_rains",
+                direction = "less",
+                value = 0.85,
+                return_all_spells = TRUE,
+                return_max_spell = TRUE,
+                data_book = data_book)
+data_book$get_data_frame("daily_data_by_station_name_year")
+data_book$get_data_frame("spells_filter")
+
 }
