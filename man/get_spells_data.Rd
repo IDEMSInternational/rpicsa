@@ -41,7 +41,7 @@ If \code{NULL}, it is created from \code{date_time} using \code{lubridate::year(
 \item{summary_data}{\code{character(1)} Name of the summary data frame in \code{data_book}
 that contains the season boundary columns (e.g. \code{start_rain}, \code{end_rains}).}
 
-\item{day_from}{A numeric value for the start day in the year (numeric, 1–366) to use if \code{day_from} is \code{NULL}.}
+\item{day_from}{Either the column name in \code{summary_data} giving the start of rains, or an integer of the initial start day.}
 
 \item{day_to}{A numeric value for the end day in the year (numeric, 1–366) to use if \code{day_to} is \code{NULL}.}
 

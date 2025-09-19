@@ -14,9 +14,8 @@
 #' @param s_start_month \code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
 #'   when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).
 #' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
-#' @param day_from \code{character(1)} Column name in \code{summary_data} giving the start of rains.
-#' @param day_to \code{character(1)} Column name in \code{summary_data} giving the end of season.
-#' @param day_from A numeric value for the start day in the year (numeric, 1–366) to use if `day_from` is `NULL`. 
+#' @param day_from Either the column name in \code{summary_data} giving the start of rains, or an integer of the initial start day.
+#' @param day_to Either the column name in \code{summary_data} giving the end of rains, or an integer of the final end day.
 #' @param day_to A numeric value for the end day in the year (numeric, 1–366) to use if `day_to` is `NULL`. 
 #' @param direction A character string specifying the direction for the operation. It can be either `"greater"`, `"less"`, `"between"`, or `"outer"`.
 #' @param value A numeric value specifying the threshold value (e.g., 50 mm for rainfall). This is then the upper bound value if `direction == "between"` or `direction == "outer"`.
