@@ -105,16 +105,31 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
   if (is.null(data_book)){
     data_book = DataBook$new()
   }
-
+  
+  
   # Running checks
   # checks with the summary data frame
   checkmate::assert_string(summary_data, null.ok = TRUE)
-  checkmate::assert_string(start_date, null.ok = TRUE)
-  checkmate::assert_string(end_date, null.ok = TRUE)
-  if (!is.null(summary_data)){
-      data_frame <- data_book$get_data_frame(summary_data)
-      assert_column_names(data_frame, start_date)
-      assert_column_names(data_frame, end_date) 
+  if (!is.null(summary_data)) {
+    checkmate::assert_string(summary_data)
+    data_frame <- data_book$get_data_frame(summary_data)
+    checkmate::assert_string(start_date, null.ok = FALSE)
+    checkmate::assert_string(end_date, null.ok = FALSE)
+    assert_column_names(data_frame, start_date)
+    assert_column_names(data_frame, end_date)
+  } else {
+    if (is.null(start_date)) start_date <- 1
+    if (is.null(end_date)) end_date <- 366
+    if (is.character(start_date)){
+      checkmate::assert_string(start_date)
+    } else {
+      checkmate::assert_numeric(start_date, lower = 1, upper = 366)
+    }
+    if (is.character(end_date)){
+      checkmate::assert_string(end_date)
+    } else {
+      checkmate::assert_number(end_date, lower = 1, upper = 366)
+    }
   }
   
   # checks with the data frame
@@ -165,18 +180,46 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
     year <- "year"
   }
   
-  # day filter which gets the days from the start of rains to the end of rains
-  day_filter <- instatCalculations::instat_calculation$new(
-    type="filter", 
-    function_exp=paste0(doy, " >= ", start_date, " & ", doy, " <= ", end_date), 
-    calculated_from=databook::calc_from_convert(x=setNames(
-      list(doy, c(start_date, end_date)),
-      c(data, summary_data))))
+  build_day_filter <- function(data, doy, start_date, end_date, summary_data = NULL) {
+    is_num_start <- is.numeric(start_date) && length(start_date) == 1
+    is_num_end   <- is.numeric(end_date)   && length(end_date)   == 1
+    
+    # Expression works for any mix of numeric/column bounds
+    fun_exp <- paste0(doy, " >= ", start_date, " & ", doy, " <= ", end_date)
+    
+    # Build dataset -> vars map explicitly
+    x <- list()
+    x[[data]] <- doy
+    
+    if (!is.null(summary_data)) {
+      bounds_vars <- c(
+        if (!is_num_start) start_date,
+        if (!is_num_end)   end_date
+      )
+      if (length(bounds_vars)) {
+        x[[summary_data]] <- unique(bounds_vars)
+      }
+    } else {
+      # Bounds come from main data if they’re columns
+      extra <- c(
+        if (!is_num_start) start_date,
+        if (!is_num_end)   end_date
+      )
+      if (length(extra)) x[[data]] <- unique(c(x[[data]], extra))
+    }
+    
+    instatCalculations::instat_calculation$new(
+      type = "filter",
+      function_exp = fun_exp,
+      calculated_from = databook::calc_from_convert(x = x)
+    )
+  }
+  
+  day_filter <- build_day_filter(data, doy, start_date, end_date, summary_data)
   
   factors_by <- c(year, station)
   factors_by <- factors_by[!sapply(factors_by, is.null)]
   
-
   # then we just calculate the summaries for those days
   summary_calculation(data = data,
                       date_time = date_time,

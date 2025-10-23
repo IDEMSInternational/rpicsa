@@ -237,3 +237,75 @@ testthat::test_that("seasonal_length works without status columns and with custo
   testthat::expect_false("O_custom" %in% names(out))
   testthat::expect_equal(as.numeric(out$L_custom)[1], as.numeric(out$end_d)[1] - as.numeric(out$start_d)[1])
 })
+
+
+testthat::test_that("seasonal_rain adds correct seasonal totals when doy values are given", {
+  library(dplyr)
+  library(lubridate)
+  
+  # --- Setup small, deterministic slice of data ---
+  # Use one station and a couple of years to keep tests quick
+  daily_data <- rpicsa::daily_niger %>%
+    dplyr::filter(station_name == "Agades", year >= 1947, year <= 1948) %>%
+    dplyr::mutate(year = as.numeric(year))
+  
+  # Fresh DataBook
+  data_book <- DataBook$new()
+  data_book$import_data(list(daily_data = daily_data))
+  
+  # Compute start and end of rains as DOY (so seasonal_rain can reference them)
+  start_rain <- 121
+  end_rains <- 300
+  # --- Run seasonal_rain (vectorised path: let it create/confirm doy & year if needed) ---
+  suppressWarnings(seasonal_rain(
+    summary_data = NULL,
+    start_date   = start_rain,
+    end_date     = end_rains,
+    data         = "daily_data",
+    date_time    = "date",
+    year         = "year",
+    doy          = "doy",
+    station      = "station_name",
+    rain         = "rain",
+    data_book    = data_book
+  ))
+  
+  # Pull the updated summary table
+  out_df <- data_book$get_data_frame(sum_name)
+  
+  # Find the newly added summary column (from calculate_summary with "summary_sum")
+  # We don't assume the exact column name; look for a single "sum" column.
+  sum_cols <- grep("sum", names(out_df), value = TRUE)
+  testthat::expect_true(length(sum_cols) >= 1)
+  
+  # Prefer a rain-specific sum column if present
+  sum_col <- if (any(grepl("rain", sum_cols))) {
+    sum_cols[grepl("rain", sum_cols)][1]
+  } else {
+    sum_cols[1]
+  }
+  testthat::expect_true(is.numeric(out_df[[sum_col]]))
+  
+  # --- Reference calculation (hand compute seasonal totals) ---
+  # Ensure DOY is available in the raw daily data
+  dd <- data_book$get_data_frame("daily_data")
+  testthat::expect_true(all(c("doy", "year", "station_name", "rain") %in% names(dd)))
+  
+  ref <- out_df %>%
+    dplyr::select(station_name, year) %>%
+    dplyr::left_join(
+      dd %>% dplyr::select(station_name, year, doy, rain),
+      by = c("station_name", "year")
+    ) %>%
+    dplyr::filter(!is.na(start_rain), !is.na(end_rains)) %>%
+    dplyr::filter(doy >= start_rain, doy <= end_rains) %>%
+    dplyr::group_by(station_name, year) %>%
+    dplyr::summarise(ref_sum = sum(rain, na.rm = FALSE), .groups = "drop")
+  
+  check <- out_df %>%
+    dplyr::select(station_name, year, !!sum_col := dplyr::all_of(sum_col)) %>%
+    dplyr::inner_join(ref, by = c("station_name", "year"))
+  
+  # Compare within small numeric tolerance
+  testthat::expect_equal(as.numeric(check[[sum_col]]), check$ref_sum, tolerance = 1e-8)
+})
