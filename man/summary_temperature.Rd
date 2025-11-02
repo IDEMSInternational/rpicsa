@@ -12,7 +12,6 @@ summary_temperature(
   year = NULL,
   month = NULL,
   station = NULL,
-  to = c("annual", "monthly"),
   summaries = c("mean", "min", "max"),
   na_rm = FALSE,
   na_prop = NULL,
@@ -36,8 +35,6 @@ summary_temperature(
 \item{month}{\code{character(1)} The name of the month column in \code{data}. If \code{NULL} it will be created using \code{lubridate::month(data[[date_time]])}.}
 
 \item{station}{\code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.}
-
-\item{to}{\code{character(1)} Default \code{annual}. The period of time to calculate the mean temperature columns over (options are \code{annual} or \code{monthly}).}
 
 \item{summaries}{\code{character} The summaries to display. Options are \code{"mean"}, \code{"max"}, \code{"min"}.}
 
