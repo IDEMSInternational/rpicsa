@@ -84,7 +84,6 @@ annual_rain <- function(data, date_time = NULL, year = NULL, station = NULL, rai
                       date_time = date_time,
                       station = station,
                       year = year,
-                      to = "annual",
                       columns_to_summarise = columns_to_summarise,
                       summaries = "sum",
                       na_rm = na_rm,
