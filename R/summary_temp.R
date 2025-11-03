@@ -8,7 +8,6 @@
 #' @param year \code{character(1)} The name of the year column in \code{data}. If \code{NULL} it will be created using \code{lubridate::year(data[[date_time]])}.
 #' @param month \code{character(1)} The name of the month column in \code{data}. If \code{NULL} it will be created using \code{lubridate::month(data[[date_time]])}.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
-#' @param to \code{character(1)} Default `annual`. The period of time to calculate the mean temperature columns over (options are `annual` or `monthly`).
 #' @param summaries \code{character} The summaries to display. Options are `"mean"`, `"max"`, `"min"`.
 #' @param na_rm \code{logical(1)}. Should missing values (including \code{NaN}) be removed?
 #' @param na_prop \code{integer(1)} Max proportion of missing values allowed
@@ -21,15 +20,13 @@
 #' @export
 #'
 summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year = NULL,
-                                month = NULL, station = NULL, to = c("annual", "monthly"),
-                                summaries = c("mean", "min", "max"), na_rm = FALSE,
-                                na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
-                                data_book = data_book) {
+                                month = NULL, station = NULL, summaries = c("mean", "min", "max"), 
+                                na_rm = FALSE, na_prop = NULL, na_n = NULL, na_consec = NULL, 
+                                na_n_non = NULL, data_book = data_book) {
   
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
-  to <- match.arg(to)
   
   # Running checks
   checkmate::assert_string(data)
@@ -46,8 +43,7 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(month)) assert_column_names(data_frame, month)
   if (!is.null(station)) assert_column_names(data_frame, station)
-  
-  checkmate::assert_string(to)
+
   checkmate::assert_character(summaries)
   checkmate::assert_logical(na_rm)
   checkmate::assert_numeric(na_prop, lower = 0, null.ok = TRUE)
@@ -62,7 +58,7 @@ summary_temperature <- function(data, date_time, tmin = NULL, tmax = NULL, year 
   columns_to_summarise <- columns_to_summarise[!sapply(columns_to_summarise, is.null)]
   
   summary_calculation(data = data, date_time = date_time, year = year, month = month,
-                      station = station, to = to, columns_to_summarise = columns_to_summarise,
+                      station = station, columns_to_summarise = columns_to_summarise,
                       summaries = summaries, na_rm = na_rm, na_prop = na_prop, na_n = na_n,
                       na_consec = na_consec, na_n_non = na_n_non, data_book = data_book)
 }

@@ -225,7 +225,6 @@ seasonal_rain <- function (summary_data = NULL, start_date = NULL, end_date = NU
                       date_time = date_time,
                       station = station,
                       year = year,
-                      to = "annual",
                       columns_to_summarise = rain, 
                       additional_filter = day_filter,
                       summaries = "sum",
