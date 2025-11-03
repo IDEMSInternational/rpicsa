@@ -380,7 +380,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain, thre
     calculated_from_list <- c(setNames("start_rain_status", linked_data_name), setNames("start_rain", linked_data_name))
     start_rain_status2 <- instatCalculations::instat_calculation$new(
       type="calculation", 
-      function_exp="ifelse(!is.na(start_rain), TRUE, ifelse(start_of_rains_status == TRUE, NA, start_of_rains_status))",
+      function_exp="ifelse(!is.na(start_rain), TRUE, ifelse(start_rain_status == TRUE, NA, start_rain_status))",
       calculated_from=calculated_from_list, 
       result_name="start_rain_status", 
       save=2)
