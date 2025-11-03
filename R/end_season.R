@@ -87,7 +87,7 @@ end_season <- function(data, date_time, station = NULL, year = NULL, rain,
   checkmate::assert_int(end_day, lower = 2, upper = 366)
   checkmate::assert_numeric(capacity, lower = 0)
   checkmate::assert_numeric(water_balance_max, lower = 0)
-  checkmate::assert_numeric(evaporation_value, lower = 0)
+  if (evaporation == "value") checkmate::assert_numeric(evaporation_value, lower = 0)
   checkmate::assert_numeric(s_start_month, lower = 1, upper = 12, null.ok = TRUE)
   checkmate::assert_character(output)
   checkmate::assert_string(evaporation)

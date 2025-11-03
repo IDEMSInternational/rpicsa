@@ -43,7 +43,7 @@
 #' daily_data_by_station_name_year <- data_book$get_data_frame("daily_data_by_station_name_year")
 #' head(daily_data_by_station_name_year)
 end_rains <- function(data, date_time, station = NULL, year = NULL, rain,
-                      doy = NULL,  s_start_doy = NULL, drop = TRUE,
+                      doy = NULL,  s_start_month = 1, drop = TRUE,
                       start_day = 1, end_day = 366, output = c("doy", "date", "status"),
                       interval_length = 1, min_rainfall = 10, data_book = data_book) {
   if (is.null(data_book)) {

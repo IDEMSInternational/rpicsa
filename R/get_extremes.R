@@ -114,7 +114,6 @@ get_extremes <- function(data, element, date_time = NULL, year = NULL, station =
                       date_time = date_time,
                       station = station,
                       year = year,
-                      to = "annual",
                       columns_to_summarise = paste0("extreme_", element), 
                       summaries = "sum",
                       na_rm = na_rm,
