@@ -271,7 +271,7 @@ testthat::test_that("seasonal_rain adds correct seasonal totals when doy values 
   ))
   
   # Pull the updated summary table
-  out_df <- data_book$get_data_frame(sum_name)
+  out_df <- data_book$get_data_frame("daily_data_by_station_name_year")
   
   # Find the newly added summary column (from calculate_summary with "summary_sum")
   # We don't assume the exact column name; look for a single "sum" column.
