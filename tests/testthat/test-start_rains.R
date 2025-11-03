@@ -122,7 +122,7 @@ test_that("number of rainy days definition", {
   )))
   expect_true(is.na(as.numeric(res$start_rain)))
   expect_true(is.na(as.numeric(res$start_rain_date)))
-  expect_true(res$start_rain_status)
+  expect_true(is.na(res$start_rain_status))
 })
 
 # 6) dry_spell
