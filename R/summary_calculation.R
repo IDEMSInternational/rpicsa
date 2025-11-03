@@ -50,25 +50,27 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL, stat
   checkmate::assert_numeric(na_n_non, lower = 0, null.ok = TRUE)
   
   # creating the year and month columns if they do not exist
-  if (is.null(year)) {
-    data_book$split_date(data_name=data, col_name=date_time, year_val=TRUE, s_start_month=1)
-    year <- "year"
-  }
-  
-  if (is.null(month)) {
-    data_book$split_date(data_name=data, col_name=date_time, month_val=TRUE, s_start_month=1)
-    month <- "month"
-    to = "annual"
-  }
-  else {
-    to = "monthly"
-  }
+  # if (is.null(year)) {
+  #   data_book$split_date(data_name=data, col_name=date_time, year_val=TRUE, s_start_month=1)
+  #   year <- "year"
+  # }
+  # 
+  # if (is.null(month)) {
+  #   data_book$split_date(data_name=data, col_name=date_time, month_val=TRUE, s_start_month=1)
+  #   month <- "month"
+  #   to = "annual"
+  # }
+  # else {
+  #   to = "monthly"
+  # }
   
   # creating the grouping list
   grouping_vars <- c()
   if (!is.null(station)) { grouping_vars <- c(grouping_vars, station) }
-  if (to == "annual") { grouping_vars <- c(grouping_vars, year) }
-  if (to == "monthly") { grouping_vars <- c(grouping_vars, month) }
+  if (!is.null(year)) { grouping_vars <- c(grouping_vars, year) }
+  if (!is.null(month)) { grouping_vars <- c(grouping_vars, month) }
+  # if (to == "annual") { grouping_vars <- c(grouping_vars, year) }
+  # if (to == "monthly") { grouping_vars <- c(grouping_vars, month) }
   
   # creating the summaries list
   summaries_all <- c()

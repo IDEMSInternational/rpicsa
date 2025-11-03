@@ -26,19 +26,18 @@ test_that("Returns correct yearly summaries", {
   summary_temperature(
     data      = "niger",
     date_time = "date",
+    year      = "year",
     station   = "station_name",
     tmin      = "tmin",
-    to        = "annual",
     data_book = data_book
   )
   y_year <- data_book$get_data_frame("niger_by_station_name_year")
   
   y_month <- summary_temperature(data = "niger",
-                                 year = "year",
                                  date_time = "date",
+                                 month = "month",
                                  station = "station_name",
                                  tmin = "tmin",
-                                 to = "monthly",
                                  data_book = data_book)
   y_month <- data_book$get_data_frame("niger_by_station_name_month")
   
@@ -52,7 +51,6 @@ test_that("Returns correct yearly summaries", {
                                    year = "year",
                                    date_time = "date",
                                    station = "station_name",
-                                   to = "monthly",
                                    data_book = data_book),
                "At least one of 'tmin' or 'tmax' must be provided.")
 })

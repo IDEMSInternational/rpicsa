@@ -101,7 +101,7 @@
 #'                   doy = "doy",
 #'                   rain = "rain",
 #'                   rain_totals = c(0, 50),
-#'                   plant_days = c(200, 215, 230),
+#'                   plant_days = seq(from = 200, to = 230, by = 15),
 #'                   plant_lengths = c(15, 30, 45),
 #'                   start_check = "both",
 #'                   season_data_name = "daily_data_by_station_name_year",

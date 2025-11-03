@@ -80,6 +80,14 @@ annual_rain <- function(data, date_time = NULL, year = NULL, station = NULL, rai
     columns_to_summarise <- c("rainfall_count", columns_to_summarise)
   }
   
+  if (is.null(year)) {
+    data_book$split_date(data_name = data, 
+                         col_name = date_time, 
+                         year_val = TRUE, 
+                         s_start_month = s_start_month)
+    year <- "year"
+  }
+  
   summary_calculation(data = data,
                       date_time = date_time,
                       station = station,

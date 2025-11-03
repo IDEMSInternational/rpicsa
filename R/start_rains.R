@@ -9,7 +9,7 @@
 #' @param station \code{character(1)} Name of the station column, if multiple stations are present. Default \code{NULL}.
 #' @param year \code{character(1)} Name of the year column. If \code{NULL}, it will be created from \code{date_time}.
 #' @param rain \code{character(1)} Name of the rainfall column (mm) to evaluate.
-#' @param threshold \code{numeric(1)} Minimum rainfall on a single day to count as “rain.” Default \code{0.85} mm.
+#' @param threshold \code{numeric(1)} Minimum rainfall on a single day to count as “rain.” Default \code{0.85}mm.
 #' @param doy \code{character(1)} Name of the day‐of‐year column. If \code{NULL}, it will be created from \code{date_time}.
 #' @param start_day \code{integer(1)} Earliest day of year (1–366) to consider. Default \code{1}.
 #' @param end_day \code{integer(1)} Latest day of year (1–366) to consider. Default \code{366}.
@@ -90,7 +90,6 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain, thre
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
-  checkmate::assert_string(evaporation_variable, null.ok = TRUE)
   data_frame <- data_book$get_data_frame(data)
   assert_column_names(data_frame, rain)
   assert_column_names(data_frame, date_time)
@@ -99,7 +98,6 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain, thre
   if (!is.null(station)) assert_column_names(data_frame, station)
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(doy)) assert_column_names(data_frame, doy)
-  if (!is.null(evaporation_variable)) assert_column_names(data_frame, evaporation_variable)
   
   checkmate::assert_numeric(threshold, lower = 0)
   checkmate::assert_int(start_day, lower = 1, upper = 365)
@@ -109,33 +107,44 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain, thre
   checkmate::assert_character(output)
   checkmate::assert_int(total_rainfall_over_days, lower = 1)
   checkmate::assert_string(total_rainfall_comparison)
-  checkmate::assert_int(amount_rain, lower = 0)
-  checkmate::assert_number(prob_rain_day, lower = 0, upper = 1)
-  checkmate::assert_number(fraction, lower = 0, upper = 1)
+  
+  if (total_rainfall_comparison == "amount"){
+    checkmate::assert_int(amount_rain, lower = 0)
+  }
+  if (total_rainfall_comparison == "proportion"){
+    checkmate::assert_number(prob_rain_day, lower = 0, upper = 1)
+  }
+  if (total_rainfall_comparison == "evaporation"){
+    checkmate::assert_number(fraction, lower = 0, upper = 1)
+    checkmate::assert_string(evaporation_variable)
+    assert_column_names(data_frame, evaporation_variable)
+  }
+  
+  # Checks for the three other options
   checkmate::assert_logical(number_rain_days)
   checkmate::assert_logical(dry_spell)
   checkmate::assert_logical(dry_period)
-  checkmate::assert_int(min_rain_days, lower = 0)
-  checkmate::assert_int(rain_day_interval, lower = 1)
-  checkmate::assert_int(spell_interval, lower = 1)
-  checkmate::assert_int(spell_max_dry_days, lower = 0)
-  checkmate::assert_int(period_interval, lower = 1)
-  checkmate::assert_int(max_rain, lower = 0)
-  checkmate::assert_int(period_max_dry_days, lower = 0)
-
+  
   if (number_rain_days){
+    checkmate::assert_int(min_rain_days, lower = 0)
+    checkmate::assert_int(rain_day_interval, lower = 1)
     if (rain_day_interval < min_rain_days)
       stop("Value given in `rain_day_interval` must be equal to or greater than the value given in `min_rain_days`")
   }
   if (dry_spell){
+    checkmate::assert_int(spell_interval, lower = 1)
+    checkmate::assert_int(spell_max_dry_days, lower = 0)
     if (spell_interval < spell_max_dry_days)
       stop("Value given in `spell_interval` must be equal to or greater than the value given in `spell_max_dry_days`")
   }
   if (dry_period){
+    checkmate::assert_int(period_interval, lower = 1)
+    checkmate::assert_int(max_rain, lower = 0)
+    checkmate::assert_int(period_max_dry_days, lower = 0)
     if (period_interval < period_max_dry_days)
       stop("Value given in `period_interval` must be equal to or greater than the value given in `period_max_dry_days`")
-  } 
-  
+  }
+
   # calculate doy, year from date
   if(is.null(year)){#if(!year %in% names(data)) { # do instead of is.null because of epicsawrap. we always read in "year" whether it exists or not.
     data_book$split_date(data_name = data,
@@ -371,7 +380,7 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain, thre
     calculated_from_list <- c(setNames("start_rain_status", linked_data_name), setNames("start_rain", linked_data_name))
     start_rain_status2 <- instatCalculations::instat_calculation$new(
       type="calculation", 
-      function_exp="ifelse(!is.na(start_rain), TRUE, start_rain_status)", 
+      function_exp="ifelse(!is.na(start_rain), TRUE, ifelse(start_rain_status == TRUE, NA, start_rain_status))",
       calculated_from=calculated_from_list, 
       result_name="start_rain_status", 
       save=2)
