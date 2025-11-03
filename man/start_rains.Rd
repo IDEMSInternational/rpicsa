@@ -47,7 +47,7 @@ start_rains(
 
 \item{rain}{\code{character(1)} Name of the rainfall column (mm) to evaluate.}
 
-\item{threshold}{\code{numeric(1)} Minimum rainfall on a single day to count as “rain.” Default \code{0.85} mm.}
+\item{threshold}{\code{numeric(1)} Minimum rainfall on a single day to count as “rain.” Default \code{0.85}mm.}
 
 \item{doy}{\code{character(1)} Name of the day‐of‐year column. If \code{NULL}, it will be created from \code{date_time}.}
 

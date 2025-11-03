@@ -9,7 +9,7 @@
 #' @param station \code{character(1)} Name of the station column, if multiple stations are present. Default \code{NULL}.
 #' @param year \code{character(1)} Name of the year column. If \code{NULL}, it will be created from \code{date_time}.
 #' @param rain \code{character(1)} Name of the rainfall column (mm) to evaluate.
-#' @param threshold \code{numeric(1)} Minimum rainfall on a single day to count as “rain.” Default \code{0.85} mm.
+#' @param threshold \code{numeric(1)} Minimum rainfall on a single day to count as “rain.” Default \code{0.85}mm.
 #' @param doy \code{character(1)} Name of the day‐of‐year column. If \code{NULL}, it will be created from \code{date_time}.
 #' @param start_day \code{integer(1)} Earliest day of year (1–366) to consider. Default \code{1}.
 #' @param end_day \code{integer(1)} Latest day of year (1–366) to consider. Default \code{366}.
