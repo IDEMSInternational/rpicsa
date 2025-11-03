@@ -9,7 +9,6 @@
 #' @param month \code{character(1)} The name of the month column in \code{data}. If \code{NULL} it will be created using \code{lubridate::month(data[[date_time]])}.
 #' @param station \code{character(1)} The name of the station column in \code{data}, if the data are for multiple station.
 #' @param additional_filter Any additional filters to account for (e.g., see \code{seasonal_rain}).
-#' @param to \code{character(1)} Default `annual`. The period of time to calculate the mean temperature columns over (options are `annual` or `monthly`).
 #' @param summaries \code{character} The summaries to display. Options are `"mean"`, `"max"`, `"min"`, `"sum"`
 #' @param na_rm \code{logical(1)}. Should missing values (including \code{NaN}) be removed?
 #' @param na_prop \code{integer(1)} Max proportion of missing values allowed
@@ -20,7 +19,7 @@
 #'
 #' @return A data.frame with summaries for the columns_to_summarise specified by year and/or month (and optionally station)
 summary_calculation <- function(data, date_time, year = NULL, month = NULL, station = NULL,
-                                columns_to_summarise, to = c("annual", "monthly"), additional_filter = NULL,
+                                columns_to_summarise, additional_filter = NULL,
                                 summaries = c("mean", "min", "max", "sum"), na_rm = FALSE,
                                 na_prop = NULL, na_n = NULL, na_consec = NULL, na_n_non = NULL,
                                 data_book = data_book){
@@ -28,8 +27,6 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL, stat
   if (is.null(data_book)) {
     data_book <- DataBook$new()
   }
-  
-  to <- match.arg(to)
   
   # Running checks
   checkmate::assert_string(data)
@@ -45,7 +42,6 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL, stat
   if (!is.null(month)) assert_column_names(data_frame, month)
   if (!is.null(station)) assert_column_names(data_frame, station)
   
-  checkmate::assert_string(to)
   checkmate::assert_character(summaries)
   checkmate::assert_logical(na_rm)
   checkmate::assert_numeric(na_prop, lower = 0, null.ok = TRUE)
@@ -59,9 +55,13 @@ summary_calculation <- function(data, date_time, year = NULL, month = NULL, stat
     year <- "year"
   }
   
-  if (to == "monthly" && is.null(month)) {
+  if (is.null(month)) {
     data_book$split_date(data_name=data, col_name=date_time, month_val=TRUE, s_start_month=1)
     month <- "month"
+    to = "annual"
+  }
+  else {
+    to = "monthly"
   }
   
   # creating the grouping list
