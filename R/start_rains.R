@@ -90,7 +90,6 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain, thre
   checkmate::assert_string(station, null.ok = TRUE)
   checkmate::assert_string(year, null.ok = TRUE)
   checkmate::assert_string(doy, null.ok = TRUE)
-  checkmate::assert_string(evaporation_variable, null.ok = TRUE)
   data_frame <- data_book$get_data_frame(data)
   assert_column_names(data_frame, rain)
   assert_column_names(data_frame, date_time)
@@ -99,7 +98,6 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain, thre
   if (!is.null(station)) assert_column_names(data_frame, station)
   if (!is.null(year)) assert_column_names(data_frame, year)
   if (!is.null(doy)) assert_column_names(data_frame, doy)
-  if (!is.null(evaporation_variable)) assert_column_names(data_frame, evaporation_variable)
   
   checkmate::assert_numeric(threshold, lower = 0)
   checkmate::assert_int(start_day, lower = 1, upper = 365)
