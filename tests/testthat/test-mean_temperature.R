@@ -28,7 +28,6 @@ test_that("Returns correct yearly summaries", {
     date_time = "date",
     station   = "station_name",
     tmin      = "tmin",
-    to        = "annual",
     data_book = data_book
   )
   y_year <- data_book$get_data_frame("niger_by_station_name_year")
@@ -38,7 +37,6 @@ test_that("Returns correct yearly summaries", {
                                  date_time = "date",
                                  station = "station_name",
                                  tmin = "tmin",
-                                 to = "monthly",
                                  data_book = data_book)
   y_month <- data_book$get_data_frame("niger_by_station_name_month")
   
@@ -52,7 +50,6 @@ test_that("Returns correct yearly summaries", {
                                    year = "year",
                                    date_time = "date",
                                    station = "station_name",
-                                   to = "monthly",
                                    data_book = data_book),
                "At least one of 'tmin' or 'tmax' must be provided.")
 })
