@@ -26,6 +26,7 @@ test_that("Returns correct yearly summaries", {
   summary_temperature(
     data      = "niger",
     date_time = "date",
+    year      = "year",
     station   = "station_name",
     tmin      = "tmin",
     data_book = data_book
@@ -33,8 +34,8 @@ test_that("Returns correct yearly summaries", {
   y_year <- data_book$get_data_frame("niger_by_station_name_year")
   
   y_month <- summary_temperature(data = "niger",
-                                 year = "year",
                                  date_time = "date",
+                                 month = "month",
                                  station = "station_name",
                                  tmin = "tmin",
                                  data_book = data_book)
