@@ -1,30 +1,41 @@
 #' Get Spells Data
-#' 
-#' This function calculates rainfall or climatic spells
-#' 
-#' @param data A data frame containing the data to be analysed.
-#' @param summary_data \code{character(1)} Name of the summary data frame in \code{data_book}
-#'   that contains the season boundary columns (e.g. \code{start_rain}, \code{end_rains}).
-#' @param date_time \code{character(1)} Column name (in \code{data}) of the date variable.
-#' @param year \code{character(1)} Column name (in \code{data}) of the year variable.
-#'   If \code{NULL}, it is created from \code{date_time} using \code{lubridate::year()} with
-#'   \code{s_start_month} applied.
-#' @param element The name of the column in 'data' for which extremes are to be found.
-#' @param station The name of the `station` column in 'data'. Default `NULL`.
-#' @param s_start_month \code{integer(1)} Month (1–12) to treat as the start of the “statistical year”
-#'   when deriving \code{year} or \code{doy} from \code{date_time}. Default \code{1} (January).
-#' @param doy \code{character(1)} The name of the day of year column in \code{data} to apply the function to. If \code{NULL} it will be created using the \code{date_time} variable.
-#' @param day_from Either the column name in \code{summary_data} giving the start of rains, or an integer of the initial start day.
-#' @param day_to Either the column name in \code{summary_data} giving the end of rains, or an integer of the final end day.
-#' @param direction A character string specifying the direction for the operation. It can be either `"greater"`, `"less"`, `"between"`, or `"outer"`.
-#' @param value A numeric value specifying the threshold value (e.g., 50 mm for rainfall). This is then the upper bound value if `direction == "between"` or `direction == "outer"`.
-#' @param lb_value A numeric value for the lower bound if `direction == "between"` or `direction == "outer"`.
-#' @param return_max_spell A boolean (default `TRUE`) to return the duration of the longest spell by year (and station)
-#' @param return_all_spells A boolean (default `FALSE`) to return a data frame containing all end dates of the defined spell across years (and stations).
-#' @param data_book The \code{DataBook} (R6) object holding \code{data} and \code{summary_data}.
-#' 
+#'
+#' Identify and summarise spells of days meeting a rainfall (or other climatic)
+#' condition over a given seasonal window.
+#'
+#' A "spell" is a sequence of consecutive days where a condition holds. For 
+#' example, if rainfall >= 0.85 mm is considered a wet day, then a spell of 
+#' dry days is a sequence of days where rainfall < 0.85 mm.
+#'
+#' Spells can be defined using a *greater*, *less*, *between*, or *outer*
+#' threshold rule, e.g.:
+#' * `direction = "greater"` + `value = 10`: Here, a wet day is defined where rainfall >= 10.
+#' This function then calculates the longest number of dry days (rain < 10) by year and station.
+#'
+#' @param data A data frame or data-frame name in `data_book` containing daily data.
+#' @param summary_data Optional. Name of the summary data frame in `data_book`
+#'   that contains start/end-of-season columns (e.g. `"start_rain"`, `"end_rains"`).
+#' @param date_time Name of the date column in `data`.
+#' @param year Name of the year column in `data`. If `NULL`, a year is computed
+#'   from `date_time`, adjusted by `s_start_month`.
+#' @param element Name of the climatic variable to evaluate (e.g., `"rain"`).
+#' @param station Name of the station column in `data`. Default `NULL`.
+#' @param s_start_month Integer month (1–12) defining the “statistical year”
+#'   start for converting dates to year or DOY. Default `1` (January).
+#' @param doy Name of day-of-year column. If `NULL`, generated from `date_time`.
+#' @param day_from Column name in `summary_data` or numeric value defining the
+#'   first day of the period to evaluate spells.
+#' @param day_to Column name in `summary_data` or numeric value defining the
+#'   last day of the period to evaluate spells.
+#' @param direction One of `"greater"`, `"less"`, `"between"`, or `"outer"`.
+#' @param value Numeric threshold. If `direction = "between"` or `"outer"`, this is the upper bound.
+#' @param lb_value Numeric lower bound if `direction = "between"` or `"outer"`.
+#' @param return_max_spell Logical (default `TRUE`). Return longest spell per year/station.
+#' @param return_all_spells Logical (default `FALSE`). Return table of all spells.
+#' @param data_book The `DataBook` (R6) object storing input and output data.
+#'
+#' @return Data frame containing spells data
 #' @export
-#' @return The calculated spells
 #' 
 #' @examples
 #' # Example: Get the length of the longest spell between day 1 and 366 in the data
@@ -178,10 +189,14 @@ get_spells_data <- function(data, date_time = NULL, year = NULL, station = NULL,
   
   if (return_max_spell){
     # Checking if the column names for start and end rains were given, else use the numeric values (1 to 366).
-    if (!is.numeric(day_from) & !is.numeric(day_to)){
-      calc_from <- setNames(list("doy", c(day_from, day_to)), c(data, summary_data))
-    } else {
+    if (is.null(summary_data)){
       calc_from <- setNames(list("doy"), c(data))
+    } else {
+      if (!is.numeric(day_from) & !is.numeric(day_to)){
+        calc_from <- setNames(list("doy", c(day_from, day_to)), c(data, summary_data))
+      } else {
+        calc_from <- setNames(list("doy"), c(data))
+      }
     }
     
     fn_day_exps <- paste0(doy, " >= ", day_from, " & ", doy, " <= ", day_to)
