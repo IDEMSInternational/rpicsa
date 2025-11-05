@@ -116,8 +116,9 @@ start_rains <- function(data, date_time, station = NULL, year = NULL, rain, thre
   }
   if (total_rainfall_comparison == "evaporation"){
     checkmate::assert_number(fraction, lower = 0, upper = 1)
-    checkmate::assert_string(evaporation_variable)
-    assert_column_names(data_frame, evaporation_variable)
+    checkmate::assert_string(evaporation_variable, null.ok = TRUE)
+    if (!is.null(evaporation_variable)) assert_column_names(data_frame, evaporation_variable)
+    if (!is.null(fraction)) stop("One of fraction or evaporation variable must be given")
   }
   
   # Checks for the three other options
